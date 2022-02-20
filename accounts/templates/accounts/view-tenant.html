@@ -82,7 +82,7 @@
                         </div>
                       </div>
                     </div>
-                    <a class="btn btn-outline-success" href="{% url 'update-tenant' tenant_instance.rented_unit.building.slug tenant_instance.user.username %}"> Update </a>
+                    <a class="btn btn-outline-success" href="{% url 'update-tenant' tenant_instance.rented_unit.building.slug tenant_instance.associated_account.username %}"> Update </a>
                 </div>
             </div>
         </div>

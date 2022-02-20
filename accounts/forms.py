@@ -30,11 +30,13 @@ class AddManagerForm(forms.ModelForm):
 class TenantsForm(forms.ModelForm):
     def __init__(self, building, *args, **kwargs):
         super(TenantsForm,self).__init__(*args, **kwargs)
-        self.fields['rented_unit'].queryset = RentalUnit.objects.filter(building=building, status='ready')
+        self.fields['rented_unit'].queryset = RentalUnit.objects.filter(building=building)
     class Meta:
         model = Tenants
         fields = ['associated_account', 'full_name', 'id_number', 'id_front', 'id_back', 'active_phone_number', 
         'rented_unit','policy_agreement', 'moved_in', 'move_in_date']
         widgets = {
-            'move_in_date': DateInput()
+            'move_in_date': DateInput(),
+            'id_back': forms.FileInput,
+            'id_front': forms.FileInput,
         }

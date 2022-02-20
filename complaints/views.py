@@ -5,7 +5,7 @@ from django.shortcuts import redirect, render
 from rental_property.models import Building, RentalUnit
 from django.forms import modelformset_factory
 from complaints.forms import UnitReportAlbumForm, UnitReportForm
-from complaints.models import Complaints, UnitReport, UnitReportAlbum
+from complaints.models import Complaints, UnitReport, UnitReportAlbum, UnitReportType
 from django.contrib import messages
 
 User = get_user_model()
@@ -15,7 +15,7 @@ User = get_user_model()
 def create_a_report(request, unit_slug, username):
     unit = RentalUnit.objects.get(slug=unit_slug)
     user_instance = User.objects.get(username=username)
-    tenant_instance = Tenants.objects.get(user_id=user_instance)
+    tenant_instance = Tenants.objects.get(associated_account_id=user_instance)
     image_form_set = modelformset_factory(
         UnitReportAlbum, form=UnitReportAlbumForm, extra=5)
 
@@ -46,3 +46,21 @@ def create_a_report(request, unit_slug, username):
         formset = image_form_set(queryset=UnitReportAlbum.objects.none())
     context = {'report_form': report_form, 'formset': formset}
     return render(request, 'complaints/make-report.html', context)
+
+@login_required
+def view_reports(request, building_slug):
+    building = Building.objects.get(slug=building_slug)
+
+    status = request.GET.get('status', 'received')
+
+    if status == 'received':
+        reports = UnitReport.objects.filter(unit__building=building, status='rc')
+    elif status == 'processing':
+        reports = UnitReport.objects.filter(unit__building=building, status='pr')
+    elif status == 'caancelled':
+        reports = UnitReport.objects.filter(unit__building=building, status='dr')
+    elif status == 'resolved':
+        reports = UnitReport.objects.filter(unit__building=building, status='rs')
+
+    context = {'reports': reports, 'building': building,}
+    return render(request, 'complaints/reports-by-building.html', context)

@@ -90,7 +90,8 @@ class UnitType(models.Model):
 class RentalUnit(models.Model):
     MAINTANANCE_STATUS_CHOICES = [
         ('nm', 'Needs Inspection'),
-        ('ip', 'Inspection In Progress'),
+        ('ip', 'Initiating Inspection'),
+        ('ir', 'Maintanance In Progress'),
         ('op', 'No Active Reports'),
     ]
     STATUS_CHOICES = [

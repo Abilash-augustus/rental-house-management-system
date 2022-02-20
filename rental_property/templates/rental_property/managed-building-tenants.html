@@ -62,11 +62,11 @@
                             <tbody id='ourTable'>
                                 {% for tenant in tenants %}
                               <tr>
-                                <th scope="row">{{ tenant.user }}</th>
+                                <th scope="row">{{ tenant.associated_account }}</th>
                                 <td>{{ tenant.rented_unit.unit_number }}</td>
                                 <td> {{ tenant.rented_unit.get_maintanance_status_display}} </td>
                                 <td> {{ tenant.active_phone_number}} </td>
-                                <td><a href="{% url 'view-tenant' building.slug tenant.user.username %}"> <h5> view </h5> </a></td>
+                                <td><a href="{% url 'view-tenant' building.slug tenant.associated_account.username %}"> <h5> view </h5> </a></td>
                               </tr>
                               {% empty %}
                               <tbody>

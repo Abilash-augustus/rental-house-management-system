@@ -1,13 +1,13 @@
 import string
 from datetime import datetime
-
+import random
 from accounts.models import Tenants
 from django.db import models
 from rental_property.models import RentalUnit
 from django.utils.text import slugify
 
 def get_report_image_path(instance, filename):
-    user = instance.unit_report.reported_by.user.username
+    user = instance.unit_report.reported_by.associated_account.username
     unit = instance.unit_report.unit.unit_number
     return "unit-images/{0}/{1}/{2}".format(user, unit, filename)
 
@@ -34,7 +34,9 @@ class UnitReport(models.Model):
         ('rc', 'Received'),
         ('pr', 'Processing'),
         ('rs', 'Resolved'),
+        ('dr', 'Dropped'),
     )
+    code = models.CharField(max_length=10, unique=True, null=True, blank=True)
     reported_by = models.ForeignKey(Tenants, on_delete=models.DO_NOTHING)
     unit = models.ForeignKey(RentalUnit, on_delete=models.DO_NOTHING)
     report_type = models.ForeignKey(UnitReportType, on_delete=models.DO_NOTHING)
@@ -44,6 +46,8 @@ class UnitReport(models.Model):
     updated = models.DateTimeField(auto_now=True)
 
     def save(self, *args, **kwargs):
+        if not self.code:
+            self.code = ''.join(random.choices(string.ascii_lowercase+string.digits + string.ascii_uppercase, k=7))
         if self.status == 'rc':
             RentalUnit.objects.filter(pk=self.unit_id).update(maintanance_status='nm')
         elif self.status == 'rs':
@@ -54,6 +58,9 @@ class UnitReport(models.Model):
 
     def __str__(self):
         return f"{self.reported_by} - {self.report_type}"
+
+    class Meta:
+        verbose_name_plural = 'Reports By Tenants'
 
 class UnitReportAlbum(models.Model):
     unit_report = models.ForeignKey(UnitReport, on_delete=models.CASCADE)

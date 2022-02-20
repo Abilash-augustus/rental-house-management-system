@@ -92,8 +92,8 @@ class Tenants(models.Model):
     def save(self, *args, **kwargs):
         if self.moved_in == True:
             User.objects.filter(pk=self.associated_account_id).update(is_tenant=True)
-            #if self.rented_unit:
-                #RentalUnit.objects.filter(pk=self.rented_unit_id).update(status='occupied')
+            if self.rented_unit:
+                RentalUnit.objects.filter(pk=self.rented_unit_id).update(status='occupied')
         else:
             User.objects.filter(pk=self.associated_account_id).update(is_tenant=False)
         super().save(*args, **kwargs)

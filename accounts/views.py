@@ -60,7 +60,7 @@ def add_new_manager(request):
 def view_tenant_profile(request, building_slug, username):
     building = Building.objects.get(slug=building_slug)
     user_instance = User.objects.get(username=username)
-    tenant_instance = Tenants.objects.get(user_id=user_instance, rented_unit__building=building)
+    tenant_instance = Tenants.objects.get(associated_account_id=user_instance, rented_unit__building=building)
     context = {'tenant_instance': tenant_instance, 'user_instance':user_instance}
     return render(request, 'accounts/view-tenant.html', context)
 
@@ -85,7 +85,7 @@ def add_tenant(request, building_slug):
 def update_tenant(request, building_slug, username):
     building = Building.objects.get(slug=building_slug)
     tenant_user = User.objects.get(username=username)
-    tenant = Tenants.objects.get(user_id=tenant_user, rented_unit__building=building)
+    tenant = Tenants.objects.get(associated_account_id=tenant_user, rented_unit__building=building)
 
     if request.method == 'POST':
         tenant_form = TenantsForm(building, request.POST, instance=tenant)
@@ -93,7 +93,7 @@ def update_tenant(request, building_slug, username):
             tenant_form.instance.user = tenant_user
             tenant_form.save()
             messages.success(request, 'Tenant was updated successfully!')
-            return redirect('operational-buildings')
+            return redirect('building-tenants', building_slug=building.slug)
     else:
         tenant_form = TenantsForm(building, instance=tenant)
     context = {'tenant_user':tenant_user,'tenant_form': tenant_form}
