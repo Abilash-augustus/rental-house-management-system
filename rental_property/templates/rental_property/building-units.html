@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% block metadescription %} Units in {{building.name}} {% endblock %}
+{% block head_title %} {{building.name}} {% endblock %}
+{% block content %} 
+<br/>
+
+<section class="container p-5">
+    <!-- Houses -->
+    <h3> ({{unit_count}}) Available Rental Units in [{{building.name}}] </h3>
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+        {% for unit in rental_units %}
+        <div class="col">
+            <div class="card h-100">
+                <div class="card-body">
+                    <em class="p-2">UNIT NUMBER: {{ unit.unit_number }}</em> <br>
+                    <a class="btn card-title" href="{{unit.get_url}}"> <h5> view more about {{unit.unit_number|slice:30}}</h5> </a>
+                    <p class="card-text"></p>
+                </div>
+                <div class="card-footer">
+                    <small class="text-muted">Status: {{unit.get_status_display}}</small>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+
+        <div class="row g-4">
+            <p> There are no empty units at the moment, Please try again later! </p>
+        </div>
+
+        {% endfor%}
+    </div>
+</section>
+
+{% endblock %}

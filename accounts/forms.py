@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.auth import get_user_model
 
 from accounts.models import Managers, Profile, Tenants
-
+from rental_property.models import RentalUnit
 User = get_user_model()
 
 class DateInput(forms.DateInput):
@@ -26,3 +26,15 @@ class AddManagerForm(forms.ModelForm):
     class Meta:
         model = Managers
         exclude = ['added_by', 'status', 'created', 'updated']
+
+class TenantsForm(forms.ModelForm):
+    def __init__(self, building, *args, **kwargs):
+        super(TenantsForm,self).__init__(*args, **kwargs)
+        self.fields['rented_unit'].queryset = RentalUnit.objects.filter(building=building, status='ready')
+    class Meta:
+        model = Tenants
+        fields = ['associated_account', 'full_name', 'id_number', 'id_front', 'id_back', 'active_phone_number', 
+        'rented_unit','policy_agreement', 'moved_in', 'move_in_date']
+        widgets = {
+            'move_in_date': DateInput()
+        }

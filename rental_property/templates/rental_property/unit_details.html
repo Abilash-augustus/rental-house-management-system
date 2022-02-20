@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% block content %}
+<br>
+<section class="container" style="margin-top:2%;">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-sm-12">
+            <div id="hrmscarousel" class="carousel slide" data-bs-ride="carousel">
+                <!--Indicators-->
+                <ol class="carousel-indicators">
+                    {% for photo in image_album %}
+                    <li data-bs-target="#hrmscarousel" data-bs-slide-to="{{ forloop.counter0 }}" class="{% if forloop.counter0 == 0 %} active {% endif %}"></li>
+                    {% endfor %}
+                </ol>
+                <!--/.Indicators-->
+        
+                <!--Slides-->
+                <div class="carousel-inner" role="listbox">
+                    {% for photo in image_album %}
+                    <div class="carousel-item {% if forloop.counter0 == 0 %} active {% endif %}">
+                        <img class="d-block w-100" src="{{photo.image.url}}" alt="bng_slides">
+                    </div>
+                    {% endfor %}
+                    <!--/.Slides-->
+                    <!--Controls-->
+                    <a class="carousel-control-prev" href="#hrmscarousel" role="button" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="sr-only">Previous</span></a>
+                    <a class="carousel-control-next" href="#hrmscarousel" role="button" data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="sr-only">Next</span></a>
+                </div>
+              </div>
+        </div>
+
+        <div class="container  mt-5 ">
+            <div class="row d-flex justify-content-center">
+              <div class="col-md-8">
+
+                <div class="card p-3 mt-2">
+                    <div class="justify-content-between align-items-center">
+                        <div class="user flex-row align-items-center">
+                          <small class="font-weight-bold text-primary">Manager: {{ building.manager.username }}</small> <br>
+                          <small class="font-weight-bold text-primary">Building: {{ building.name }}</small>
+                        </div>
+                        <small class="font-weight-bold">Unit status: {{ unit.get_status_display}}</small> <br>
+                        <small class="font-weight-bold">Bedrooms: {{unit.bedrooms}} </small> <br>
+                        <small class="font-weight-bold">Bathrooms: {{unit.bathrooms}} </small> <br>
+                        <small class="font-weight-bold">Monthly rent: #TODO </small> <br>
+                        <small class="font-weight-bold">Auxiliary: #TODO</small> <br>
+                        <div class="d-flex flex-row align-items-center"> 
+                        {% if unit.status == 'occupied' %}
+                        <p> <small> <span class="btn"> Already Occupied </span> </small></p>
+                        {% else %}
+                        <p> <small> <a href="{% url 'schedule-tour' unit.slug %}" class="btn btn-success"> Schedule A Visit </a> </small> </p> &nbsp;
+                        {% endif %}
+                        </div>
+                    </div>
+                </div>   
+
+              </div>
+            </div>
+          </div>
+
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% block metadescription %}page meta description here... {% endblock %}
+{% block content %} 
+<br/>
+
+<section class="container p-5">
+    <!-- Houses -->
+    <h3> Operational buildings to move in </h3>
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+        {% for building in operational_buildings %}
+        <div class="col">
+            <div class="card h-100">
+                <div class="card-body">
+                    <span class="p-2 card-title">Building Name: {{ building.name }}</span> <br>
+                    <a class="btn btn-outline-info" href="{{building.get_url}}"> Check Out Rental Units </a>
+                    <p class="card-text"></p>
+                </div>
+                <div class="card-footer">
+                    <small class="text-muted">Status: {{building.get_building_status_display}}</small>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+
+        <div class="row g-4">
+            <p> There are no empty buildings at the moment, Please try again later! </p>
+        </div>
+
+        {% endfor%}
+    </div>
+
+</section>
+
+{% endblock %}

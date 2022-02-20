@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'crispy_forms',
 
     'accounts.apps.AccountsConfig',
+    'rental_property',
 ]
 
 SITE_ID = 1

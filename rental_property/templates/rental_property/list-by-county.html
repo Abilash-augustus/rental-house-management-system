@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block metadescription %}
+	{% if county %}
+		{{ county.name}}
+	{% else %}
+		Welcome
+	{% endif %}
+{% endblock %}
+
+<!-- view in list-by- county -->
+
+{% block content %}
+<div class="container">
+	{% if county %}
+	<br>
+	<div>
+		<h1 class="text-center my_title"><strong>{{county.name}}</strong></h1>
+	</div>
+	{% endif %}
+
+	<div class="container">
+		<div class="row row-cols-1 row-cols-md-3 g-4">
+			{% for building in buildings %}
+            <div class="col">
+                <div class="card h-100">
+                    <img class="card-img-top" src="{{building.default_image.url}}" alt="{{building.name|slice:10}}.. image">
+                    <div class="card-body">
+                        <a class="btn card-title" href="{{building.get_url}}"> <h5>{{building.name|slice:30}}</h5> </a>
+                        <p class="card-text">Other details</p>
+                    </div>
+                    <div class="card-footer">
+                        <small class="text-muted">Added: {{building.created|timesince}} ago</small>
+                    </div>
+                </div>
+            </div>
+			{% empty %}
+				<p> Currently empty.</p>
+			{% endfor%}
+		</div>
+
+		{% include 'includes/pagination.html' %}
+		
+		<br>
+	</div>
+</div>
+{% endblock %}
+

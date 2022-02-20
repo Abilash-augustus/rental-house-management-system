@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block metadescription %} Add Rental Unit {% endblock %}
+{% load crispy_forms_tags %}
+
+{% block content %} 
+<div class="container py-5">
+<section>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {% for hidded in unit_form.hidden_fields %}
+            {{hidden}}
+        {% endfor %}
+
+        {% for field in unit_form %}
+            {{field|as_crispy_field}} </br>
+        {% endfor %}
+
+        {{ formset.management_form }}
+        {% for form in formset %}
+            {{ form|crispy }}
+        {% endfor %}
+        
+        <br/>
+        <input class="btn btn-primary" type="submit" name="submit" value="submit" />
+</section>
+</div>
+{% endblock %}

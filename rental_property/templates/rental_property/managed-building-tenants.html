@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+{% block metadescription %} All tenants {% endblock %}
+
+{% block extra_css %} 
+
+{% endblock %}
+{% block content %} 
+<br/>
+
+
+<div class="container-fluid">
+  <div class="row">
+
+      <div class="row min-vh-100 p-0 m-0">
+          <div class="d-flex align-items-center p-0">
+              <main class="text-center p-5 w-100">
+
+                <div class="col">
+                  <div class="card h-100">
+                      <div class="card-body">
+                          <span class="p-2">Name: {% if building %} {{building.name }} {% endif %}</span> <br>
+                          <span class="p-2">Estate: {% if building.estate %} {{building.estate }} {% else %} Not Listed{% endif %}</span> <br>
+                          <span class="p-2">Registered owner: {{building.registered_owner }}</span> <br>
+                          <span class="p-2"> Address Line: {{building.address_line}} </span> <br>
+                          <span class="p-2"> County: {{building.county}} </span> <br>
+                          <span class="p-2"> Country: {{building.country}} </span> <br>
+                          <span class="p-2"> Occupied Units: {{oc_units_count}} </span> <span class="p-2"> Unoccupied Units: {{em_units_count}} </span> <br>
+                          {% if user.is_manager %}
+                          <a class="btn btn-outline-success" href="{% url 'add-rental-unit' building.slug %}"> Add rental unit </a> &nbsp;
+                          <a class="btn btn-outline-success" href="{% url 'add-new-tenant' building.slug %}"> Add Tenants </a>
+                          {% endif %}
+                          <p class="card-text"></p>
+                      </div>
+                      <div class="card-footer">
+                          <small class="text-muted">Status: {{building.get_building_status_display}}</small>
+                      </div>
+                  </div>
+              </div>
+                  <!-- Start main content -->
+                  <section class="container d-flex justify-content-center p-5">
+                    <div class="row ">
+
+                      <div class="card card-body">
+                        <div class="d-grid gap-2 d-md-block">
+                            <a href="?status=current-tenants" type="button" class="btn btn-outline-success" role="button">Active Tenants ({{active_tenants_count}})</a>
+                            <a href="?status=not-moved-in" type="button" class="btn btn-outline-info" role="button">Waiting Move In ({{waiting_tenants_count}})</a>
+                          </div>
+        
+                          &nbsp; &nbsp;
+                          
+                        <input class="form-control" id="myInput" type="text" placeholder="Search..">
+                        <table class="table table-striped table-hover">
+                            <thead>
+                              <tr>
+                                <th scope="col">Full Name</th>
+                                <th scope="col">Occupied Unit</th>
+                                <th scope="col"> Unit Maintanance Status </th>
+                                <th scope="col"> Active Phone </th>
+                                <th scope="col">Update</th>
+                              </tr>
+                            </thead>
+                            <tbody id='ourTable'>
+                                {% for tenant in tenants %}
+                              <tr>
+                                <th scope="row">{{ tenant.user }}</th>
+                                <td>{{ tenant.rented_unit.unit_number }}</td>
+                                <td> {{ tenant.rented_unit.get_maintanance_status_display}} </td>
+                                <td> {{ tenant.active_phone_number}} </td>
+                                <td><a href="{% url 'view-tenant' building.slug tenant.user.username %}"> <h5> view </h5> </a></td>
+                              </tr>
+                              {% empty %}
+                              <tbody>
+                                <tr>
+                                  <td>
+                              <p> Nothing to display! </p>
+                                  </td>
+                                </tr>
+                              </tbody>
+                              {% endfor %}
+                
+                            </tbody>
+                        </table>
+                </div>
+            </div>
+                  <!-- testing end -->
+                  <!-- end maincontent -->
+              </main>
+          </div>
+      </div>
+  </div>
+</div>
+
+{% endblock %}
