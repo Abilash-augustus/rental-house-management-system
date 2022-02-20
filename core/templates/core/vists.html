@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block metadescription %} Visits {% endblock %}
+
+{% block content %} 
+<div class="container-fluid">
+<section class="container d-flex justify-content-center p-5">
+    <div class="row">
+
+            <div class="card card-body">
+                <div class="d-grid gap-2 d-md-block">
+                    <a href="?filter=waiting" type="button" class="btn btn-outline-info" role="button">Waiting</a>
+                    <a href="?filter=visited" type="button" class="btn btn-outline-success" role="button">Visited</a>
+                    <a href="?filter=cancelled" type="button" class="btn btn-outline-danger" role="button">Cancelled</a>
+                  </div>
+
+                  &nbsp; &nbsp;
+
+                <input class="form-control" id="myInput" type="text" placeholder="Search..">
+                <table class="table table-striped table-hover">
+                    <thead>
+                      <tr>
+                        <th scope="col">Visit Code</th>
+                        <th scope="col">Full Name</th>
+                        <th scope="col"> Email </th>
+                        <th scope="col"> Visit Date </th>
+                        <th scope="col"> Message </th>
+                        <th scope="col">Visiting Unit</th>
+                        <th scope="col">Unit Status</th>
+                        <th scope="col">Visit Status</th>
+                        <th scope="col">Update</th>
+                      </tr>
+                    </thead>
+                    <tbody id='ourTable'>
+                        {% for visit in visits %}
+                      <tr>
+                        <th scope="row">{{ visit.visit_code }}</th>
+                        <td>{{ visit.full_name }}</td>
+                        <td>{{ visit.visitor_email }} </td>
+                        <td> {{visit.visit_date}} </td>
+                        <td> {% if visit.message %} {{ visit.message }} {% else %} No message left {% endif %}</td>
+                        <td> {{ visit.unit.unit_number }} </td>
+                        <td>{{ visit.unit.get_status_display }}</td>
+                        <td> {{ visit.get_visit_status_display}} </td>
+                        <td><a href="#"> <h5> update </h5> </a></td>
+                      </tr>
+                      {% empty %}
+                      <tbody>
+                        <tr>
+                          <td>
+                      <p> No waiting tenants available for display! </p>
+                          </td>
+                        </tr>
+                      </tbody>
+                      {% endfor %}
+        
+                    </tbody>
+                </table>
+        </div>
+    </div>
+    </div>
+</section>
+
+{% endblock %}

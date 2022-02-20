@@ -92,6 +92,7 @@
         My Rented Unit
       </div>
       <div class="card-body">
+        {% if tenant_instance.moved_in %}
         <h5 class="card-title"> Building: {{tenant_instance.rented_unit.building.name}} | Unit: <a href="{% url 'unit-details' tenant_instance.rented_unit.building.slug tenant_instance.rented_unit.slug %}">{{tenant_instance.rented_unit.unit_number}} <a> </h5>
         <p class="card-text">
           <span> Unit Status: {{ tenant_instance.rented_unit.get_status_display }} [{{tenant_instance.rented_unit.get_maintanance_status_display}}] </span>
@@ -106,6 +107,7 @@
             <a href="#" class="btn btn-outline-warning" role="button" type="button"> Request Unit Switch </a>
             <a href="#" class="btn btn-outline-danger" title='Put in your move out notice' role="button" type="button"> My Move Out Notice </a>
           </div>
+          {% endif %}
       <div class="card-footer text-muted">
         {% if tenant_instance.moved_in %} You moved in {{tenant_instance.move_in_date|timesince}} ago {% else %} You are not moved in yet {% endif %}
       </div>

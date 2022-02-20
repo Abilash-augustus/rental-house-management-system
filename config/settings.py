@@ -8,7 +8,7 @@ load_dotenv()
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = str(os.getenv('DJANGO_SECRET_KEY'))
-DEBUG = True
+DEBUG = False
 
 # Authentication handler for django/allauth
 AUTHENTICATION_BACKENDS = [
@@ -39,6 +39,8 @@ INSTALLED_APPS = [
 
     'accounts.apps.AccountsConfig',
     'rental_property',
+    'core',
+    'complaints',
 ]
 
 SITE_ID = 1
@@ -71,6 +73,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'rental_property.context_processors.my_managed_buildings',
+                'rental_property.context_processors.counties_links',
             ],
         },
     },

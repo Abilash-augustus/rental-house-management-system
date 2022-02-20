@@ -14,7 +14,7 @@ User = get_user_model()
 def my_profile(request):
     user = request.user
     if user.is_tenant:
-        tenant_instance = Tenants.objects.get(user=user)
+        tenant_instance = Tenants.objects.get(associated_account=user)
     else:
         tenant_instance = False
         
