@@ -1,0 +1,211 @@
+{% load static %}
+{% load i18n %}
+<!doctype html>
+<html lang="en">
+
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+
+    <link type="text/css" href="{% static 'css/main.css' %}" rel="stylesheet" crossorigin="anonymous">
+
+    <link rel="shortcut icon" href="{% static 'img/favicon.ico' %}"/>
+
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.11.2/css/all.css" integrity="sha384-zrnmn8R8KkWl12rAZFt4yKjxplaDaT7/EUkKm7AovijfrQItFWR7O/JJn4DAa/gx" crossorigin="anonymous">
+    <meta name="description" content="{% block metadescription %}{% endblock %}">
+
+    <title> House Rental Management System | {% block head_title %}{% trans "Home Page" %}{% endblock %}</title>
+
+    <style type="text/css">
+      .dropdown:hover>.dropdown-menu {
+        display: block;
+      }
+      .dropdown>.dropdown-toggle:active {
+        /*Without this, clicking will make it sticky*/
+          pointer-events: none;
+      }
+      </style>
+      {% block extra_css %} {% endblock %}
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+      {% block extra_head %} {% endblock %}
+  </head> 
+  <body class="d-flex flex-column min-vh-100" style="background-color: #dfe8da;">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light" aria-label="main-nav">
+        <div class="container-fluid"> 
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mynav" aria-controls="mynav" aria-expanded="false" aria-label="Toggle navigation">
+              <span class="navbar-toggler-icon"></span></button>
+          <a class="navbar-brand align" href="#">
+                <div class="d-flex">
+                    <div class="ms-3 d-flex flex-column">
+                        <div class="h4">Rental House Management System </div>
+                        <div class="fs-6">Property Managers</div>
+                    </div>
+                </div>
+            </a>
+  
+            <div class="collapse navbar-collapse" id="mynav">
+                <ul class="navbar-nav mb-lg-0">
+                    <li class="nav-item"> <a class="nav-link active" aria-current="page" href="#">Home</a> </li>
+                    <li class="nav-item"> <a class="nav-link" aria-current="page" href="#">Contact</a> </li>
+                    {% if user.is_manager %}
+                    <li class="nav-item"> <a class="nav-link" data-bs-toggle="offcanvas" href="#hrmsCanvas" role="button" aria-controls="hrmsCanvas">Manager Menu</a> </li>
+                    {% endif %}
+                    <li class="nav-item">
+                      <div class="dropdown">
+                        <button class="btn dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                          List by county
+                        </button>
+                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                          {% for county in county_links %}
+                          <a class="dropdown-item nav-link" href="{{county.get_url}}"> {{county.name}} </a>
+                          {% endfor %}
+                        </div>
+                      </div>
+                    </li>
+
+                </ul>
+
+                </div>
+
+                {% if request.user.is_authenticated %}
+                <div class="collapse navbar-collapse" id="mynav">
+                  <div class="dropdown">
+                    <a href="#" class="btn dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                      <em class="fas fa-user-circle"></em> {{ request.user.username }}
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton">
+    
+                      <a href="#" class="dropdown-item" class="dropdown-item"> Profile</a>
+                      <a href="#" class="dropdown-item" class="dropdown-item"> My History</a>
+                      <a href="{% url 'account_logout' %}" class="dropdown-item" type="button">Logout</a>
+                    </div>
+                  </div>
+    
+                </div>
+                {% else %}
+      
+                <div class="collapse navbar-collapse" id="mynav">
+                  <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                    <li class="nav-item"> <a class="nav-link" href="{% url 'account_signup' %}" type="button">SignUp</a></li>
+                    <li class="nav-item"> <a class="nav-link active" href="{% url 'account_login' %}" type="button">Login</a></li>
+                  </ul>
+                </div>
+                {% endif %}
+            </div>
+            
+            {% if user.is_manager %}
+            <div class="offcanvas offcanvas-start" tabindex="-1" id="hrmsCanvas" aria-labelledby="hrmsCanvasLabel">
+              <div class="offcanvas-header">
+                <h5 class="offcanvas-title" id="hrmsCanvasLabel">Managers' Menu</h5>
+                <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+              </div>
+
+              <div class="offcanvas-body">
+
+                <div class="container-fluid">
+                  <div>
+                    <ul class="d-lg-block">
+                      <div class="position-sticky">
+                        <div class="list-group list-group-flush mx-3 mt-4">
+                      <li class="list-group-item list-group-item-action py-2 ripple">
+                        <a class="nav-link" aria-current="page" href="#">Other link</a>
+                      </li>
+                      <li class="list-group-item list-group-item-action py-2 ripple">
+                        <a class="nav-link" href="#">Other</a>
+                      </li>
+                      <li class="list-group-item list-group-item-action py-2 ripple">
+                        <a class="nav-link" href="#"> Add New Managers</a>
+                      </li>
+                      <li class="nav-item dropdown list-group-item list-group-item-action py-2 ripple">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                          Building Visits
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                          {% for managed_building in managed_buildings %}
+                          <li><a class="dropdown-item list-group-item list-group-item-action py-2 ripple" href="#">{{managed_building.name}}</a></li>
+                          {% empty %}
+                          <li><a class="dropdown-item list-group-item list-group-item-action py-2 ripple" href="#notassigned">No buildings have been assigned to you yet!</a></li>
+                          {% endfor %}
+                        </ul>
+                      </li>
+                      <li class="list-group-item list-group-item-action py-2 ripple">
+                        <a class="nav-link" href="#">Other link</a>
+                      </li>
+                      <li class="nav-item dropdown list-group-item list-group-item-action py-2 ripple">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                          Managed Buildings
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                          {% for managed_building in managed_buildings %}
+                          <li><a class="dropdown-item list-group-item list-group-item-action py-2 ripple" href="#">{{managed_building.name}}</a></li>
+                          {% empty %}
+                          <li><a class="dropdown-item list-group-item list-group-item-action py-2 ripple" href="#notassigned">No buildings have been assigned to you yet!</a></li>
+                          {% endfor %}
+                        </ul>
+                      </li>
+                    </ul>
+                  </div>
+                  </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            {% endif %}
+
+    </nav>
+
+    
+
+<!-- messages to the user starts here -->
+    {% if messages %}
+        <ul class="messages" style="list-style-type: none">
+            {% for message in messages %}
+            <!-- create popup for this <li> tag -->
+            <li {% if message.tags %} class="user-alert {{ message.tags }}"{% endif %}>{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+  <!-- messages to the user ends here -->
+    {% block content %}	{% endblock content%}
+
+
+    <!-- live chat bot -->
+    <!--
+<script id="TelegramLiveChatLoader" data-bot="81B58C84-8B5C-11EC-A9B8-05FC22E822B5" src="//livechatbot.net/assets/chat/js/loader.js"></script>
+      -->
+
+
+<!-- in page search -->
+<script>
+  $(document).ready(function(){
+    $("#myInput").on("keyup", function() {
+      var value = $(this).val().toLowerCase();
+      $("#ourTable tr").filter(function() {
+        $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+      });
+    });
+  });
+  </script>
+<!-- in page table search -->
+
+<!-- alert messages display time -->
+<script>
+  $(".user-alert").delay(4000).slideUp(200, function() {
+    $(this).alert('close');
+    });
+</script>
+
+    <footer class="mt-auto bg-light">
+        <p class="text-center ">&copy; 2022</p>
+  </footer>
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+    
+  </body>
+</html>

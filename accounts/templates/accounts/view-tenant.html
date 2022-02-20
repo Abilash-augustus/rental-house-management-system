@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block metadescription %} Tenant Profile {% endblock %}
+
+{% block extra_css %}
+
+  {% endblock %}
+
+{% block content %}	
+<section style="background-color: #dfe8da;">
+    <div class="container-fluid py-5 h-100">
+
+      <div class="row d-flex justify-content-center align-items-center h-100">
+        <div class="col-12 col-md-8 col-lg-6 col-xl-7">
+          <div class="card shadow-2-strong" style="border-radius: 1rem;">
+            <div class="card-body p-5 text-center">
+                <br>
+                <div class="card mb-4">
+                    <div class="card-body text-center">
+                        <img src="{{user_instance.avatar.url}}" alt="{{user_instance.username}}'s avatar" class="rounded-circle img-fluid" style="width: 150px;">
+                        <h5 class="my-3">{{user_instance.username}}</h5>
+                        <div class="d-flex justify-content-center mb-2">
+                            {% if tenant_instance.moved_in %}
+                            <span class="badge bg-success"> Current Tenant</span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                <div class="card mb-4">
+                  <div class="card-body">
+                    <div class="row">
+                      <div class="col-sm-3">
+                        <p class="mb-0"> Unit </p>
+                      </div>
+                      <div class="col-sm-9">
+                        <a {% if tenant_instance.moved_in %} href="{% url 'unit-details' tenant_instance.rented_unit.building.slug tenant_instance.rented_unit.slug %}" {% else %} title="No unit occupied or reserved" {% endif %} ><p class="text-muted mb-0">{% if tenant_instance.moved_in %} {{tenant_instance.rented_unit.unit_number}} {% else %} Not allocated {% endif %}</p> </a>
+                      </div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                      <div class="col-sm-3">
+                        <p class="mb-0">Full Name</p>
+                      </div>
+                      <div class="col-sm-9">
+                        <p class="text-muted mb-0">{{user_instance.first_name}} {{user_instance.last_name}}</p>
+                      </div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                      <div class="col-sm-3">
+                        <p class="mb-0">Unit Maintanance Status</p>
+                      </div>
+                      <div class="col-sm-9">
+                        <p class="text-muted mb-0">{% if tenant_instance.moved_in %} {{tenant_instance.rented_unit.get_maintanance_status_display}} {% else %} N/A {% endif %}</p>
+                      </div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                      <div class="col-sm-3">
+                        <p class="mb-0">Move In</p>
+                      </div>
+                      <div class="col-sm-9">
+                        <p class="text-muted mb-0"> {% if tenant_instance.moved_in %} {{tenant_instance.move_in_date|timesince}} ago {% else %} N/A {% endif %}</p>
+                      </div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                      <div class="col-sm-3">
+                        <p class="mb-0">Phone Number</p>
+                      </div>
+                      <div class="col-sm-9">
+                        <p class="text-muted mb-0">{% if tenant_instance.active_phone_number %} {{ tenant_instance.active_phone_number }} {% else %} Not updated {% endif %}</p>
+                      </div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-sm-3">
+                          <p class="mb-0 fab fa-whatsapp fa-lg" style="color: #56c75d;"></p>
+                        </div>
+                        <div class="col-sm-9">
+                          <p class="text-muted mb-0">{{ tenant_instance.active_phone_number }}</p>
+                        </div>
+                      </div>
+                    </div>
+                    <a class="btn btn-outline-success" href="{% url 'update-tenant' tenant_instance.rented_unit.building.slug tenant_instance.user.username %}"> Update </a>
+                </div>
+            </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+
+<section style="background-color: #eee;">
+    <div class="container py-5">
+  
+      <div class="row">
+        <div class="col-lg-4">
+          <div class="card mb-4">
+            <div class="card-body text-center">
+              <img src="{{user.avatar.url}}" alt="{{user.username}}'s avatar" class="rounded-circle img-fluid" style="width: 150px;">
+              <h5 class="my-3">{{user.username}}</h5>
+              <div class="d-flex justify-content-center mb-2">
+                {% if user.is_manager and user.is_tenant %}
+                <button href="#" class="btn btn-outline-primary" title='Manager|Tenant Account' > Manager|Tenant </button>
+                {% elif user.is_tenant %}
+                <button href="#" class="btn btn-outline-primary" title='Tenant Account' > Tenant </button> &nbsp;
+                {% elif user.is_manager %}
+                <button href="#" class="btn btn-outline-primary" title='Manager Account' > Manager </button>
+                {% else %}
+                <button href="#" class="btn" title='Explorer Account'> Explorer </button>
+                {% endif %}
+                &nbsp; &nbsp;
+                <a href="{% url 'profile-settings' %}" class="btn btn-outline-primary" >Update Profile</a>
+              </div>
+              </div>
+              </div>   
+
+        <div class="card mb-4 mb-lg-0">
+            <div class="card-body p-0">
+              <ul class="list-group list-group-flush rounded-3">
+                <li class="list-group-item d-flex justify-content-center">
+                  <h3 class="mb-0"> Socials </h3>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center p-3">
+                  <em class="fab fa-lg" style="color: #55acee;"></em>
+                  <a class="btn" href="#todo"><p class="mb-0">#todo</p></a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        
+<div class="col-lg-8">
+
+  <div class="card mb-4">
+    <div class="card-body">
+      <div class="row">
+        <div class="col-sm-3">
+          <p class="mb-0">Full Name</p>
+        </div>
+        <div class="col-sm-9">
+          <p class="text-muted mb-0">{{user.first_name}} {{user.last_name}}</p>
+        </div>
+      </div>
+      <hr>
+      <div class="row">
+        <div class="col-sm-3">
+          <p class="mb-0">Email</p>
+        </div>
+        <div class="col-sm-9">
+          <p class="text-muted mb-0">{{user.email}}</p>
+        </div>
+      </div>
+      <hr>
+      <div class="row">
+        <div class="col-sm-3">
+          <p class="mb-0">Phone</p>
+        </div>
+        <div class="col-sm-9">
+          <p class="text-muted mb-0">{{user.profile.phone}}</p>
+        </div>
+      </div>
+      <hr>
+      <div class="row">
+        <div class="col-sm-3">
+          <p class="mb-0">Address</p>
+        </div>
+        <div class="col-sm-9">
+          <p class="text-muted mb-0">{{user.profile.street_address}}, {{user.profile.city}}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {% if tenant_instance %}
+    <div class="card text-center">
+      <div class="card-header">
+        My Rented Unit
+      </div>
+      <div class="card-body">
+        <h5 class="card-title"> Building: {{tenant_instance.rented_unit.building.name}} | Unit: <a href="{% url 'unit-details' tenant_instance.rented_unit.building.slug tenant_instance.rented_unit.slug %}">{{tenant_instance.rented_unit.unit_number}} <a> </h5>
+        <p class="card-text">
+          <span> Unit Status: {{ tenant_instance.rented_unit.get_status_display }} [{{tenant_instance.rented_unit.get_maintanance_status_display}}] </span>
+        </p>
+        <p class="card-text">
+          <span> Address: {{ tenant_instance.rented_unit.building.address_line }} </span>
+        </p>
+        <br>
+          <div class="d-grid gap-2 d-md-block">
+            <a href="{% url 'create-report' user.username tenant_instance.rented_unit.slug %}" class="btn btn-outline-danger" role="button" type="button">Report an Issue</a>
+            <a href="#" class="btn btn-outline-info" role="button" type="button"> Check My Billings </a>
+            <a href="#" class="btn btn-outline-warning" role="button" type="button"> Request Unit Switch </a>
+            <a href="#" class="btn btn-outline-danger" title='Put in your move out notice' role="button" type="button"> My Move Out Notice </a>
+          </div>
+      <div class="card-footer text-muted">
+        {% if tenant_instance.moved_in %} You moved in {{tenant_instance.move_in_date|timesince}} ago {% else %} You are not moved in yet {% endif %}
+      </div>
+    </div>
+{% endif %}
+
+    </div>
+  </div>
+</div>
+</section>
+{% endblock %}

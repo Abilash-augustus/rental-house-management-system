@@ -1,0 +1,10 @@
+<div class="mx-auto">
+    {% if buildings.paginator.num_pages > 1 %}
+        <hr>
+        <div class="text-center">
+            {% for pg in buildings.paginator.page_range %}
+                <a href="?page={{pg}}" class="btn btn-light btn-sm {% if buildings.number == pg %}active{% endif %}">{{pg}}</a>
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>
