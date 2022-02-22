@@ -1,6 +1,6 @@
 from django import forms
 from complaints.models import Complaints, UnitReport, UnitReportAlbum
-from django_summernote.widgets import SummernoteInplaceWidget, SummernoteWidget
+from django_summernote.widgets import SummernoteWidget
 
 class UnitReportForm(forms.ModelForm):
     class Meta:
