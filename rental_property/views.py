@@ -113,3 +113,4 @@ def add_rental_unit(request, building_slug):
     return render(request, 'rental_property/add-rental-unit.html', context)
 
 # TODO: filter buildings to a specific area
+# TODO: all units per buiding for managers to update

@@ -37,6 +37,7 @@ class UnitTour(models.Model):
     VISIT_STATUS_CHOICES = [
         ('cancelled', 'Cancelled'),
         ('waiting', 'Waiting'),
+        ('approved', 'Approved'),
         ('visited', 'Visited'),
     ]
     visit_code = models.CharField(max_length=15, unique=True, null=True, blank=True, help_text="Generated automaticall")
@@ -47,6 +48,7 @@ class UnitTour(models.Model):
     message = models.TextField(null=True, blank=True)
     unit = models.ForeignKey(RentalUnit, on_delete=models.DO_NOTHING)
     visit_status = models.CharField(choices=VISIT_STATUS_CHOICES, default='waiting', max_length=10)
+    last_updated_by = models.ForeignKey(Managers, on_delete=models.DO_NOTHING)
     created = models.DateTimeField(default=datetime.datetime.now)
     updated = models.DateTimeField(auto_now=True)
 
@@ -77,3 +79,31 @@ class VacateNotice(models.Model):
 
     def __str__(self):
         return f"{self.tenant}'s Vacate Notice"
+
+class EvictionNotice(models.Model):
+    NOTICE_STATUS_CHOICES = [
+        ('initiated', 'Initiated'),
+        ('evicted', 'Evicted'),
+        ('dropped', 'Dropped'),
+    ]
+    notice_code = models.CharField(max_length=10, blank=True, null=True, unique=True)
+    tenant = models.OneToOneField(Tenants, on_delete=models.DO_NOTHING)
+    unit = models.ForeignKey(RentalUnit, on_delete=models.DO_NOTHING)
+    notice_detail = models.TextField(max_length=1000)
+    sent_by = models.ForeignKey(Managers, on_delete=models.DO_NOTHING)
+    help_contact_phone = models.CharField(max_length=14)
+    help_contact_email = models.EmailField(max_length=50)
+    eviction_status = models.CharField(max_length=10, default='initiated', choices=NOTICE_STATUS_CHOICES)
+    created = models.DateTimeField(default=datetime.datetime.now)
+    updated = models.DateTimeField(auto_now=True)
+
+    def save(self, *args, **kwargs):
+        if not self.notice_code:
+            self.notice_code = ''.join(random.choices(string.digits, k=10))
+            super(EvictionNotice, self).save()
+        super(EvictionNotice, self).save()
+
+        #TODO: update unit status to hold and rented unit for tenant
+
+    def __str__(self):
+        return f"{self.notice_code} | {self.tenant.associated_account.username}"

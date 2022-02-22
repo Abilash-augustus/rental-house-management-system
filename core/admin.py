@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from core.models import Contact, UnitTour
+from core.models import Contact, UnitTour, EvictionNotice
 
 
 @admin.register(Contact)
@@ -12,3 +12,8 @@ class ContactAdmin(admin.ModelAdmin):
 class UnitTourAdmin(admin.ModelAdmin):
     list_display = ['full_name', 'visitor_email', 'phone_number', 'visit_date', 'visit_status', 'created']
     list_filter = ['visit_date', ]
+
+@admin.register(EvictionNotice)
+class EvictionNoticeAdmin(admin.ModelAdmin):
+    list_display = ['tenant', 'unit', 'eviction_status', 'created']
+    list_filter = ['eviction_status', 'created' ]

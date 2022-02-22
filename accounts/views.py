@@ -7,6 +7,7 @@ from rental_property.models import Building, RentalUnit
 from accounts.forms import (AddManagerForm, ProfileUpdateForm, TenantsForm,
                             UserUpdateForm)
 from accounts.models import Managers, Profile, Tenants
+from core.models import EvictionNotice
 
 User = get_user_model()
 
@@ -61,7 +62,8 @@ def view_tenant_profile(request, building_slug, username):
     building = Building.objects.get(slug=building_slug)
     user_instance = User.objects.get(username=username)
     tenant_instance = Tenants.objects.get(associated_account_id=user_instance, rented_unit__building=building)
-    context = {'tenant_instance': tenant_instance, 'user_instance':user_instance}
+    has_eviction_notice = EvictionNotice.objects.filter(tenant=tenant_instance) # check if eiction notice already exists
+    context = {'tenant_instance': tenant_instance, 'user_instance':user_instance, 'has_eviction_notice':has_eviction_notice}
     return render(request, 'accounts/view-tenant.html', context)
 
 @login_required

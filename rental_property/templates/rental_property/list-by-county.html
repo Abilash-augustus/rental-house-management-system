@@ -25,14 +25,17 @@
 			{% for building in buildings %}
             <div class="col">
                 <div class="card h-100">
-                    <img class="card-img-top" src="{{building.default_image.url}}" alt="{{building.name|slice:10}}.. image">
+					{% if building.image %}
+                    <img class="card-img-top" src="{{building.image.url}}" alt="{{building.name|slice:10}}.. image">
+					{% endif %}
                     <div class="card-body">
-                        <a class="btn card-title" href="{{building.get_url}}"> <h5>{{building.name|slice:30}}</h5> </a>
-                        <p class="card-text">Other details</p>
-                    </div>
-                    <div class="card-footer">
-                        <small class="text-muted">Added: {{building.created|timesince}} ago</small>
-                    </div>
+						<span class="p-2 card-title">Building Name: {{ building.name }}</span> <br>
+						<a class="btn btn-outline-info" href="{{building.get_url}}"> View Vacancies </a>
+						<p class="card-text"></p>
+					</div>
+					<div class="card-footer">
+						<small class="text-muted">Status: {{building.get_building_status_display}}</small>
+					</div>
                 </div>
             </div>
 			{% empty %}

@@ -1,12 +1,15 @@
 from accounts.models import Tenants
+from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.forms import modelformset_factory
 from django.shortcuts import redirect, render
 from rental_property.models import Building, RentalUnit
-from django.forms import modelformset_factory
-from complaints.forms import UnitReportAlbumForm, UnitReportForm
-from complaints.models import Complaints, UnitReport, UnitReportAlbum, UnitReportType
-from django.contrib import messages
+
+from complaints.forms import (ReportUpdateForm, UnitReportAlbumForm,
+                              UnitReportForm)
+from complaints.models import (Complaints, UnitReport, UnitReportAlbum,
+                               UnitReportType)
 
 User = get_user_model()
 
@@ -48,6 +51,7 @@ def create_a_report(request, unit_slug, username):
     return render(request, 'complaints/make-report.html', context)
 
 @login_required
+@user_passes_test(lambda user: user.is_manager==True, login_url='available-units')
 def view_reports(request, building_slug):
     building = Building.objects.get(slug=building_slug)
 
@@ -57,10 +61,30 @@ def view_reports(request, building_slug):
         reports = UnitReport.objects.filter(unit__building=building, status='rc')
     elif status == 'processing':
         reports = UnitReport.objects.filter(unit__building=building, status='pr')
-    elif status == 'caancelled':
+    elif status == 'cancelled':
         reports = UnitReport.objects.filter(unit__building=building, status='dr')
     elif status == 'resolved':
         reports = UnitReport.objects.filter(unit__building=building, status='rs')
 
     context = {'reports': reports, 'building': building,}
     return render(request, 'complaints/reports-by-building.html', context)
+
+@login_required
+@user_passes_test(lambda user: user.is_manager==True, login_url='available-units')
+def update_reports(request, building_slug, unit_slug, report_code):
+    building = Building.objects.get(slug=building_slug)
+    unit = RentalUnit.objects.get(building=building, slug=unit_slug)
+    report = UnitReport.objects.get(unit=unit, code=report_code)
+    images = UnitReportAlbum.objects.filter(unit_report=report)
+    
+    if request.method == 'POST':
+        update_form = ReportUpdateForm(request.POST, instance=report)
+        if update_form.is_valid():
+            update_form.save()
+            messages.success(request, 'Report updated successfully!')
+            return redirect('reports', building_slug=building.slug)
+    else:
+        update_form = ReportUpdateForm(instance=report)
+    
+    context = {'building':building, 'report':report, 'update_form':update_form, 'images':images}
+    return render(request, 'complaints/report-update.html', context)

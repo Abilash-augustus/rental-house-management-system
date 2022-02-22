@@ -5,14 +5,16 @@
 
 <section class="container p-5">
     <!-- Houses -->
-    <h3> Operational buildings to move in </h3>
+    <h3 class="text-center my_title"> Our Buildings With Vacancies </h3>
+    <br>
+
     <div class="row row-cols-1 row-cols-md-3 g-4">
         {% for building in operational_buildings %}
         <div class="col">
             <div class="card h-100">
                 <div class="card-body">
                     <span class="p-2 card-title">Building Name: {{ building.name }}</span> <br>
-                    <a class="btn btn-outline-info" href="{{building.get_url}}"> Check Out Rental Units </a>
+                    <a class="btn btn-outline-info" href="{{building.get_url}}"> View Vacancies </a>
                     <p class="card-text"></p>
                 </div>
                 <div class="card-footer">

@@ -49,7 +49,7 @@ class Estate(models.Model):
 
 class Building(models.Model):
     STATUS_CHOICES = [
-        ('op', 'Operational'),
+        ('op', 'Vacancies Available'),
         ('um', 'Under Maintanance'),
         ('fo', 'Fully Occupied'),
         ('dc', 'Decomisioned'),
@@ -61,6 +61,7 @@ class Building(models.Model):
     manager = models.ForeignKey(Managers, on_delete=models.CASCADE, related_name='building_manager')
     added_by = models.ForeignKey(User, on_delete=models.DO_NOTHING)
     address_line = models.CharField(max_length=50)
+    cover_image = models.ImageField(upload_to='building-cover', null=True, blank=True)
     county = models.ForeignKey(Counties, on_delete=models.CASCADE)
     country = models.CharField(max_length=50, default='Kenya')
     building_status = models.CharField(max_length=5, choices=STATUS_CHOICES)

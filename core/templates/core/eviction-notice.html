@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block metadescription %} Eviction Notice {% endblock %}
+
+{% block content %}	
+<section style="background-color: #dfe8da;">
+    <div class="container py-5 h-100">
+      <div class="row d-flex justify-content-center align-items-center h-100">
+        <div class="col-12 col-md-8 col-lg-6 col-xl-5">
+          <div class="card shadow-2-strong" style="border-radius: 1rem;">
+            <div class="card-body p-5 text-center">
+                <h3>
+                  <span style="background-color: red;"> Eviction Notice </span> </h3>
+                  <h3> To: {{tenant.associated_account.first_name}} {{tenant.associated_account.first_name}} </h3>
+                  <h3> Unit: {{tenant.rented_unit.unit_number}} </h3>
+                  <h3> Building: {{tenant.rented_unit.building.name}} </h3>
+                <form class="no-padding" method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <fieldset class="form-group">
+                        <legend></legend>
+                        {{ eviction_form|crispy }}
+                    </fieldset>
+                    <br>
+                    <div class="form-group">
+                        <button class="btn btn-outline-primary" type="submit">send</button>
+                        <br>
+                        <small> By clicking send, an email notification will be sent to your tenant </small>
+                    </div>
+                </form>
+            </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</section>
+{% endblock %}

@@ -52,7 +52,7 @@
             <div class="collapse navbar-collapse" id="mynav">
                 <ul class="navbar-nav mb-lg-0">
                     <li class="nav-item"> <a class="nav-link active" aria-current="page" href="{% url 'operational-buildings' %}">Home</a> </li>
-                    <li class="nav-item"> <a class="nav-link" aria-current="page" href="{% url 'contact' %}">Contact</a> </li>
+                    <li class="nav-item"> <a class="nav-link" aria-current="page" href="{% url 'core:contact' %}">Contact</a> </li>
                     {% if user.is_manager %}
                     <li class="nav-item"> <a class="nav-link" data-bs-toggle="offcanvas" href="#hrmsCanvas" role="button" aria-controls="hrmsCanvas">Manager Menu</a> </li>
                     {% endif %}
@@ -141,7 +141,7 @@
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
                           {% for managed_building in managed_buildings %}
-                          <li><a class="dropdown-item list-group-item list-group-item-action py-2 ripple" href="{% url 'visits' managed_building.slug %}">{{managed_building.name}}</a></li>
+                          <li><a class="dropdown-item list-group-item list-group-item-action py-2 ripple" href="{% url 'core:visits' managed_building.slug %}">{{managed_building.name}}</a></li>
                           {% empty %}
                           <li><a class="dropdown-item list-group-item list-group-item-action py-2 ripple" href="#notassigned">No buildings have been assigned to you yet!</a></li>
                           {% endfor %}
@@ -167,7 +167,6 @@
               </div>
             </div>
             {% endif %}
-
     </nav>
 
     

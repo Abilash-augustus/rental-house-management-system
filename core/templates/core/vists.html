@@ -10,6 +10,7 @@
             <div class="card card-body">
                 <div class="d-grid gap-2 d-md-block">
                     <a href="?filter=waiting" type="button" class="btn btn-outline-info" role="button">Waiting</a>
+                    <a href="?filter=approved" type="button" class="btn btn-outline-info" role="button">Approved</a>
                     <a href="?filter=visited" type="button" class="btn btn-outline-success" role="button">Visited</a>
                     <a href="?filter=cancelled" type="button" class="btn btn-outline-danger" role="button">Cancelled</a>
                   </div>
@@ -24,11 +25,9 @@
                         <th scope="col">Full Name</th>
                         <th scope="col"> Email </th>
                         <th scope="col"> Visit Date </th>
-                        <th scope="col"> Message </th>
                         <th scope="col">Visiting Unit</th>
-                        <th scope="col">Unit Status</th>
                         <th scope="col">Visit Status</th>
-                        <th scope="col">Update</th>
+                        <th scope="col">View/Update</th>
                       </tr>
                     </thead>
                     <tbody id='ourTable'>
@@ -36,13 +35,11 @@
                       <tr>
                         <th scope="row">{{ visit.visit_code }}</th>
                         <td>{{ visit.full_name }}</td>
-                        <td>{{ visit.visitor_email }} </td>
+                        <td><a href="mailto:{{ visit.visitor_email }}" target="_blank">{{ visit.visitor_email }}</a> </td>
                         <td> {{visit.visit_date}} </td>
-                        <td> {% if visit.message %} {{ visit.message }} {% else %} No message left {% endif %}</td>
                         <td> {{ visit.unit.unit_number }} </td>
-                        <td>{{ visit.unit.get_status_display }}</td>
-                        <td> {{ visit.get_visit_status_display}} </td>
-                        <td><a href="#"> <h5> update </h5> </a></td>
+                        <td>{{ visit.get_visit_status_display }}</td>
+                        <td><a href=" {% url 'update-visit' visit.unit.building.slug visit.visit_code %} ">update</a></td>
                       </tr>
                       {% empty %}
                       <tbody>

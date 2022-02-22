@@ -82,7 +82,15 @@
                         </div>
                       </div>
                     </div>
-                    <a class="btn btn-outline-success" href="{% url 'update-tenant' tenant_instance.rented_unit.building.slug tenant_instance.associated_account.username %}"> Update </a>
+                    <div class="d-grid gap-2 d-md-block">
+                      <a href="{% url 'update-tenant' tenant_instance.rented_unit.building.slug tenant_instance.associated_account.username %}" type="button" class="btn btn-outline-info" role="button">Update</a>
+                      {% if has_eviction_notice %}
+                      <button type="button" class="btn btn-danger" > Eviction notice already issued </button>
+                      {% else %}
+                      <a href="{% url 'core:eviction-notice' tenant_instance.rented_unit.building.slug tenant_instance.rented_unit.slug tenant_instance.associated_account.username %}" type="button" class="btn btn-outline-danger" role="button">
+                        Eviction Notice</a>
+                      {% endif %}
+                    </div>
                 </div>
             </div>
         </div>

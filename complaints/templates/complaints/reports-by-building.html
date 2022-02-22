@@ -21,7 +21,7 @@
                 <table class="table table-striped table-hover">
                     <thead>
                       <tr>
-                        <th scope="col">Visit Code</th>
+                        <th scope="col">Code</th>
                         <th scope="col">Reported By</th>
                         <th scope="col"> Unit </th>
                         <th scope="col"> Description </th>
@@ -34,13 +34,14 @@
                         {% for report in reports %}
                       <tr>
                         <th scope="row">{{ report.code }}</th>
-                        <td>{{ report.reported_by }}</td>
+                        <td>{{ report.reported_by.associated_account.username }}</td>
                         <td>{{ report.reported_by.rented_unit.unit_number }} </td>
                         <td> {% if report.desc %} {{ report.desc }} {% else %} No further details {% endif %}</td>
                         <td> {{ report.get_status_display}} </td>
                         <td>{{ report.created|timesince }}</td>
                         <td>{{ report.updated|timesince }}</td>
-                        <td><a href="#"> <h5> update </h5> </a></td>
+                        <td><a href="{% url 'view-update-reports' report.unit.building.slug report.unit.slug report.code %}"> 
+                          <h5> view/update </h5> </a></td>
                       </tr>
                       {% empty %}
                       <tbody>
