@@ -5,6 +5,7 @@ from accounts.models import Tenants
 from django.db import models
 from rental_property.models import RentalUnit
 from django.utils.text import slugify
+from rental_property.models import Building
 
 def get_report_image_path(instance, filename):
     user = instance.unit_report.reported_by.associated_account.username
@@ -77,11 +78,17 @@ class Complaints(models.Model):
         ('rc', 'Received'),
         ('rs', 'Resolved'),
     ]
-    complaint_title = models.CharField(max_length=100)
-    body = models.TextField(max_length=155)
+    complaint_code = models.CharField(max_length=15, unique=True, blank=True, null=True)
+    name = models.CharField(max_length=60, default="anonymous", help_text='Ignore field for an anonymous complaint')
+    body = models.TextField(max_length=2000, verbose_name='Content')
+    building = models.ForeignKey(Building, on_delete=models.CASCADE)
     status = models.CharField(max_length=5, choices=STATUS_CHOICES, default='rc')
     created = models.DateTimeField(default=datetime.now)
     updated = models.DateTimeField(auto_now=True)
+    
+    def save(self, *args, **kwargs):
+        if not self.complaint_code:
+            self.complaint_code = ''.join(random.choices(string.ascii_lowercase+string.digits, k=10))
 
     def __str__(self):
         return f"{self.complaint_title[:10]}"

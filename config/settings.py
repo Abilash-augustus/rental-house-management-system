@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     'allauth.socialaccount',
     'cloudinary_storage',
     'crispy_forms',
+    'django_summernote',
 
     'accounts.apps.AccountsConfig',
     'rental_property',
@@ -172,3 +173,5 @@ django_heroku.settings(locals())
 options = DATABASES['default'].get('OPTIONS', {})
 options.pop('sslmode', None)
 
+
+SUMMERNOTE_THEME = 'bs4'

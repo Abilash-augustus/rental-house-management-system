@@ -27,7 +27,9 @@
                           <span class="p-2"> Occupied Units: {{oc_units_count}} </span> <span class="p-2"> Unoccupied Units: {{em_units_count}} </span> <br>
                           {% if user.is_manager %}
                           <a class="btn btn-outline-success" href="{% url 'add-rental-unit' building.slug %}"> Add rental unit </a> &nbsp;
-                          <a class="btn btn-outline-success" href="{% url 'add-new-tenant' building.slug %}"> Add Tenants </a>
+                          <a class="btn btn-outline-success" href="{% url 'add-new-tenant' building.slug %}"> Add Tenants </a> &nbsp;
+                          <a class="btn btn-outline-success" href="{% url 'reports' building.slug %}"> Building Reports ({{building_reports_count}}) </a> &nbsp;
+                          <a class="btn btn-outline-success" href="#"> Complaints () </a>
                           {% endif %}
                           <p class="card-text"></p>
                       </div>

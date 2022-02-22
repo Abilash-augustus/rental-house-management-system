@@ -6,8 +6,8 @@ from django.forms import modelformset_factory
 from django.shortcuts import redirect, render
 from rental_property.models import Building, RentalUnit
 
-from complaints.forms import (ReportUpdateForm, UnitReportAlbumForm,
-                              UnitReportForm)
+from complaints.forms import (NewComplaintForm, ReportUpdateForm,
+                              UnitReportAlbumForm, UnitReportForm)
 from complaints.models import (Complaints, UnitReport, UnitReportAlbum,
                                UnitReportType)
 
@@ -88,3 +88,19 @@ def update_reports(request, building_slug, unit_slug, report_code):
     
     context = {'building':building, 'report':report, 'update_form':update_form, 'images':images}
     return render(request, 'complaints/report-update.html', context)
+
+@login_required
+def create_complaint(request, building_slug):
+    building = Building.objects.get(slug=building_slug)
+        
+    if request.method == 'POST':
+        complaint_form = NewComplaintForm(request.POST)
+        if complaint_form.is_valid():
+            complaint_form.instance.building = building
+            complaint_form.save()
+            messages.success(request, 'Complaint posted')
+            return redirect('profile')
+    else:
+        complaint_form = NewComplaintForm()
+    context = {'complaint_form':complaint_form}
+    return render(request, 'complaints/create-complaint.html', context)

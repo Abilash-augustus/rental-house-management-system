@@ -14,7 +14,7 @@ class UnitReportAdmin(admin.ModelAdmin):
 
 @admin.register(Complaints)
 class ComplaintsAdmin(admin.ModelAdmin):
-    list_display = ['complaint_title', 'status', 'created', 'updated']
+    list_display = ['complaint_code', 'name', 'status', 'created', 'updated']
     list_filter = ['status', 'created']
 
 @admin.register(UnitReportType)

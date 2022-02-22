@@ -103,6 +103,7 @@
         <br>
           <div class="d-grid gap-2 d-md-block">
             <a href="{% url 'create-report' user.username tenant_instance.rented_unit.slug %}" class="btn btn-outline-danger" role="button" type="button">Report an Issue</a>
+            <a href="{% url 'create-complaint' tenant_instance.rented_unit.building.slug %}" class="btn btn-outline-danger" role="button" type="button">Make a complaint</a>
             <a href="#" class="btn btn-outline-info" role="button" type="button"> Check My Billings </a>
             <a href="#" class="btn btn-outline-warning" role="button" type="button"> Request Unit Switch </a>
             <a href="#" class="btn btn-outline-danger" title='Put in your move out notice' role="button" type="button"> My Move Out Notice </a>

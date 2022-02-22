@@ -10,7 +10,7 @@ from rental_property.forms import AddRentalUnitForm, UnitAlbumForm
 from rental_property.models import (Building, Counties, Estate, RentalUnit,
                                     UnitAlbum, UnitType)
 from accounts.models import Tenants
-
+from complaints.models import UnitReport
 
 def property_by_county(request, county_slug):
     if county_slug != None:
@@ -59,14 +59,16 @@ def unit_details(request, building_slug, unit_slug):
 
 @login_required
 @user_passes_test(lambda user: user.is_manager==True, login_url='profile')
-def tenants(request, building_slug):
+def building_dashboard(request, building_slug):
 
     building = Building.objects.get(slug=building_slug)
-    get_with_status = request.GET.get('status', 'current-tenants')
+    building_reports_count = UnitReport.objects.filter(unit__building=building).count()
+    
+    get_tenants_with_status = request.GET.get('status', 'current-tenants')
 
-    if get_with_status == 'current-tenants':
+    if get_tenants_with_status == 'current-tenants':
         tenants = Tenants.objects.filter(moved_in=True, rented_unit__building=building)
-    elif get_with_status == 'not-moved-in':
+    elif get_tenants_with_status == 'not-moved-in':
         tenants = Tenants.objects.filter(moved_in=False, rented_unit__building=building)
 
     active_tenants_count = Tenants.objects.filter(moved_in=True, rented_unit__building=building).count()
@@ -77,7 +79,8 @@ def tenants(request, building_slug):
 
     context = {
         'building': building, 'tenants': tenants, 'active_tenants_count':active_tenants_count,
-        'waiting_tenants_count':waiting_tenants_count,'oc_units_count':oc_units_count, 'em_units_count':em_units_count}
+        'waiting_tenants_count':waiting_tenants_count,'oc_units_count':oc_units_count, 'em_units_count':em_units_count,
+        'building_reports_count':building_reports_count,}
     return render(request, 'rental_property/managed-building-tenants.html', context)
 
 
