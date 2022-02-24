@@ -1,8 +1,8 @@
 {% extends 'base.html' %}
 {% block content %}
 <br>
-<section class="container border border-5" style="margin-top:2%; margin-bottom:4%; background-color: white;">
-    <div class="row justify-content-center">
+<section class="container border border-5" style="margin-top:2%; margin-bottom:4%;">
+    <div class="row justify-content-center" style="background-color: white;">
         <div class="col-md-8 col-sm-12" style="margin-top:2%;">
             <div id="hrmscarousel" class="carousel slide" data-bs-ride="carousel">
                 <!--Indicators-->
@@ -126,7 +126,7 @@
                             <div class="col-sm-5">
                             <div class="d-grid gap-2 d-md-block">
                                 {% if unit.status == 'occupied' %}
-                                <a type="button" class="btn btn-outline-success" role="button">Visits to the unit stopped!</a>
+                                <a type="button" class="btn btn-outline-success" role="button">Unit already occupied</a>
                                 {% else %}
                                 <a href="{% url 'core:schedule-tour' unit.slug %}" type="button" class="btn btn-outline-success" role="button">Schedule a visit</a>
                                 {% endif %}

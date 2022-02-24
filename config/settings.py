@@ -40,6 +40,7 @@ INSTALLED_APPS = [
 
     'accounts.apps.AccountsConfig',
     'rental_property',
+    'rent_and_utility',
     'core',
     'complaints',
 ]

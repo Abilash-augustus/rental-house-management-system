@@ -3,25 +3,34 @@
 {% load crispy_forms_tags %}
 
 {% block content %} 
-<div class="container py-5">
-<section>
-    <form method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-        {% for hidded in unit_form.hidden_fields %}
-            {{hidden}}
-        {% endfor %}
-
-        {% for field in unit_form %}
-            {{field|as_crispy_field}} </br>
-        {% endfor %}
-
-        {{ formset.management_form }}
-        {% for form in formset %}
-            {{ form|crispy }}
-        {% endfor %}
-        
-        <br/>
-        <input class="btn btn-primary" type="submit" name="submit" value="submit" />
+<section style="background-color: #dfe8da;">
+    <div class="container py-5 h-100">
+      <div class="row d-flex justify-content-center align-items-center h-100">
+        <div class="col-12 col-md-8 col-lg-6 col-xl-9">
+          <div class="card shadow-2-strong" style="border-radius: 1rem;">
+            <div class="card-body p-5">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    {% for hidded in unit_form.hidden_fields %}
+                        {{hidden}}
+                    {% endfor %}
+            
+                    {% for field in unit_form %}
+                        {{field|as_crispy_field}} </br>
+                    {% endfor %}
+            
+                    {{ formset.management_form }}
+                    {% for form in formset %}
+                        {{ form|crispy }}
+                    {% endfor %}
+                    
+                    <br/>
+                    <input class="btn btn-primary" type="submit" name="submit" value="submit" />
+                </form>
+            </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </section>
-</div>
 {% endblock %}

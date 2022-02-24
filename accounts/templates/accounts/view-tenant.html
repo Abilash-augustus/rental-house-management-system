@@ -87,7 +87,7 @@
                       {% if has_eviction_notice %}
                       <button type="button" class="btn btn-danger" > Eviction notice already issued </button>
                       {% else %}
-                      <a href="{% url 'core:eviction-notice' tenant_instance.rented_unit.building.slug tenant_instance.rented_unit.slug tenant_instance.associated_account.username %}" type="button" class="btn btn-outline-danger" role="button">
+                      <a href="{% url 'core:create-eviction-notice' tenant_instance.rented_unit.building.slug tenant_instance.rented_unit.slug tenant_instance.associated_account.username %}" type="button" class="btn btn-outline-danger" role="button">
                         Eviction Notice</a>
                       {% endif %}
                     </div>

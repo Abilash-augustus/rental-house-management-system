@@ -12,6 +12,7 @@ django-allauth==0.48.0
 django-cloudinary-storage==0.3.0
 django-crispy-forms==1.14.0
 django-heroku==0.3.1
+django-multiselectfield==0.1.12
 django-summernote==0.8.20.0
 django-tinymce==3.4.0
 gunicorn==20.1.0

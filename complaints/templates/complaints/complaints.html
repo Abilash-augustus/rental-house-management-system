@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block extra_css %} 
+<style>
+    #rhms-more {display:none;}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container  mt-5 ">
+    <div class="row d-flex justify-content-center">
+      <div class="col-md-8">
+        <div class="card mb-4">
+          
+        <table class="table caption-top">
+    <caption>List of users</caption>
+    <div class="card card-body">
+        <div class="d-grid gap-2 d-md-block">
+            <a href="?complaint=unchecked" type="button" class="btn btn-outline-success" role="button">Unchecked</a>
+            <a href="?complaint=checked" type="button" class="btn btn-outline-success" role="button">Checked</a>
+          </div>
+    <thead>
+      <tr>
+        <th scope="col">Code</th>
+        <th scope="col">Name</th>
+        <th scope="col">Content</th>
+        <th scope="col">Date</th>
+      </tr>
+    </thead>
+    <tbody>
+        {% for complaint in complaints %}
+      <tr>
+        <th scope="row"> {{ complaint.complaint_code }} </th>
+        <td>{{complaint.name}}</td>
+        <td> {{complaint.body|safe|slice:20 }}... </td>
+        <td>{{complaint.created|date}}</td>
+        <td> update </td>
+      </tr>
+      {% endfor %}
+ 
+    </tbody>
+  </table>
+
+  </div>
+  </div>
+</div>
+</div>
+{% endblock %}

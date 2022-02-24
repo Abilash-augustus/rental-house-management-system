@@ -6,7 +6,7 @@ from django.core.paginator import InvalidPage, PageNotAnInteger, Paginator
 from django.forms import modelformset_factory
 from django.shortcuts import HttpResponseRedirect, get_object_or_404, redirect, render
 
-from rental_property.forms import AddRentalUnitForm, UnitAlbumForm
+from rental_property.forms import AddRentalUnitForm, UnitAlbumForm, BuildingUpdateForm
 from rental_property.models import (Building, Counties, Estate, RentalUnit,
                                     UnitAlbum, UnitType)
 from accounts.models import Tenants
@@ -62,6 +62,7 @@ def unit_details(request, building_slug, unit_slug):
 def building_dashboard(request, building_slug):
 
     building = Building.objects.get(slug=building_slug)
+        
     building_reports_count = UnitReport.objects.filter(unit__building=building).count()
     
     get_tenants_with_status = request.GET.get('status', 'current-tenants')
@@ -76,13 +77,28 @@ def building_dashboard(request, building_slug):
 
     oc_units_count = RentalUnit.objects.filter(status='occupied', building=building).count() # Number of occupied units
     em_units_count = RentalUnit.objects.filter(status='ready', building=building).count() # Number of unoccupied units
+    
 
     context = {
         'building': building, 'tenants': tenants, 'active_tenants_count':active_tenants_count,
         'waiting_tenants_count':waiting_tenants_count,'oc_units_count':oc_units_count, 'em_units_count':em_units_count,
-        'building_reports_count':building_reports_count,}
-    return render(request, 'rental_property/managed-building-tenants.html', context)
-
+        'building_reports_count':building_reports_count, 'get_tenants_with_status':get_tenants_with_status}
+    return render(request, 'rental_property/managed-building-dashboard.html', context)
+    
+@login_required
+@user_passes_test(lambda user: user.is_manager==True, login_url='profile')
+def update_building_status(request, building_slug):
+    building = Building.objects.get(slug=building_slug)
+    if request.method == 'POST':
+        update_form = BuildingUpdateForm(request.POST, instance=building)
+        if update_form.is_valid():
+            update_form.save()
+            messages.success(request, 'Building Status update successfully')
+            return redirect('building-dashboard', building_slug=building.slug)
+    else:
+        update_form = BuildingUpdateForm(instance=building)
+    context = {'update_form':update_form,'building':building}
+    return render(request, 'rental_property/update-building-status.html', context)
 
 @login_required
 @user_passes_test(lambda user: user.is_manager==True, login_url='available-units')

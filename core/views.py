@@ -4,14 +4,14 @@ from accounts.models import Managers, Tenants
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.messages.views import SuccessMessageMixin
-from django.shortcuts import HttpResponse, redirect, render
+from django.shortcuts import HttpResponse, redirect, render, get_object_or_404
 from django.urls import reverse_lazy
 from django.views.generic import CreateView
 from rental_property.models import Building, RentalUnit
 
-from core.forms import ContactForm, UnitTourForm, VisitUpdateForm, EvictionNoticeForm
-from core.models import Contact, UnitTour
-
+from core.forms import (ContactForm, EvictionNoticeForm, UnitTourForm,
+                        VisitUpdateForm)
+from core.models import Contact, EvictionNotice, UnitTour
 
 def home(request):
     return render(request, 'core/home.html')
@@ -83,7 +83,7 @@ def update_view_visits(request, building_slug, visit_code):
 
 @login_required
 @user_passes_test(lambda user: user.is_manager==True, login_url='profile')
-def eviction_notice(request, building_slug, unit_slug, username):
+def create_eviction_notice(request, building_slug, unit_slug, username):
     building = Building.objects.get(slug=building_slug)
     unit = RentalUnit.objects.get(building=building, slug=unit_slug)
     manager = Managers.objects.get(associated_account__username=request.user.username)
@@ -97,10 +97,39 @@ def eviction_notice(request, building_slug, unit_slug, username):
             eviction_form.instance.unit = unit
             eviction_form.save()
             # TODO: add email notification
-            messages.success(request, 'Eviction notice has een sent!')
+            messages.success(request, 'Eviction notice has been sent!')
             return redirect('view-tenant', building_slug=building.slug, username=tenant.associated_account.username)
     else:
         eviction_form = EvictionNoticeForm()
     
     context = {'eviction_form':eviction_form, 'tenant':tenant, 'unit': unit}
-    return render(request, 'core/eviction-notice.html', context)
+    return render(request, 'core/create-eviction-notice.html', context)
+
+
+@login_required
+@user_passes_test(lambda user: user.is_manager==True, login_url='profile')
+def view_eviction_notices(request,building_slug):
+    building = Building.objects.get(slug=building_slug)
+    
+    get_by_status = request.GET.get('status', 'in-progress')
+    
+    if get_by_status == 'in-progress':
+        notices = EvictionNotice.objects.filter(unit__building=building, eviction_status='initiated')
+    elif get_by_status == 'dropped':
+        notices = EvictionNotice.objects.filter(unit__building=building, eviction_status='dropped')
+    elif get_by_status == 'evicted':
+        notices = EvictionNotice.objects.filter(unit__building=building, eviction_status='evicted')
+    else:
+        notices = EvictionNotice.objects.filter(unit__building=building)
+    
+    context = {'notices':notices, 'building':building, 'get_by_status':get_by_status}
+    return render(request, 'core/view-eviction-notices.html', context)
+
+@login_required
+@user_passes_test(lambda user: user.is_manager==True, login_url='profile')
+def eviction_notice_display(request,building_slug, notice_code):
+    building = Building.objects.get(slug=building_slug)
+    notice = EvictionNotice.objects.get(unit__building=building, notice_code=notice_code)
+    context = {'building':building, 'notice':notice}
+    return render(request, 'core/e-notice-display.html', context)
+    

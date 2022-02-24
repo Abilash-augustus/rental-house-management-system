@@ -125,23 +125,11 @@
                       </li>
                       <li class="nav-item dropdown list-group-item list-group-item-action py-2 ripple">
                         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                          Building Visits
-                        </a>
-                        <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                          {% for managed_building in managed_buildings %}
-                          <li><a class="dropdown-item list-group-item list-group-item-action py-2 ripple" href="{% url 'core:visits' managed_building.slug %}">{{managed_building.name}}</a></li>
-                          {% empty %}
-                          <li><a class="dropdown-item list-group-item list-group-item-action py-2 ripple" href="#notassigned">No buildings have been assigned to you yet!</a></li>
-                          {% endfor %}
-                        </ul>
-                      </li>
-                      <li class="nav-item dropdown list-group-item list-group-item-action py-2 ripple">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                           Managed Buildings
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
                           {% for managed_building in managed_buildings %}
-                          <li><a class="dropdown-item list-group-item list-group-item-action py-2 ripple" href="{% url 'building-tenants' managed_building.slug %}">{{managed_building.name}}</a></li>
+                          <li><a class="dropdown-item list-group-item list-group-item-action py-2 ripple" href="{% url 'building-dashboard' managed_building.slug %}">{{managed_building.name}}</a></li>
                           {% empty %}
                           <li><a class="dropdown-item list-group-item list-group-item-action py-2 ripple" href="#notassigned">No buildings have been assigned to you yet!</a></li>
                           {% endfor %}

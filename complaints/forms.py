@@ -6,6 +6,9 @@ class UnitReportForm(forms.ModelForm):
     class Meta:
         model = UnitReport
         fields = ['report_type', 'desc']
+        widgets = {
+            'desc': SummernoteWidget(attrs={'summernote': {'width': '100%', 'height': '400px'}}),
+        }
 
 class UnitReportAlbumForm(forms.ModelForm):
     class Meta:

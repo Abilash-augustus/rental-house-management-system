@@ -1,4 +1,5 @@
 from django import forms
+from django_summernote.widgets import SummernoteWidget
 
 from core.models import Contact, EvictionNotice, UnitTour
 
@@ -42,3 +43,6 @@ class EvictionNoticeForm(forms.ModelForm):
     class Meta:
         model = EvictionNotice
         fields = ['notice_detail','help_contact_phone', 'help_contact_email', 'eviction_status']
+        widgets = {
+            'notice_detail': SummernoteWidget(attrs={'summernote': {'width': '100%', 'height': '400px'}}),
+        }

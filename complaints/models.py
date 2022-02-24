@@ -41,7 +41,7 @@ class UnitReport(models.Model):
     reported_by = models.ForeignKey(Tenants, on_delete=models.DO_NOTHING)
     unit = models.ForeignKey(RentalUnit, on_delete=models.DO_NOTHING)
     report_type = models.ForeignKey(UnitReportType, on_delete=models.DO_NOTHING)
-    status = models.CharField(max_length=5, choices=STATUS_CHOICES, default='rr')
+    status = models.CharField(max_length=5, default='rr', choices=STATUS_CHOICES)
     desc = models.TextField(verbose_name="Describe the situation", max_length=255)
     created = models.DateTimeField(default=datetime.now)
     updated = models.DateTimeField(auto_now=True)
@@ -73,13 +73,15 @@ class UnitReportAlbum(models.Model):
         return f"Report on {self.unit_report.unit.unit_number} by {self.unit_report.reported_by}"
 
 # TODO: Create notices, evacution notice e.t.c
+
+
 class Complaints(models.Model):
     STATUS_CHOICES = [
         ('rc', 'Received'),
         ('rs', 'Resolved'),
     ]
     complaint_code = models.CharField(max_length=15, unique=True, blank=True, null=True)
-    name = models.CharField(max_length=60, default="anonymous", help_text='Ignore field for an anonymous complaint')
+    name = models.CharField(max_length=60, default='anonymous', help_text='Ignore field for an anonymous complaint')
     body = models.TextField(max_length=2000, verbose_name='Content')
     building = models.ForeignKey(Building, on_delete=models.CASCADE)
     status = models.CharField(max_length=5, choices=STATUS_CHOICES, default='rc')
@@ -89,9 +91,11 @@ class Complaints(models.Model):
     def save(self, *args, **kwargs):
         if not self.complaint_code:
             self.complaint_code = ''.join(random.choices(string.ascii_lowercase+string.digits, k=10))
+            super(Complaints, self).save(*args, **kwargs)
+        super(Complaints, self).save(*args, **kwargs)
 
     def __str__(self):
-        return f"{self.complaint_title[:10]}"
+        return f"{self.complaint_code}"
 
     class Meta:
         verbose_name_plural = 'Complaints'

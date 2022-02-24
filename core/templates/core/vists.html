@@ -39,7 +39,7 @@
                         <td> {{visit.visit_date}} </td>
                         <td> {{ visit.unit.unit_number }} </td>
                         <td>{{ visit.get_visit_status_display }}</td>
-                        <td><a href=" {% url 'update-visit' visit.unit.building.slug visit.visit_code %} ">update</a></td>
+                        <td><a href=" {% url 'core:update-visit' visit.unit.building.slug visit.visit_code %} ">update</a></td>
                       </tr>
                       {% empty %}
                       <tbody>

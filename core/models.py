@@ -71,8 +71,8 @@ class VacateNotice(models.Model):
         ('checking', 'Checking'),
     ]
     tenant = models.OneToOneField(Tenants, on_delete=models.DO_NOTHING)
-    move_out_notice = models.DateField()
-    reason = models.TextField(max_length=255)
+    move_out_date = models.DateField()
+    reason = models.TextField(max_length=1500)
     notice_status = models.CharField(max_length=10, choices=NOTICE_CHOICES)
     created = models.DateTimeField(default=datetime.datetime.now)
     updated = models.DateTimeField(auto_now=True)
@@ -89,7 +89,7 @@ class EvictionNotice(models.Model):
     notice_code = models.CharField(max_length=10, blank=True, null=True, unique=True)
     tenant = models.OneToOneField(Tenants, on_delete=models.DO_NOTHING)
     unit = models.ForeignKey(RentalUnit, on_delete=models.DO_NOTHING)
-    notice_detail = models.TextField(max_length=1000)
+    notice_detail = models.TextField(max_length=2000)
     sent_by = models.ForeignKey(Managers, on_delete=models.DO_NOTHING)
     help_contact_phone = models.CharField(max_length=14)
     help_contact_email = models.EmailField(max_length=50)
