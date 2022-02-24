@@ -18,6 +18,8 @@ def my_profile(request):
         tenant_instance = Tenants.objects.get(associated_account=user)
     else:
         tenant_instance = False
+
+        
         
     context = {'user': user, 'tenant_instance':tenant_instance}
     return render(request, 'accounts/profile.html', context)

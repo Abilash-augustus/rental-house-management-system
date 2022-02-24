@@ -1,7 +1,7 @@
 from django import forms
 from django_summernote.widgets import SummernoteWidget
 
-from core.models import Contact, EvictionNotice, UnitTour
+from core.models import Contact, EvictionNotice, UnitTour, VacateNotice
 
 
 class DateInput(forms.DateInput):
@@ -46,3 +46,17 @@ class EvictionNoticeForm(forms.ModelForm):
         widgets = {
             'notice_detail': SummernoteWidget(attrs={'summernote': {'width': '100%', 'height': '400px'}}),
         }
+
+class NewVacateNoticeForm(forms.ModelForm):
+    class Meta:
+        model = VacateNotice
+        fields = ['move_out_date', 'reason', ]
+        widgets = {
+            'reason': SummernoteWidget(attrs={'summernote': {'width': '100%', 'height': '400px'}}),
+            'move_out_date': DateInput(),
+        }
+        
+class CancelMoveOutForm(forms.ModelForm):
+    class Meta:
+        model = VacateNotice
+        fields = ['drop',]

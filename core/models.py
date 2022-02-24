@@ -66,16 +66,29 @@ class UnitTour(models.Model):
 
 class VacateNotice(models.Model):
     NOTICE_CHOICES = [
+        ('received', 'Recieved'),
         ('dropped', 'Dropped'),
         ('Approved', 'Approved'),
         ('checking', 'Checking'),
     ]
-    tenant = models.OneToOneField(Tenants, on_delete=models.DO_NOTHING)
+    code = models.CharField(max_length=15, blank=True, null=True)
+    tenant = models.OneToOneField(Tenants, on_delete=models.DO_NOTHING) #TODO: should i use foreignkey?
     move_out_date = models.DateField()
-    reason = models.TextField(max_length=1500)
-    notice_status = models.CharField(max_length=10, choices=NOTICE_CHOICES)
+    reason = models.TextField(max_length=2000)
+    notice_status = models.CharField(max_length=10, choices=NOTICE_CHOICES, default='received')
+    drop = models.BooleanField(default=False, verbose_name='I would like to drop this notice')
     created = models.DateTimeField(default=datetime.datetime.now)
     updated = models.DateTimeField(auto_now=True)
+    
+    def save(self, *args, **kwargs):
+        if not self.code:
+            self.code = ''.join(random.choices(string.digits, k=12))
+            super(VacateNotice, self).save()
+        super(VacateNotice, self).save()
+    
+    class Meta:
+        verbose_name = "Tenant's Notices To Move Out"
+        verbose_name_plural = verbose_name
 
     def __str__(self):
         return f"{self.tenant}'s Vacate Notice"

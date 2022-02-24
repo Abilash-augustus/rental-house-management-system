@@ -27,11 +27,11 @@
               </div>
               </div>
               </div>   
-            {% if user.is_tenant %} 
 
         <div class="card mb-4 mb-lg-0">
             <div class="card-body text-center p-0">
               <ul class="list-group list-group-flush rounded-3">
+                {% if user.is_tenant %} 
                 <li class="list-group-item d-flex justify-content-center">
                   <h3 class="mb-0"> Tenant Menu </h3>
                 </li>
@@ -40,12 +40,17 @@
                     <a href="{% url 'create-report' user.username tenant_instance.rented_unit.slug %}" class="btn btn-outline-danger" role="button" type="button">Report an Issue</a>
                     <a href="{% url 'create-complaint' tenant_instance.rented_unit.building.slug %}" class="btn btn-outline-danger" role="button" type="button">Make a complaint</a>
                   </div>
+                  {% else %}
+                  <hr>
+                  <div class="d-grid gap-2 d-md-block">
+                    <h3>Explorer</h3>
+                  </div>
+                  {% endif %}
                   <hr>
               </ul>
             </div>
           </div>
         </div>
-        {% endif %}
 
         
 <div class="col-lg-8">
@@ -107,7 +112,12 @@
         <br>
           <div class="d-grid gap-2 d-md-block">
             <a href="#" class="btn btn-outline-info" role="button" type="button"> Check My Billings </a>
-            <a href="#" class="btn btn-outline-danger" title='Put in your move out notice' role="button" type="button"> My Move Out Notice </a>
+            {% if tenant_instance.vacatenotice.notice_status == 'received' %}
+            <a href="{% url 'core:cancel-notice' tenant_instance.rented_unit.building.slug user.username tenant_instance.vacatenotice.code %}" 
+            class="btn btn-outline-secondary" role="button" type="button"> You have an active notice [cancel?] </a>
+            {% else %}
+            <a href="{% url 'core:my-notice-to-vacate' tenant_instance.rented_unit.building.slug user.username %}" class="btn btn-outline-danger" title='Put in your move out notice' role="button" type="button"> My Move Out Notice </a>
+            {% endif %}
           </div>
           {% endif %}
       <div class="card-footer text-muted">

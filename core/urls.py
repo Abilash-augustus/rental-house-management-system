@@ -12,5 +12,7 @@ urlpatterns = [
     path('schedule-tour/<slug:unit_slug>/', views.schedule_unit_tour, name='schedule-tour'),
     path('visits/<slug:building_slug>/', views.scheduled_visits, name='visits'),
     path('updated-visit/<slug:building_slug>/<slug:visit_code>/', views.update_view_visits, name='update-visit'),
+    path('my-notice-to-vacate/<slug:building_slug>/<slug:username>/', views.my_notice_to_vacate, name='my-notice-to-vacate'),
+    path('cancel-notice/<slug:building_slug>/<slug:username>/<slug:notice_code>/', views.cancel_notice, name='cancel-notice'),
 ]
  
