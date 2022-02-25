@@ -44,13 +44,14 @@
                       {% if user.is_manager %}
                       <a href="{% url 'add-rental-unit' building.slug %}" type="button" class="list-group-item list-group-item-action" role="button">Add rental unit</a>
                       <a href="{% url 'add-new-tenant' building.slug %}" type="button" class="list-group-item list-group-item-action" role="button">Add Tenants</a>
+                      <a href="#" type="button" class="list-group-item list-group-item-action" role="button"> Rent and Utilities </a>
                       <a href="{% url 'core:visits' building.slug %}" type="button" class="list-group-item list-group-item-action" role="button">Tours</a>
                       <a href="{% url 'reports' building.slug %}" type="button" class="list-group-item list-group-item-action" role="button">Reports 
                         <small class="position-absolute top-1 start-100 translate-middle badge rounded-pill bg-secondary">({{building_reports_count}})</small></a>
                       <a href="{% url 'building-complaints' building.slug %}" type="button" class="list-group-item list-group-item-action" role="button">Complaints</a>
                       <a href="{% url 'core:evictions' building.slug %}" type="button" class="list-group-item list-group-item-action" role="button">Evictions</a>
-                      <a href="#" title="submitted move out notices" type="button" class="list-group-item list-group-item-action" role="button">Move Out Notices</a>
-                      <a href="{% url 'core:evictions' building.slug %}" type="button" class="list-group-item list-group-item-action" role="button">#TODO all units for manager</a>
+                      <a href="{% url 'core:move-out-notices' building.slug %}" title="submitted move out notices" type="button" class="list-group-item list-group-item-action" role="button">Move Out Notices</a>
+                      <a href="{% url 'managed-building-units' building.slug %}" type="button" class="list-group-item list-group-item-action" role="button">Building Units</a>
                       {% endif %}
                     </div>
                   </div>

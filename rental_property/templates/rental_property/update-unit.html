@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block metadescription %} Update Unit  {% endblock %}
+
+{% block content %}	
+<section style="background-color: #dfe8da;">
+    <div class="container py-5 h-100">
+      <div class="row d-flex justify-content-center align-items-center h-100">
+        <div class="col-12 col-md-8 col-lg-6 col-xl-8">
+          <div class="card shadow-2-strong" style="border-radius: 1rem;">
+            <div class="card-body p-5">
+                <h3> Update Unit Details </h3>
+                <h4> Building : {{building.name}} </h4>
+                <h4> Unit : {{unit.unit_number}} </h5>
+                <form class="no-padding" method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <fieldset class="form-group">
+                        <legend></legend>
+                        {{ unit_update_form|crispy }}
+                    </fieldset>
+                    <br>
+                    <div class="form-group text-center">
+                        <button class="btn btn-outline-primary" type="submit">Update</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</section>
+{% endblock %}

@@ -27,3 +27,11 @@ class BuildingUpdateForm(forms.ModelForm):
         model = Building
         fields = ['name', 'estate','registered_owner', 'manager', 
                        'address_line', 'county','added', 'building_status']
+        
+class UpdateRentalUnit(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(UpdateRentalUnit, self).__init__(*args, **kwargs)
+        self.fields['building'].disabled = True
+    class Meta:
+        model = RentalUnit
+        exclude = ['slug','updated',]

@@ -145,18 +145,16 @@
             {% endif %}
     </nav>
 
-    
 
-<!-- messages to the user starts here -->
     {% if messages %}
-        <ul class="messages" style="list-style-type: none">
-            {% for message in messages %}
-            <!-- create popup for this <li> tag -->
-            <li {% if message.tags %} class="user-alert {{ message.tags }}"{% endif %}>{{ message }}</li>
-            {% endfor %}
-        </ul>
+    {% for message in messages %}
+    <div class="alert {% if message.tags %} {{ message.tags }} {% endif %} alert-dismissible fade show user-alert"role="alert">
+      {{message}}
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endfor %}
     {% endif %}
-  <!-- messages to the user ends here -->
+    
     {% block content %}	{% endblock content%}
 
 

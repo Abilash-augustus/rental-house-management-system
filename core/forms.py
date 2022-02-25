@@ -60,3 +60,15 @@ class CancelMoveOutForm(forms.ModelForm):
     class Meta:
         model = VacateNotice
         fields = ['drop',]
+        
+class UpdateVacateNotice(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(UpdateVacateNotice, self).__init__(*args, **kwargs)
+        self.fields['code'].disabled = True
+        self.fields['tenant'].disabled = True
+        self.fields['move_out_date'].disabled = True
+        self.fields['created'].disabled = True
+        self.fields['drop'].disabled = True
+    class Meta:
+        model = VacateNotice
+        exclude = ['updated','reason']

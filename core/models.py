@@ -68,7 +68,7 @@ class VacateNotice(models.Model):
     NOTICE_CHOICES = [
         ('received', 'Recieved'),
         ('dropped', 'Dropped'),
-        ('Approved', 'Approved'),
+        ('confirmed', 'Confirmed'),
         ('checking', 'Checking'),
     ]
     code = models.CharField(max_length=15, blank=True, null=True)

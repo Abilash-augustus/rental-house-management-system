@@ -27,3 +27,8 @@ class NewComplaintForm(forms.ModelForm):
         widgets = {
             'body': SummernoteWidget(attrs={'summernote': {'width': '100%', 'height': '400px'}}),
         }
+        
+class UpdateComplaintForm(forms.ModelForm):
+    class Meta:
+        model = Complaints
+        fields = ['status',]

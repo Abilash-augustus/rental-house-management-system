@@ -7,7 +7,7 @@ from rental_property.models import Building, RentalUnit
 from accounts.forms import (AddManagerForm, ProfileUpdateForm, TenantsForm,
                             UserUpdateForm)
 from accounts.models import Managers, Profile, Tenants
-from core.models import EvictionNotice
+from core.models import EvictionNotice,VacateNotice
 
 User = get_user_model()
 
@@ -16,12 +16,15 @@ def my_profile(request):
     user = request.user
     if user.is_tenant:
         tenant_instance = Tenants.objects.get(associated_account=user)
+        my_move_out_notices = VacateNotice.objects.filter(tenant=tenant_instance)
     else:
         tenant_instance = False
+        my_move_out_notices = False
 
         
         
-    context = {'user': user, 'tenant_instance':tenant_instance}
+    context = {'user': user, 'tenant_instance':tenant_instance,
+               'my_move_out_notices':my_move_out_notices}
     return render(request, 'accounts/profile.html', context)
 
 # individual profile & user update
@@ -97,7 +100,7 @@ def update_tenant(request, building_slug, username):
             tenant_form.instance.user = tenant_user
             tenant_form.save()
             messages.success(request, 'Tenant was updated successfully!')
-            return redirect('building-tenants', building_slug=building.slug)
+            return redirect('building-dashboard', building_slug=building.slug)
     else:
         tenant_form = TenantsForm(building, instance=tenant)
     context = {'tenant_user':tenant_user,'tenant_form': tenant_form}

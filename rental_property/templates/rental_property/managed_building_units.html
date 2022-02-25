@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+
+{% block extra_css %}
+
+<style>
+
+.card {
+    border: none;
+    border-radius: 10px
+}
+
+.icon {
+    width: 50px;
+    height: 50px;
+    background-color: #eee;
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 39px
+}
+
+</style>
+{% endblock %}
+
+{% block content %}
+
+<section class="container border border-5" style="margin-top:2%; margin-bottom:4%;">
+    <div class="row">
+
+        <div class="container">
+            <div class="row">
+              <div class="col-sm-3">
+                <div class="list-group">
+                    <h4 class='list-group-item list-group-item-action'>Unit Status </h4>
+
+                    <a href="?unit-status=occupied" type="button" class='list-group-item list-group-item-action' role="button">Currently Occupied</a>
+                    <a href="?unit-status=ready-for-movein" type="button" class="list-group-item list-group-item-action" role="button">Ready To Move In</a>
+                    <a href="?unit-status=on-hold" type="button" class="list-group-item list-group-item-action" role="button">On Hold</a>
+                    <a href="?unit-status=under-maintanance" type="button" class="list-group-item list-group-item-action" role="button">Under Maintanance</a>
+                    <hr>
+                    <h4 class='list-group-item list-group-item-action'>Maintanance Status </h4>
+                    <a href="?unit-status=unchecked" type="button" class='list-group-item list-group-item-action' role="button">Unchechecked Report</a>
+                    <a href="?unit-status=starting-inspection" type="button" class="list-group-item list-group-item-action" role="button">Initiating Inspection</a>
+                    <a href="?unit-status=maintanace-in-progress" type="button" class="list-group-item list-group-item-action" role="button">Maintanance In Progress</a>
+                    <a href="?unit-status=no-reports" type="button" class="list-group-item list-group-item-action" role="button">No Active Reports</a>
+                  </div>
+              </div>
+
+              <div class="col-sm-9">
+                <div class="row">
+                    {% for unit in units %}
+                            <div class="col-md-4">
+                                <div class="card p-3 mb-2">
+                                    <div class="d-flex justify-content-between">
+                                        <div class="d-flex flex-row align-items-center">
+                                            <div class="icon"> <em class="fa fa-home"></em> </div>
+                                            <div class="ms-2 c-details">
+                                                <h6 class="mb-0">{{unit.unit_number}}</h6> <span>{{unit.get_status_display}} </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="mt-4">
+                                        <ul class="list-group">
+                                            <li class="list-group-item d-flex justify-content-between align-items-center">Unit Type
+                                                <span>{{unit.unit_type}}</span>
+                                            </li>
+                                            <li class="list-group-item d-flex justify-content-between align-items-center">Bathrooms [{{unit.bathrooms}}]
+                                                <span>Bedrooms [{{unit.bedrooms}}] </span>
+                                            </li>
+                                            <li class="list-group-item d-flex justify-content-between align-items-center"> 
+                                                <span>{% if unit.water_available %} Water [<em class="fa fa-check"></em>] {% endif %} </span>
+                                                <span>{% if unit.electricity_available %} Electricity [<em class="fa fa-check"></em>] {% endif %}</span>
+                                            </li>
+                                          </ul>
+                                        <div class="mt-1">
+                                            <div class="mt-3"> <span>{{unit.get_maintanance_status_display}}</span> </div>
+                                        </div>
+                                        <div class="card-footer mt-1">
+                                            <p class="text-center"> 
+                                                <a href="{% url 'unit-details' unit.building.slug unit.slug %}" class="btn btn-outline-success">View More</a>
+                                                <a href="{% url 'update-unit' unit.building.slug unit.slug %}" class="btn btn-outline-secondary">Update</a>
+                                            </p>
+                                          </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% empty %}      
+                            <div class="col-md-4">
+                                <div class="card p-3 mb-2">
+                                    OOOPS! Nothing to display
+                                </div>
+                            </div>                 
+                          {% endfor %}
+              </div>
+              <!--Pagination-->
+            <div class="mx-auto">
+                {% if units.paginator.num_pages > 1 %}
+                    <hr>
+                    <div class="text-center">
+                        {% for pg in units.paginator.page_range %}
+                            <a href="?page={{pg}}" class="btn btn-light btn-sm {% if units.number == pg %}active{% endif %}">{{pg}}</a>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+            <!--end pagination-->
+            </div>
+          </div>
+        </div>
+    </section>
+
+{% endblock %}

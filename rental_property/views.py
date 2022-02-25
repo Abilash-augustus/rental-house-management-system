@@ -1,16 +1,19 @@
 from itertools import chain
 
+from accounts.models import Tenants
+from complaints.models import UnitReport
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.core.paginator import InvalidPage, PageNotAnInteger, Paginator
 from django.forms import modelformset_factory
-from django.shortcuts import HttpResponseRedirect, get_object_or_404, redirect, render
+from django.shortcuts import (HttpResponseRedirect, get_object_or_404,
+                              redirect, render)
 
-from rental_property.forms import AddRentalUnitForm, UnitAlbumForm, BuildingUpdateForm
+from rental_property.forms import (AddRentalUnitForm, BuildingUpdateForm,
+                                   UnitAlbumForm, UpdateRentalUnit)
 from rental_property.models import (Building, Counties, Estate, RentalUnit,
                                     UnitAlbum, UnitType)
-from accounts.models import Tenants
-from complaints.models import UnitReport
+
 
 def property_by_county(request, county_slug):
     if county_slug != None:
@@ -37,7 +40,7 @@ def buildings(request):
     context = {'operational_buildings':operational_buildings,}
     return render(request, 'rental_property/available_buildings.html', context)
 
-def building_units(request, building_slug):
+def open_building_units(request, building_slug):
     building = get_object_or_404(Building, slug=building_slug)
     rental_units = RentalUnit.objects.filter(building=building, status='ready')
     unit_count = rental_units.count()
@@ -84,7 +87,42 @@ def building_dashboard(request, building_slug):
         'waiting_tenants_count':waiting_tenants_count,'oc_units_count':oc_units_count, 'em_units_count':em_units_count,
         'building_reports_count':building_reports_count, 'get_tenants_with_status':get_tenants_with_status}
     return render(request, 'rental_property/managed-building-dashboard.html', context)
+
+@login_required
+@user_passes_test(lambda user: user.is_manager==True, login_url='profile')
+def managed_building_units(request, building_slug):
+    building = Building.objects.get(slug=building_slug)
     
+    # get units by occupation status
+    get_status = request.GET.get('unit-status', '')
+    if get_status == 'occupied':
+        units = RentalUnit.objects.filter(building=building, status='occupied')
+    elif get_status == 'ready-for-movein':
+        units = RentalUnit.objects.filter(building=building, status='ready')
+    elif get_status == 'on-hold':
+        units = RentalUnit.objects.filter(building=building, status='hold')
+    elif get_status == 'under-maintanance':
+        units = RentalUnit.objects.filter(building=building, status='maintanance')
+    elif get_status == 'unchecked':
+        units = RentalUnit.objects.filter(building=building, maintanance_status='nm')
+    elif get_status == 'starting-inspection':
+        units = RentalUnit.objects.filter(building=building, maintanance_status='ip')
+    elif get_status == 'maintanace-in-progress':
+        units = RentalUnit.objects.filter(building=building, maintanance_status='ir')
+    elif get_status == 'no-reports':
+        units = RentalUnit.objects.filter(building=building, maintanance_status='op')
+    else:
+        units = RentalUnit.objects.filter(building=building)
+        
+    paginator = Paginator(units, 6)
+    page_number = request.GET.get('page')
+    units_obj = paginator.get_page(page_number)
+        
+    context = {'units':units_obj, 'building':building,}
+    return render(request, 'rental_property/managed_building_units.html', context)
+    
+# TODO: filter buildings to a specific area
+
 @login_required
 @user_passes_test(lambda user: user.is_manager==True, login_url='profile')
 def update_building_status(request, building_slug):
@@ -131,5 +169,21 @@ def add_rental_unit(request, building_slug):
     context = {'unit_form':unit_form, 'formset':formset}
     return render(request, 'rental_property/add-rental-unit.html', context)
 
-# TODO: filter buildings to a specific area
-# TODO: all units per buiding for managers to update
+@login_required
+@user_passes_test(lambda user: user.is_manager==True, login_url='profile')
+def update_unit(request, building_slug, unit_slug):
+    building = Building.objects.get(slug=building_slug)
+    unit = RentalUnit.objects.get(building=building, slug=unit_slug)
+    
+    if request.method == 'POST':
+        unit_update_form = UpdateRentalUnit(request.POST, instance=unit)
+        
+        if unit_update_form.is_valid():
+            unit_update_form.save()
+            messages.success(request, 'Unit updated')
+            return redirect('managed-building-units', building_slug=building.slug)
+    else:
+        unit_update_form = UpdateRentalUnit(instance=unit)
+    
+    context = {'unit_update_form':unit_update_form,'unit':unit,'building':building}
+    return render(request, 'rental_property/update-unit.html', context)

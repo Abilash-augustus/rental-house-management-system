@@ -10,8 +10,9 @@ from django.urls import reverse_lazy
 from django.views.generic import CreateView
 from rental_property.models import Building, RentalUnit
 
-from core.forms import (ContactForm, EvictionNoticeForm, NewVacateNoticeForm,
-                        UnitTourForm, VisitUpdateForm, CancelMoveOutForm)
+from core.forms import (CancelMoveOutForm, ContactForm, EvictionNoticeForm,
+                        NewVacateNoticeForm, UnitTourForm, UpdateVacateNotice,
+                        VisitUpdateForm)
 from core.models import Contact, EvictionNotice, UnitTour, VacateNotice
 
 User = get_user_model()
@@ -136,6 +137,7 @@ def eviction_notice_display(request,building_slug, notice_code):
     notice = EvictionNotice.objects.get(unit__building=building, notice_code=notice_code)
     context = {'building':building, 'notice':notice}
     return render(request, 'core/e-notice-display.html', context)
+#evictipn notice display for users
     
 @login_required
 @user_passes_test(lambda user: user.is_tenant==True, login_url='profile')
@@ -146,7 +148,7 @@ def my_notice_to_vacate(request, building_slug, username):
     
     check_if_notice_exists = VacateNotice.objects.filter(tenant=tenant,notice_status='received')
     if check_if_notice_exists:
-        messages.success(request, 'You have a notice in place')
+        messages.success(request, 'You already have a notice in place')
         messages.info(request, 'Operation not allowed')
         return redirect('profile')
     else:
@@ -165,8 +167,25 @@ def my_notice_to_vacate(request, building_slug, username):
     return render(request, 'core/my_vacate_notice.html', context)
 
 @login_required
+@user_passes_test(lambda user: user.is_manager==True, login_url='profile')
+def vacate_notice_update(request, building_slug, notice_code):
+    building = Building.objects.get(slug=building_slug)
+    notice = VacateNotice.objects.get(tenant__rented_unit__building=building, code=notice_code)
+    
+    if request.method == 'POST':
+        v_update_form = UpdateVacateNotice(request.POST, instance=notice)
+        if v_update_form.is_valid():
+            v_update_form.save()
+            messages.success(request, 'Status changed')
+            return redirect('core:move-out-notices', building_slug=building.slug)
+    else:
+        v_update_form = UpdateVacateNotice(instance=notice)
+    context = {'v_update_form':v_update_form,'notice':notice}
+    return render(request, 'core/vacate-notice-update.html', context)
+
+@login_required
 @user_passes_test(lambda user: user.is_tenant==True, login_url='profile')
-def cancel_notice(request, building_slug, notice_code, username):
+def cancel_vacate_notice(request, building_slug, notice_code, username):
     building = Building.objects.get(slug=building_slug)
     user_instance = User.objects.get(username=username)
     tenant = Tenants.objects.get(associated_account=user_instance, rented_unit__building=building)
@@ -185,3 +204,36 @@ def cancel_notice(request, building_slug, notice_code, username):
     context = {'cancel_form':cancel_form, 'building':building, 'tenant':tenant,
                'notice_instance':notice_instance}
     return render(request, 'core/cancel-notice.html', context)
+
+@login_required
+@user_passes_test(lambda user: user.is_tenant==True, login_url='profile')
+def move_out_notices(request, building_slug):
+    building = Building.objects.get(slug=building_slug)
+    notice_status = request.GET.get('notice_status', '')
+    
+    if notice_status == 'received':
+        move_out_notices = VacateNotice.objects.filter(tenant__rented_unit__building=building, notice_status='received')
+    elif notice_status == 'dropped':
+        move_out_notices = VacateNotice.objects.filter(tenant__rented_unit__building=building, notice_status='dropped')
+    elif notice_status == 'confirmed':
+        move_out_notices = VacateNotice.objects.filter(tenant__rented_unit__building=building, notice_status='confirmed')
+    elif notice_status == 'checking':
+        move_out_notices = VacateNotice.objects.filter(tenant__rented_unit__building=building, notice_status='checking')
+    else:
+        move_out_notices = VacateNotice.objects.filter(tenant__rented_unit__building=building)
+        
+    context = {'move_out_notices':move_out_notices, 'building':building}
+    return render(request, 'core/move-out-notices.html', context)
+
+@login_required
+def view_move_out_notice(request, building_slug, username, notice_code):
+    building = Building.objects.get(slug=building_slug)
+    tenant = Tenants.objects.get(associated_account__username=username)
+    active_user = request.user
+    
+    if active_user.is_manager or tenant:
+        notice = VacateNotice.objects.get(tenant=tenant,code=notice_code)
+    else:
+        return redirect('profile')
+    context = {'notice':notice,'building':building,'tenant':tenant}
+    return render(request, 'core/move-out-notice.html', context)

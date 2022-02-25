@@ -90,10 +90,11 @@ class UnitType(models.Model):
 
 class RentalUnit(models.Model):
     MAINTANANCE_STATUS_CHOICES = [
-        ('nm', 'Needs Inspection'),
+        ('nm', 'Unchechecked Report'),
         ('ip', 'Initiating Inspection'),
         ('ir', 'Maintanance In Progress'),
         ('op', 'No Active Reports'),
+        ('rm', 'Remove'),
     ]
     STATUS_CHOICES = [
         ('occupied', 'Currently Occupied'),

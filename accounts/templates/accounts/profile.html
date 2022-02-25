@@ -1,4 +1,7 @@
 {% extends "base.html" %}
+{% load i18n %}
+{% block metadescription %} Profile {% endblock %}
+{% block head_title %}{% trans "Profile" %}{% endblock %}
 
 {% block content %}
 
@@ -38,7 +41,39 @@
                 <hr>
                   <div class="d-grid gap-2 d-md-block">
                     <a href="{% url 'create-report' user.username tenant_instance.rented_unit.slug %}" class="btn btn-outline-danger" role="button" type="button">Report an Issue</a>
-                    <a href="{% url 'create-complaint' tenant_instance.rented_unit.building.slug %}" class="btn btn-outline-danger" role="button" type="button">Make a complaint</a>
+                    <a href="{% url 'create-complaint' tenant_instance.rented_unit.building.slug %}" class="btn btn-outline-danger" role="button" type="button">Make a complaint</a> &nbsp;
+                    {% if my_move_out_notices %}
+                    <a class="btn btn-outline-primary" data-bs-toggle="collapse" href="#noticesCollapse" role="button" aria-expanded="false" aria-controls="noticesCollapse">
+                      View My Notices
+                    </a>
+                    <div class="collapse" id="noticesCollapse">
+                      <div class="card card-body">
+                        <table class="table caption-top">
+                          <caption>My Notices</caption>
+                          <thead>
+                            <tr>
+                              <th scope="col">Code</th>
+                              <th scope="col">Status</th>
+                              <th scope="col">Aged</th>
+                              <th scope="col">Dropped By</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                        {% for my_move_out_notice in my_move_out_notices%}
+                        <th scope="row"> <a href="{% url 'core:views-moveout-notice' tenant_instance.rented_unit.building.slug tenant_instance.associated_account.username my_move_out_notice.code %}">
+                          {{my_move_out_notice.code}}</a></th>
+                        <td> {{my_move_out_notice.get_notice_status_display}} </td>
+                        <td> {{my_move_out_notice.created|timesince}} </td>
+                        
+                        <td> {% if my_move_out_notice.drop %}
+                        {{my_move_out_notice.tenant.associated_account.username}} {% else %} --- </td>
+                        {% endif %}
+                        {% endfor %}
+                      </tbody>
+                    </table>
+                      </div>
+                    </div>
+                    {% endif %}
                   </div>
                   {% else %}
                   <hr>
@@ -89,7 +124,7 @@
           <p class="mb-0">Address</p>
         </div>
         <div class="col-sm-9">
-          <p class="text-muted mb-0">{{user.profile.street_address}}, {{user.profile.city}}</p>
+          <p class="text-muted mb-0">{{user.profile.street_address}}, {{user.profile.county}}, {{user.profile.country}}</p>
         </div>
       </div>
     </div>

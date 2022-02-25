@@ -34,7 +34,7 @@
         <td>{{complaint.name}}</td>
         <td> {{complaint.body|safe|slice:20 }}... </td>
         <td>{{complaint.created|date}}</td>
-        <td> update </td>
+        <td> <a href="{% url 'complaint_update' building.slug complaint.complaint_code %}"> update </a></td>
       </tr>
       {% endfor %}
  
