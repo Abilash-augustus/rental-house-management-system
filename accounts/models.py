@@ -21,16 +21,7 @@ class User(AbstractUser):
 
 
 class Profile(models.Model):
-
-    PAYMENT_CHOICES = [
-        ('cash', 'Cash'),
-        ('mpesa', 'MPesa'),
-        ('bank', 'Wire Transfer'),
-        ('cheque', 'Cheque'),
-    ]
-
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    prefered_payment_method = models.CharField(max_length=10, choices=PAYMENT_CHOICES, default='bank')
     phone = models.CharField(max_length=14)
     street_address = models.CharField(max_length=30)
     county = models.CharField(max_length=30)
@@ -99,7 +90,7 @@ class Tenants(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"{self.associated_account.username} -> Tenant"
+        return f"{self.associated_account.username} -> Tenant on Unit {self.rented_unit}"
 
     class Meta:
         verbose_name_plural = 'Tenants'

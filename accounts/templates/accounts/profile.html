@@ -146,7 +146,8 @@
         </p>
         <br>
           <div class="d-grid gap-2 d-md-block">
-            <a href="#" class="btn btn-outline-info" role="button" type="button"> Check My Billings </a>
+            <a href="{% url 'my-rent' tenant_instance.rented_unit.building.slug tenant_instance.rented_unit.slug user.username %}" 
+            class="btn btn-outline-info" role="button" type="button"> Rent </a>
             {% if tenant_instance.vacatenotice.notice_status == 'received' %}
             <a href="{% url 'core:cancel-notice' tenant_instance.rented_unit.building.slug user.username tenant_instance.vacatenotice.code %}" 
             class="btn btn-outline-secondary" role="button" type="button"> You have an active notice [cancel?] </a>

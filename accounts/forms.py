@@ -19,7 +19,7 @@ class UserUpdateForm(forms.ModelForm):
 class ProfileUpdateForm(forms.ModelForm):
     class Meta:
         model = Profile
-        fields = ['prefered_payment_method', 'street_address', 'county', 'country']
+        fields = ['street_address', 'county', 'country']
 
 
 class AddManagerForm(forms.ModelForm):

@@ -28,6 +28,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.sitemaps',
+    'django.contrib.humanize',
     'django.contrib.sites',
 
     # installed apps
@@ -40,7 +41,7 @@ INSTALLED_APPS = [
 
     'accounts.apps.AccountsConfig',
     'rental_property',
-    'rent_and_utility',
+    'utilities_and_rent',
     'core',
     'complaints',
 ]
