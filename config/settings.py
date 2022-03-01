@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'cloudinary_storage',
     'crispy_forms',
     'django_summernote',
+    'django_filters',
 
     'accounts.apps.AccountsConfig',
     'rental_property',
@@ -145,12 +146,14 @@ CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
 #cloudinary storage : handling imaeges in deployment
 
+
 CLOUDINARY_STORAGE = {
     'CLOUD_NAME': 'hqrwhofew',
     'API_KEY': os.environ.get('CLOUDINARY_API_KEY'),
     'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET'),
 }
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+
 
 
 # Default primary key field type

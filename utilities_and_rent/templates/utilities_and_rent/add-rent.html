@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block metadescription %} Add Rent Details {% endblock %}
+{% load crispy_forms_tags %}
+
+{% block content %} 
+<section style="background-color: #dfe8da;">
+    <div class="container py-5 h-100">
+      <div class="row d-flex justify-content-center align-items-center h-100">
+        <div class="col-12 col-md-8 col-lg-6 col-xl-9">
+          <div class="card shadow-2-strong" style="border-radius: 1rem;">
+            <div class="card-body p-5">
+                <h3 class="text-uppercase text-center"> Add Rent </h3>
+                <hr>
+                <div class="row">
+                    <div class="col-sm-3">
+                      <p class="mb-0">Building</p>
+                    </div>
+                    <div class="col-sm-9">
+                      <p class="text-muted mb-0">{{building.name}}</p>
+                    </div>
+                  </div>
+                  <br> 
+                  <div class="row">
+                    <div class="col-sm-3">
+                      <p class="mb-0">Rental Unit</p>
+                    </div>
+                    <div class="col-sm-9">
+                      <p class="text-muted mb-0">{{unit.unit_number}}</p>
+                    </div>
+                  </div>
+                  <br> 
+                  <div class="row">
+                    <div class="col-sm-3">
+                      <p class="mb-0">Unit Status</p>
+                    </div>
+                    <div class="col-sm-9">
+                      <p class="text-muted mb-0">{{unit.get_status_display}}</p>
+                    </div>
+                  </div>
+                  <br>
+              <div class="row">
+                <div class="col-sm-3">
+                  <p class="mb-0">Address</p>
+                </div>
+                <div class="col-sm-9">
+                  <p class="text-muted mb-0">{{building.address_line}}</p>
+                </div>
+              </div>
+              <hr>
+                <form method="post" enctype="multipart/form-data">       
+                    {% csrf_token %}     
+                        {{ rent_form|crispy }}
+                    
+                    <br/>
+                    <div class="text-center">
+                    <input class="btn btn-primary text" type="submit" name="submit" value="submit" />
+                    </div>
+                </form>
+            </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

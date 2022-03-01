@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+{% block metadescription %} Building Rent Overview {% endblock %}
+{% load humanize %}
+{% load crispy_forms_tags %}
+
+{% block content %}	
+
+<section class="container border border-5" style="margin-top:2%; margin-bottom:4%;">
+    <div class="row justify-content-center">
+
+      <!-- overview start -->
+      <div class="container card p-0 mb-2">
+        <div class="card-header text-center w-100">
+          {{building.name}} Rent Overview
+        </div>
+        <div class="row">
+          <div class="col-sm-4">
+            <div class="card border-0">
+              <div class="card-body">
+                <canvas id="rent-chart" data-url="#">
+                </canvas>
+              </div>
+            </div>
+          </div>
+          <div class="col-sm-4">
+            <div class="card border-0">
+              <div class="card-body">
+                <canvas id="rent-chart1" data-url="#">
+                </canvas>
+              </div>
+            </div>
+          </div>
+          <div class="col-sm-4">
+            <div class="card border-0">
+              <div class="card-body">
+                <canvas id="rent-chart2" data-url="#">
+                </canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Overview end-->
+
+        <div class="row">
+            <div class="col-sm-3">
+              <div class="list-group">
+                    <a href="#" type="button" class="list-group-item list-group-item-action" role="button">Other Link</a>
+                    <a href="#" type="button" class="list-group-item list-group-item-action" role="button">Other Link</a>
+                    <a href="#" type="button" class="list-group-item list-group-item-action" role="button">Other link</a>
+              </div>
+            </div>
+
+              <div class="col-sm-9">
+                <div class="row">
+                  <div class="col-8 col-sm-12 card">
+                    <form method="get">
+                        {{ tenants_filter.form|crispy }}
+                        <br>
+                        <div class="form-group text-center">
+                            <button class="btn btn-outline-secondary" type="submit">Get</button>
+                        </div>
+                      </form>
+                      <br>
+                      <div class="card-body">
+
+                                <div class="mb-3">
+                                    <div class="card-header text-center">
+                                      Tenants
+                                    </div>
+                                    <div class="card-body">
+                                      <div class="row row-cols-1 row-cols-md-3 g-4">
+                                     {% for tenant in tenants_filter.qs %}
+                                      <div class="col">
+                                        <div class="card h-100">
+                                        <div class="card-body">
+                                        <ul class="list-group ">
+                                            <li class="list-group-item d-flex justify-content-between align-items-start">
+                                                <div class="ms-2 me-auto"> <span> <h5 class="card-title">Unit Number</h5> </div> &nbsp;
+                                                <span> <h5 class="card-title">{{tenant.rented_unit.unit_number}}</h5> </span> <br>
+                                            </li>   
+                                            <li class="list-group-item d-flex justify-content-between align-items-start">
+                                                <div class="ms-2 me-auto"> <span> <h7 class="card-title">Tenant Name</h7> </div> &nbsp;
+                                                <span> <h class="card-title">{{tenant.associated_account.first_name}} {{tenant.associated_account.last_name}}</h5> </span> <br>
+                                            </li>   
+                                            {% if tenant.rented_unit.status == 'occupied' %}                                
+                                            <li class="list-group-item d-flex justify-content-between align-items-start">
+                                              <div class="ms-2 me-auto"> <span> <a href="{% url 'add-rent' building.slug tenant.rented_unit.slug %}"> Add Rent </a> </span></div> &nbsp;
+                                              <span><a href="{% url 'rent-history' building.slug tenant.rented_unit.slug tenant.associated_account.username %}"> 
+                                                  Rent History </a></span>
+                                            </li>
+                                            {% endif %}
+                                          </ul>                       
+                                        </div>
+                                      </div>
+                                    </div>
+                                      {% endfor %}
+                                      </div>
+                                    </div>
+                                  </div>
+                      </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+    </section>
+
+{% endblock %}

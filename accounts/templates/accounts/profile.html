@@ -3,6 +3,12 @@
 {% block metadescription %} Profile {% endblock %}
 {% block head_title %}{% trans "Profile" %}{% endblock %}
 
+{% block extra_head %} 
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js"></script>
+{% endblock %}
+
+
 {% block content %}
 
 
@@ -47,7 +53,7 @@
                       View My Notices
                     </a>
                     <div class="collapse" id="noticesCollapse">
-                      <div class="card card-body">
+                      <div class="card card-body table-responsive">
                         <table class="table caption-top">
                           <caption>My Notices</caption>
                           <thead>
@@ -147,7 +153,7 @@
         <br>
           <div class="d-grid gap-2 d-md-block">
             <a href="{% url 'my-rent' tenant_instance.rented_unit.building.slug tenant_instance.rented_unit.slug user.username %}" 
-            class="btn btn-outline-info" role="button" type="button"> Rent </a>
+            class="btn btn-outline-info" role="button" type="button"> Rent & Utilities </a>
             {% if tenant_instance.vacatenotice.notice_status == 'received' %}
             <a href="{% url 'core:cancel-notice' tenant_instance.rented_unit.building.slug user.username tenant_instance.vacatenotice.code %}" 
             class="btn btn-outline-secondary" role="button" type="button"> You have an active notice [cancel?] </a>
@@ -156,6 +162,7 @@
             {% endif %}
           </div>
           {% endif %}
+          <br>
       <div class="card-footer text-muted">
         {% if tenant_instance.moved_in %} You moved in {{tenant_instance.move_in_date|timesince}} ago {% else %} You are not moved in yet {% endif %}
       </div>

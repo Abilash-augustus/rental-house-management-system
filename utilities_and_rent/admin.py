@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 from utilities_and_rent.models import (PaymentMethods, RentPayment,
-                                     UnitRentDetails)
+                                     UnitRentDetails, WaterBilling, WaterConsumption)
 
 
 @admin.register(UnitRentDetails)
@@ -14,8 +14,17 @@ class UnitRentDetailsAdmin(admin.ModelAdmin):
 
 @admin.register(RentPayment)
 class RentPaymentAdmin(admin.ModelAdmin):
-    pass
+    list_display = ['rent_details','manager','payment_code','amount','paid_for_month','paid_on','payment_method', 'status','payment_method']
+    list_filter = ('status','added_on')
+    search_fields = ('payment_code',)
 
 @admin.register(PaymentMethods)
 class PaymentMethodsAdmin(admin.ModelAdmin):
     pass
+
+class WaterConsumptionAdmin(admin.StackedInline):
+    model = WaterConsumption
+    
+@admin.register(WaterBilling)
+class WaterAdmin(admin.ModelAdmin):
+    inlines = [WaterConsumptionAdmin]

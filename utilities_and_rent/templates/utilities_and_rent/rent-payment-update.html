@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block metadescription %} Rent Payment Update  {% endblock %}
+{% load humanize %}
+
+{% block content %}	
+<section style="background-color: #dfe8da;">
+    <div class="container py-5 h-100">
+      <div class="row d-flex justify-content-center align-items-center h-100">
+        <div class="col-10">
+          <div class="card shadow-2-strong" style="border-radius: 1rem;">
+            <div class="card-body p-5">
+                <h3 class="text-uppercase text-center"> Payment Update </h3>
+                <ul class="list-group">
+                    <li class="list-group-item d-flex justify-content-between align-items-start">
+                      <div class="ms-2 me-auto">
+                        Building
+                      </div>
+                      <span> {{building.name}} </span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-start">
+                      <div class="ms-2 me-auto">Unit</div>
+                      <span>{{unit.unit_number}}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-start">
+                        <div class="ms-2 me-auto">Rent Code</div>
+                        <span>{{parent_rent.code}}</span>
+                      </li>
+                      <li class="list-group-item d-flex justify-content-between align-items-start">
+                        <div class="ms-2 me-auto">Rent Amount</div>
+                        <span>{{parent_rent.currency}} {{parent_rent.rent_amount|intcomma}}</span>
+                      </li>
+                      <li class="list-group-item d-flex justify-content-between align-items-start">
+                        <div class="ms-2 me-auto">Amount Paid so far</div>
+                        <span>{{parent_rent.currency}} {{parent_rent.amount_paid|intcomma}}</span>
+                      </li>
+                      <li class="list-group-item d-flex justify-content-between align-items-start">
+                        <div class="ms-2 me-auto">Amount Remaining</div>
+                        <span>{{parent_rent.currency}} {{parent_rent.amount_remaining|intcomma}}</span>
+                      </li>
+                      <li class="list-group-item d-flex justify-content-between align-items-start">
+                        <div class="ms-2 me-auto">Rent Due</div>
+                        <span class={% if parent_rent.cleared %} "bg-success text-decoration-line-through" {% else %} "bg-danger" title="Not Cleared" {% endif %}>{{parent_rent.due_date|naturalday}}</span>
+                      </li>
+                      <li class="list-group-item d-flex justify-content-between align-items-start">
+                        <div class="ms-2 me-auto">Payment Code</div>
+                        <span> {{payment.payment_code}}</span>
+                      </li>
+                      <li class="list-group-item d-flex justify-content-between align-items-start">
+                        <div class="ms-2 me-auto">Payment Amount</div>
+                        <span> {{parent_rent.currency}} {{payment.amount|intcomma}}</span>
+                      </li>
+                      <li class="list-group-item d-flex justify-content-between align-items-start">
+                        <div class="ms-2 me-auto">Paid On</div>
+                        <span> {{payment.paid_on|naturalday}}</span>
+                      </li>
+                      <li class="list-group-item d-flex justify-content-between align-items-start">
+                        <div class="ms-2 me-auto">Payment Method</div>
+                        <span> {{payment.payment_method.name}}</span>
+                      </li>
+                      <li class="list-group-item d-flex justify-content-between align-items-start">
+                        <div class="ms-2 me-auto">Status</div>
+                        <span> {{payment.get_status_display}} </span>
+                      </li>
+                      <li class="list-group-item d-flex justify-content-between align-items-start">
+                        <div class="ms-2 me-auto">Month</div>
+                        <span> {{payment.paid_for_month}} </span>
+                      </li>
+                  </ul>
+                <br>
+                {% if payment.confirmed == False %}
+                
+                <form class="no-padding" method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <fieldset class="form-group">
+                        <legend></legend>
+                        {{ pay_update_form|crispy }}
+                    </fieldset>
+                    <br>
+                    <div class="form-group text-center">
+                        <button class="btn btn-outline-primary" type="submit">Submit</button> <br>
+                        <small> Approved payment  will be locked after submitting </small>
+                    </div>
+                </form>
+                {% endif %}
+
+            </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</section>
+{% endblock %}

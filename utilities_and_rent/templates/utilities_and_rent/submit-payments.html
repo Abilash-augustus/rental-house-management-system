@@ -7,13 +7,13 @@
 <section style="background-color: #dfe8da;">
     <div class="container py-5 h-100">
       <div class="row d-flex justify-content-center align-items-center h-100">
-        <div class="col-12 col-md-8 col-lg-6 col-xl-7">
+        <div class="col-10">
           <div class="card shadow-2-strong" style="border-radius: 1rem;">
             <div class="card-body p-5">
                 {% if rent.cleared %}
                 <h3 class="text-uppercase text-center"> My Payment For {{rent.pay_for_month}}</h3>
                 {% else %}
-                <h3 class="text-uppercase text-center"> Submit Rent Payments</h3>
+                <h3 class="text-uppercase text-center"> Submit Rent Payments For {{rent.pay_for_month}}</h3>
                 {% endif %}
                 <ul class="list-group">
                     <li class="list-group-item d-flex justify-content-between align-items-start">
@@ -83,10 +83,49 @@
                     </fieldset>
                     <br>
                     <div class="form-group">
-                        <button class="btn btn-outline-primary" type="submit">Update</button>
+                        <button class="btn btn-outline-primary" type="submit">Submit</button>
                     </div>
                 </form>
                 {% endif %}
+                <br>
+
+                <div class="table-responsive">
+                <table class="table caption-top">
+                  <caption> Submitted Payments </caption>
+                  <thead>
+                    <tr>
+                      <th scope="col">Code</th>
+                      <th scope="col">Tenant</th>
+                      <th scope="col">Paid Amount</th>
+                      <th scope="col"> Payment Method </th>
+                      <th scope="col"> Date </th>
+                      <th scope="col"> Status </th>
+                      <th scope="col"> </th>
+
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for pay in previous_payments %}
+                    <tr>
+                      <th scope="row">{{pay.payment_code}}</th>
+                      <td>{{pay.tenant.associated_account.first_name}} {{tenant.associated_account.last_name}}</td>
+                      <td>{{rent.currency}} {{pay.amount|intcomma}}</td>
+                      <td> {{pay.payment_method.name}} </td>
+                      <td> {{pay.paid_on}} </td>
+                      <td> {{pay.get_status_display}}</td>
+                      {% if pay.reason %}
+                      <td> <a href="#"> View </a> </td>
+                      {% endif %}
+                    </tr>
+                    {% empty %}
+                    <tr> 
+                      <td> No payments submitted. </td>
+                    </tr>
+                    {% endfor %} 
+                  </tbody>
+                </table>
+                </div>
+
             </div>
         </div>
       </div>

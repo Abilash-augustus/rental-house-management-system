@@ -80,7 +80,7 @@ def add_tenant(request, building_slug):
         if new_tenant_form.is_valid():
             new_tenant_form.save()
             messages.success(request, 'Tenant was created successfully!')
-            return redirect('operational-buildings')
+            return redirect('building-dashboard', building_slug=building.slug)
     else:
         new_tenant_form = TenantsForm(building)
     context = {'new_tenant_form': new_tenant_form}

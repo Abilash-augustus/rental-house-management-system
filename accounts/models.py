@@ -74,7 +74,7 @@ class Tenants(models.Model):
     id_back = models.ImageField(upload_to=get_user_docs_path, blank=True)
     active_phone_number = models.CharField(max_length=14, null=True, blank=True)
     policy_agreement = models.BooleanField(default=False)
-    rented_unit = models.ForeignKey(RentalUnit, on_delete=models.CASCADE, null=True, blank=True)
+    rented_unit = models.ForeignKey(RentalUnit, on_delete=models.CASCADE, related_name="tenants", null=True, blank=True)
     moved_in = models.BooleanField(default=False)
     move_in_date = models.DateTimeField(null=True, blank=True)
     created = models.DateTimeField(default=datetime.now)
