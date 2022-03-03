@@ -125,19 +125,30 @@ class RentPayment(models.Model):
 class WaterBilling(models.Model):
     rental_unit = models.ForeignKey(RentalUnit, on_delete=models.DO_NOTHING)
     tenant = models.ForeignKey(Tenants, on_delete=models.DO_NOTHING)
+    bill_code = models.CharField(max_length=15, unique=True, null=True, blank=True)
     meter_number = models.CharField(max_length=10)
-    quantity = models.DecimalField(decimal_places=2, max_digits=9, null=True, blank=True)
+    quantity = models.DecimalField(decimal_places=2, max_digits=9, default=0, null=True, blank=True)
     measuring_unit = models.CharField(max_length=20, default='Litres')
-    unit_price = models.DecimalField(decimal_places=2, max_digits=9)
+    unit_price = models.DecimalField(decimal_places=2, max_digits=9, verbose_name='Unit Price (KES)')
+    re_billed = models.DecimalField(decimal_places=2, max_digits=9, null=True, blank=True)
     total = models.DecimalField(decimal_places=2, max_digits=9, default=0)
-    month = MultiSelectField(choices=MONTHS_SELECT)
+    month = MultiSelectField(choices=MONTHS_SELECT, null=True, blank=True)
     remarks = models.TextField(blank=True)
     cleared = models.BooleanField(default=False)    
     lock_cycle = models.BooleanField(default=False)
-    from_date = models.DateField()
-    to_date = models.DateField()
-    due_date = models.DateField()
-    added = models.DateTimeField(auto_now_add=True)
+    from_date = models.DateField(null=True, blank=True)
+    to_date = models.DateField(null=True, blank=True)
+    due_date = models.DateField(null=True, blank=True)
+    added = models.DateTimeField(default=datetime.now)
+    updated = models.DateTimeField(auto_now_add=True)
+    
+    def save(self, *args, **kwargs):
+        if not self.bill_code:
+            self.bill_code = ''.join(random.choices(string.ascii_lowercase, k=10))
+        if self.quantity:
+            self.total = self.quantity*self.unit_price
+            super(WaterBilling, self).save(*args, **kwargs)
+        super(WaterBilling, self).save(*args, **kwargs)
     
     def __str__(self):
         return f'{self.rental_unit} - {self.tenant}'
@@ -153,6 +164,7 @@ class WaterConsumption(models.Model):
     reading_added = models.DateField()
     
     def save(self, *args, **kwargs):
+        #TODO: correct the math
         if self.current_reading:
             self.consumption = self.current_reading-self.previous_reading
             super(WaterConsumption,self).save(*args,**kwargs)
@@ -168,10 +180,14 @@ class WaterPayments(models.Model):
     payment_code = models.CharField(max_length=30)
     amount = models.DecimalField(decimal_places=2, max_digits=9)
     payment_method = models.CharField(max_length=30)
-    status = models.CharField(max_length=10, choices=PAYMENT_STATUS_CHOICES)
+    date_paid = models.DateField()
+    status = models.CharField(max_length=10, default='pending', choices=PAYMENT_STATUS_CHOICES)
     remarks = models.TextField(blank=True,null=True,max_length=155)
     created = models.DateTimeField(default=datetime.now)
     updated = models.DateTimeField(auto_now=True)
+    
+    def __str__(self):
+        return f"{self.payment_code}"
     
     
 class Electricity(models.Model):

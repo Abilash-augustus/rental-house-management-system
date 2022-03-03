@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% block metadescription %} Rent Invoices {% endblock %}
 {% load humanize %}
+{% load crispy_forms_tags %}
 
 {% block extra_head %} 
 <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
@@ -77,10 +78,8 @@
             <div class="row">
               <div class="col-sm-3">
                 <div class="list-group">
-                    <a href="?payment_status=due" type="button" class='list-group-item list-group-item-action' role="button">Due Payments</a>
-                    <a href="?payment_status=cleared" type="button" class="list-group-item list-group-item-action" role="button">Cleared Payments</a>
-                    <a href="?payment_status=upcoming" type="button" class="list-group-item list-group-item-action" role="button">Upcoming Payments</a>
-                    <a href="?payment_status=un_cleared" type="button" class="list-group-item list-group-item-action" role="button">Un Cleared Payments</a>
+                    <a href="?payment_status=due" type="button" class='list-group-item list-group-item-action' role="button">My Electricity Bills</a>
+                    <a href="{% url 'my_water_billing' building.slug unit.slug tenant.associated_account.username %}" type="button" class="list-group-item list-group-item-action" role="button">My Water Bills</a>
                   </div>
               </div>
 
@@ -88,15 +87,13 @@
                 <div class="row">
                   <div class=" col-sm-12">
                       <div class="card card-body">
-                          {% if due_status %}
-                            {% if due_status == 'due' %} <span class="badge bg-danger"> Due Payments </span>
-                            {% elif due_status == 'cleared' %} <span class="badge bg-info"> Cleared Payments </span>
-                            {% elif due_status == 'upcoming' %} <span class="badge bg-info"> Upcoming Payments </span>
-                            {% elif due_status == 'un_cleared' %} <span class="badge bg-info"> Un Cleared Payments </span>
-
-                        {% endif %}
-                           
-                           {% endif %}
+                          <form method='GET' class="no-padding">
+                            {{tenant_rent_details_qs.form|crispy}}
+                            <br>
+                            <div class="form-group text-center">
+                                <button class="btn btn-outline-secondary" type="submit">Get</button>
+                            </div>
+                          </form>
                           &nbsp;&nbsp;
                           <input class="form-control" id="myInput" type="text" placeholder="Search..">
                           <div class="table-responsive">
@@ -112,10 +109,11 @@
                                 <th scope="col"> From </th>
                                 <th scope="col"> To </th>
                                 <th scope="col"> Due Date </th>
+                                <th scope="col"> Status </th>
                               </tr>
                             </thead>
                             <tbody id='ourTable'>
-                        {% for rent in all_rent %}
+                        {% for rent in tenant_rent_details_qs.qs %}
                         <tr>
                           <th scope="row"> {{rent.code}} </th>
                             <th scope="row" > {{rent.unit.unit_number}} </th>
@@ -125,13 +123,15 @@
                             <td> {{rent.start_date}} </td>
                             <td> {{rent.end_date}} </td>
                             {% if rent.cleared %}
-                            <td> <del> {{rent.due_date|naturalday}} </del> </td>
+                            <td class="bg-success" title="all good"> {{rent.due_date|naturalday}} </td>
+                            <td> Cleared </td>
                             <td> <a href="{% url 'pay-info' building.slug unit.slug rent.code rent.tenant.associated_account.username %}">
                               view </a>
                             {% else %}
-                            <td> {{rent.due_date|naturalday}} </td>
+                            <td class="bg-danger" title="please clear the blank payments"> {{rent.due_date|naturalday}} </td>
+                            <td> Uncleared </td>
                             <td> <a href="{% url 'pay-info' building.slug unit.slug rent.code rent.tenant.associated_account.username %}">
-                              Submit Payments </a>
+                              Submit Payments </a></td>
                             {% endif %}
                         {% empty %}
                         <tbody>

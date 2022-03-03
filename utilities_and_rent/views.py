@@ -6,15 +6,18 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.core.paginator import InvalidPage, PageNotAnInteger, Paginator
 from django.db.models import Q, Sum
-from django.http import JsonResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import (HttpResponseRedirect, get_object_or_404,
                               redirect, render)
 from rental_property.models import Building, RentalUnit
 
 from utilities_and_rent.filters import (PaymentsFilter, RentDetailsFilter,
-                                        UnitTypeFilter)
+                                        UnitTypeFilter, WaterBilingFilter)
 from utilities_and_rent.forms import (AddRentDetailsForm, PaymentUpdateForm,
-                                      SubmitPaymentsForm, UpdateRentDetails)
+                                      StartWaterBillingForm,
+                                      SubmitPaymentsForm, UpdateRentDetails,
+                                      WaterBillPaymentsForm,
+                                      WaterBillUpdateForm, WaterReadingForm)
 from utilities_and_rent.models import (PaymentMethods, RentPayment,
                                        UnitRentDetails, WaterBilling,
                                        WaterConsumption)
@@ -29,27 +32,19 @@ def my_rent_details(request, building_slug, unit_slug, username):
     tenant = Tenants.objects.get(rented_unit=unit, associated_account__username=username)
     payment_options = PaymentMethods.objects.all()
     
-    due_status = request.GET.get('payment_status', '')
     today = datetime.datetime.now()
     today_formatted = today.strftime('%Y-%m-%d')
     
-    if due_status == 'due':
-        all_rent = UnitRentDetails.objects.filter(tenant=tenant, unit=unit, cleared=False).filter(Q(due_date__lt=today_formatted)).order_by('due_date')
-    elif due_status == 'cleared':
-        all_rent = UnitRentDetails.objects.filter(tenant=tenant, unit=unit, cleared=True).order_by('due_date')
-    elif due_status == 'upcoming':
-        all_rent = UnitRentDetails.objects.filter(tenant=tenant, unit=unit, cleared=False, amount_paid__lte=0).filter(Q(due_date__gte=today_formatted)).order_by('due_date')
-    elif due_status == 'un_cleared':
-        all_rent = UnitRentDetails.objects.filter(tenant=tenant, unit=unit, cleared=False, amount_paid__gt=0).order_by('due_date')
-    else:
-        all_rent = UnitRentDetails.objects.filter(tenant=tenant, unit=unit).order_by('due_date')
+    tenant_rent_details = UnitRentDetails.objects.filter(tenant=tenant, unit=unit).order_by('due_date')
+    tenant_rent_details_qs = RentDetailsFilter(request.GET, queryset=tenant_rent_details)
               
-    context = {'building':building, 'unit':unit, 'tenant':tenant,'all_rent':all_rent,'due_status':due_status,'payment_options':payment_options}
+    context = {'building':building, 'unit':unit, 'tenant':tenant,'tenant_rent_details_qs':tenant_rent_details_qs,'payment_options':payment_options}
     return render(request, 'utilities_and_rent/my-rent-details.html', context)
 
 @login_required
 @user_passes_test(lambda user: user.is_tenant==True, login_url='profile')
-def submit_payment_record(request, building_slug, unit_slug, rent_code, username):
+def submit_rent_payments(request, building_slug, unit_slug, rent_code, username):
+    
     building = Building.objects.get(slug=building_slug)
     unit = RentalUnit.objects.get(building=building, slug=unit_slug)
     manager = Managers.objects.get(building_manager__pk=building.id)
@@ -72,8 +67,49 @@ def submit_payment_record(request, building_slug, unit_slug, rent_code, username
         
     context = {'pay_info_form':pay_info_form,'building':building,'rent':rent,
                'tenant':tenant,'unit':unit,'previous_payments':previous_payments}
-    return render(request, 'utilities_and_rent/submit-payments.html', context)
+    return render(request, 'utilities_and_rent/submit-payments-rent.html', context)
 
+@login_required
+def my_water_billing(request,building_slug,unit_slug,username):
+    building = Building.objects.get(slug=building_slug)
+    unit = RentalUnit.objects.get(building=building,slug=unit_slug)
+    tenant = Tenants.objects.get(rented_unit=unit, associated_account__username=username)
+    my_water_bills = WaterBilling.objects.filter(rental_unit=unit, tenant=tenant)
+    oldest_bill = my_water_bills.exclude(added=None).order_by('-added').last()
+    newest_bill = my_water_bills.exclude(added=None).order_by('added').first()
+    
+    water_bills_qs = WaterBilingFilter(request.GET, queryset=my_water_bills)
+    
+    context = {'building': building,'unit':unit,'tenant':tenant,'water_bills_qs':water_bills_qs,
+               'newest_bill':newest_bill,'oldest_bill':oldest_bill}
+    return render(request, 'utilities_and_rent/my_water_bills.html', context)
+
+@login_required
+def my_water_billing_details(request,building_slug,unit_slug,username,bill_code):
+    building = Building.objects.get(slug=building_slug)
+    unit = RentalUnit.objects.get(building=building,slug=unit_slug)
+    tenant = Tenants.objects.get(rented_unit=unit, associated_account__username=username)
+    water_bill = WaterBilling.objects.get(rental_unit=unit,tenant=tenant,bill_code=bill_code)
+    
+    child_readings = WaterConsumption.objects.filter(parent=water_bill)
+    
+    if request.method == 'POST':
+        bill_pay_form = WaterBillPaymentsForm(request.POST)
+        if bill_pay_form.is_valid():
+            bill_pay_form.instance.parent = water_bill
+            bill_pay_form.save()
+            #TODO: Do the math
+            # manager update function
+            messages.success(request, 'Payment submitted')
+            return HttpResponseRedirect("")
+    else:
+        bill_pay_form = WaterBillPaymentsForm()
+    
+    context = {'building':building,'unit':unit,'tenant':tenant,'water_bill':water_bill,
+               'bill_pay_form':bill_pay_form,'child_readings':child_readings}
+    return render(request, 'utilities_and_rent/my_water_bill_details.html', context)
+
+############### manager functions ###################
 
 @login_required
 @user_passes_test(lambda user: user.is_manager==True, login_url='profile')
@@ -87,7 +123,20 @@ def rent_and_utilities(request, building_slug):
 
 @login_required
 @user_passes_test(lambda user: user.is_manager==True, login_url='profile')
-def add_rent(request, building_slug, unit_slug):
+def unit_rent_history(request, building_slug, unit_slug, username):
+    building = Building.objects.get(slug=building_slug)
+    unit = RentalUnit.objects.get(slug=unit_slug, building=building)
+    tenant = Tenants.objects.get(rented_unit=unit, associated_account__username=username)
+    rent_details = UnitRentDetails.objects.filter(tenant=tenant, unit=unit)
+    rental_details_filter = RentDetailsFilter(request.GET, queryset=rent_details)
+    
+    context = {'building': building,'unit':unit,
+               'tenant':tenant,'rent_details':rental_details_filter}
+    return render(request, 'utilities_and_rent/rent-history.html', context)
+
+@login_required
+@user_passes_test(lambda user: user.is_manager==True, login_url='profile')
+def add_tenant_rent(request, building_slug, unit_slug):
     building = Building.objects.get(slug=building_slug)
     unit = RentalUnit.objects.get(building=building, slug=unit_slug)
     if unit.status == 'occupied':
@@ -111,20 +160,7 @@ def add_rent(request, building_slug, unit_slug):
 
 @login_required
 @user_passes_test(lambda user: user.is_manager==True, login_url='profile')
-def unit_rent_history(request, building_slug, unit_slug, username):
-    building = Building.objects.get(slug=building_slug)
-    unit = RentalUnit.objects.get(slug=unit_slug, building=building)
-    tenant = Tenants.objects.get(rented_unit=unit, associated_account__username=username)
-    rent_details = UnitRentDetails.objects.filter(tenant=tenant, unit=unit)
-    rental_details_filter = RentDetailsFilter(request.GET, queryset=rent_details)
-    
-    context = {'building': building,'unit':unit,
-               'tenant':tenant,'rent_details':rental_details_filter}
-    return render(request, 'utilities_and_rent/rent-history.html', context)
-
-@login_required
-@user_passes_test(lambda user: user.is_manager==True, login_url='profile')
-def managers_update_tenant_rent(request, building_slug, unit_slug, username, rent_code):
+def update_tenant_rent(request, building_slug, unit_slug, username, rent_code):
     building = Building.objects.get(slug=building_slug)
     unit = RentalUnit.objects.get(building=building,slug=unit_slug)
     tenant = Tenants.objects.get(rented_unit=unit, associated_account__username=username)
@@ -149,7 +185,7 @@ def managers_update_tenant_rent(request, building_slug, unit_slug, username, ren
 
 @login_required
 @user_passes_test(lambda user: user.is_manager==True, login_url='profile')
-def update_rent_payment(request, building_slug, unit_slug, username, rent_code, track_code):
+def update_tenant_rent_payment(request, building_slug, unit_slug, username, rent_code, track_code):
     building = Building.objects.get(slug=building_slug)
     unit = RentalUnit.objects.get(building=building,slug=unit_slug)
     tenant = Tenants.objects.get(rented_unit=unit, associated_account__username=username)
@@ -175,22 +211,69 @@ def update_rent_payment(request, building_slug, unit_slug, username, rent_code, 
 
 @login_required
 @user_passes_test(lambda user: user.is_manager==True, login_url='profile')
-def manager_water_billing(request, building_slug, unit_slug, username):
+def manage_tenant_water_billing(request, building_slug, unit_slug, username):
     building = Building.objects.get(slug=building_slug)
     unit = RentalUnit.objects.get(building=building,slug=unit_slug)
     tenant = Tenants.objects.get(rented_unit=unit,associated_account__username=username)
     water_billing_set = WaterBilling.objects.filter(rental_unit=unit,tenant=tenant)
+    billing_queryset = WaterBilingFilter(request.GET, queryset=water_billing_set)
+    
+    oldest_bill = water_billing_set.exclude(added=None).order_by('-added').last()
+    newest_bill = water_billing_set.exclude(added=None).order_by('added').first()
+    
+    if request.method == 'POST':
+        add_bill_form = StartWaterBillingForm(request.POST)
+        if add_bill_form.is_valid():
+            add_bill_form.instance.tenant = tenant
+            add_bill_form.instance.rental_unit = unit
+            # TODO: Do the math
+            add_bill_form.save()
+            messages.success(request, 'Billing started, you can add readings now')
+            return HttpResponseRedirect("")
+    else:
+        add_bill_form = StartWaterBillingForm()
     
     context = {
-        'building':building,'unit':unit,'tenant':tenant,'water_billing_set':water_billing_set,
+        'building':building,'unit':unit,'tenant':tenant,'water_billing_set':billing_queryset,
+        'oldest_bill':oldest_bill,'newest_bill':newest_bill,'add_bill_form':add_bill_form,
     }
     return render(request, 'utilities_and_rent/manager-water-billing.html', context)
+
+@login_required
+@user_passes_test(lambda user: user.is_manager==True, login_url='profile')
+def update_tenant_water_billing_details(request, building_slug, unit_slug, username, bill_code):
+    building = Building.objects.get(slug=building_slug)
+    unit = RentalUnit.objects.get(building=building,slug=unit_slug)
+    tenant = Tenants.objects.get(rented_unit=unit,associated_account__username=username)
+    bill_cycle = WaterBilling.objects.get(rental_unit=unit,tenant=tenant,bill_code=bill_code)
+    readings = WaterConsumption.objects.filter(parent=bill_cycle)
     
-#TODO: update rent details in update function
-#TODO: view payments made
-#TODO: manager in admin functions
-#TODO: water & electricity tracking
-#TODO: graph usage
+    if request.method == 'POST':
+        update_bill_form = WaterBillUpdateForm(request.POST, instance=bill_cycle)
+        reading_form = WaterReadingForm(request.POST)
+        if update_bill_form.is_valid():
+            update_bill_form.save()
+            messages.success(request, 'Water billing updated successfully!')
+            return HttpResponseRedirect("")
+        if reading_form.is_valid():
+            reading_form.instance.parent = bill_cycle
+            reading_form.save()
+            bill_update = bill_cycle
+            bill_update.quantity += reading_form.instance.consumption 
+            bill_update.save(update_fields=['quantity','total'])
+            messages.success(request, 'Reading added successfully!')
+            return HttpResponseRedirect("")
+    else:
+        reading_form = WaterReadingForm()
+        update_bill_form = WaterBillUpdateForm(instance=bill_cycle)
+        
+    context = {'update_bill_form':update_bill_form,'reading_form':reading_form,
+               'building':building,'unit':unit,'tenant':tenant,'bill_cycle':bill_cycle,'readings':readings}
+    return render(request, 'utilities_and_rent/water-billing-details.html', context)
+
+
+
+########## Graphs #############
 
 @login_required
 def rent_chart(request,building_slug,unit_slug,username):

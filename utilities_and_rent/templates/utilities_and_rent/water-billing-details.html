@@ -1,0 +1,147 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block metadescription %} Submit Rent Payments  {% endblock %}
+{% load humanize %}
+
+{% block content %}	
+<section class="mb-5 mt-5" style="background-color: #dfe8da;">
+    <div class="container">
+      <div class="row d-flex justify-content-center align-items-center h-100">
+
+        <div class="row">
+            <div class="col-sm-3">
+              <form action="" method="post" class="no-padding">
+                  {% csrf_token %}
+                  {{reading_form|crispy}}
+                  <br>
+                      <div class="form-group text-center">
+                          <button class="btn btn-outline-secondary" type="submit">Add New</button>
+                      </div>
+              </form>
+            </div>
+
+        <div class="col-sm-9">
+          <div class="card shadow-2-strong" style="border-radius: 1rem;">
+            <div class="card-body p-5">
+                <h3 class="text-uppercase text-center"> Billing Cycle For "{{bill_cycle.from_date|naturalday}} - {{bill_cycle.to_date|naturalday}}" </h3> </h3>
+            
+                <ul class="list-group">
+                    <li class="list-group-item d-flex justify-content-between align-items-start">
+                      <div class="ms-2 me-auto">
+                        Building
+                      </div>
+                      <span> {{building.name}} </span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-start">
+                      <div class="ms-2 me-auto">Unit</div>
+                      <span>{{unit.unit_number}}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-start">
+                        <div class="ms-2 me-auto">Bill Code</div>
+                        <span>{{bill_cycle.bill_code}}</span>
+                      </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-start">
+                      <div class="ms-2 me-auto">Meter</div>
+                      <span> {{bill_cycle.meter_number}}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-start">
+                        <div class="ms-2 me-auto">Current consumption</div>
+                        {% if bill_cycle.quantity %}
+                        <span> {{bill_cycle.quantity|intcomma}} {{bill_cycle.measuring_unit}} </span>
+                        {% else %}
+                        <span> Not Yet Updated </span>
+                        {% endif %}
+                      </li>
+                      <li class="list-group-item d-flex justify-content-between align-items-start">
+                        <div class="ms-2 me-auto"> Unit Price </div>
+                        <span> KES {{bill_cycle.unit_price|intcomma}}</span>
+                      </li>
+                      <li class="list-group-item d-flex justify-content-between align-items-start">
+                        <div class="ms-2 me-auto"> Est. Cost </div>
+                        <span> KES {{bill_cycle.total|intcomma}}</span>
+                      </li> <!-- TODO: update KES to be dynamic -->
+                      <li class="list-group-item d-flex justify-content-between align-items-start">
+                        <div class="ms-2 me-auto">Cleared </div>
+                        <span> {{bill_cycle.cleared}} </span>
+                      </li>
+                      <li class="list-group-item d-flex justify-content-between align-items-start">
+                        <div class="ms-2 me-auto">Status</div>
+                        <span> {% if bill_cycle.lock_cycle == True %} Closed {% else %} Open {% endif %} </span>
+                      </li>
+
+                      <li class="list-group-item d-flex justify-content-between align-items-start">
+                        <div class="ms-2 me-auto">Due Date</div>
+                        <span>{% if bill_cycle.cleared == False %} {{bill_cycle.due_date}} {% else %} 
+                            <em class="bg-success">{{bill_cycle.due_date}} {% endif %}</em> </span>
+                      </li>
+                      <li class="list-group-item d-flex justify-content-between align-items-start">
+                        <div class="ms-2 me-auto">
+                            <a type="button" class="underline" data-bs-toggle="modal" data-bs-target="#waterbillingUpdatebackdrop"> Last Updated </a> </div>
+                        <span> {{bill_cycle.updated|naturaltime}} </span>
+                      </li>
+
+                  </ul>
+                <br>
+
+                <div class="table-responsive">
+                <table class="table caption-top">
+                  <caption> Added Readings </caption>
+                  <thead>
+                    <tr>
+                      <th scope="col">Previous Reading</th>
+                      <th scope="col">Current Reading</th>
+                      <th scope="col">Calculated Consumption</th>
+                      <th scope="col"> Reading Date </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for r in readings %}
+                    <tr>
+                      <td>{{r.previous_reading}}</td>
+                      <td>{{r.current_reading}}</td>
+                      <td> {{r.consumption}} </td>
+                      <td> {{r.date_added}} </td>
+                    </tr>
+                    {% empty %}
+                    <tr> 
+                      <td> No payments submitted. </td>
+                    </tr>
+                    {% endfor %} 
+                  </tbody>
+                </table>
+                </div>
+
+            </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- start billing modal -->
+  <div class="modal fade" id="waterbillingUpdatebackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="waterbillingUpdatebackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="waterbillingUpdatebackdropLabel">Start New Billing</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form action="" method="post" class="no-padding">
+              {% csrf_token %}
+              {{update_bill_form|crispy }}
+              <br>
+              <div class="form-group text-center">
+                <button class="btn btn-outline-secondary" type="submit">Update</button>
+              </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- end billing modal -->
+
+</section>
+{% endblock %}

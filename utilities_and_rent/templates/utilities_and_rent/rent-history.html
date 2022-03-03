@@ -69,15 +69,13 @@
                     </form>
                     <br>
                     <div class="list-group">
-                      <a class="list-group-item list-group-item-action" data-bs-toggle="collapse" href="#waterCollapse" role="button" aria-expanded="false" aria-controls="waterCollapse">
-                        Water Billing
+                      <a class="list-group-item list-group-item-action" href="{% url 'manager-water-billing' building.slug unit.slug tenant.associated_account.username %}" role="button">
+                        Water Billing for {{tenant.associated_account.username}}
                       </a>
                       <a class="list-group-item list-group-item-action"  data-bs-toggle="collapse" href="#electicityCollapse" role="button" aria-expanded="false" aria-controls="electicityCollapse">
-                        Electricity Billing </a>
+                        Electricity Billing for {{tenant.associated_account.username}} </a>
                       
                     </div>
-
-
                   </div>
               </div>
 

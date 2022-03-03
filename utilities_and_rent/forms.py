@@ -1,6 +1,9 @@
 from django import forms
 
-from utilities_and_rent.models import RentPayment, UnitRentDetails
+from utilities_and_rent.models import (RentPayment, UnitRentDetails,
+                                       WaterBilling, WaterConsumption,
+                                       WaterPayments)
+
 
 class DateInput(forms.DateInput):
     input_type = 'date'
@@ -49,3 +52,44 @@ class PaymentUpdateForm(forms.ModelForm):
     class Meta:
         model = RentPayment
         fields = ['status','reason','notify_tenant']
+
+class StartWaterBillingForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(StartWaterBillingForm, self).__init__(*args, **kwargs)
+        self.fields['measuring_unit'].disabled = True
+        self.fields['total'].disabled = True
+        self.fields['cleared'].disabled = True
+        self.fields['quantity'].disabled = True
+    class Meta:
+        model = WaterBilling
+        fields = ['meter_number','quantity','measuring_unit', 'unit_price', 'total', 'from_date', 'to_date', 'cleared', 'remarks']
+        widgets = {
+            'from_date': DateInput(),
+            'to_date': DateInput(),
+        }
+
+class WaterReadingForm(forms.ModelForm):
+    class Meta:
+        model = WaterConsumption
+        fields = ['previous_reading','current_reading','reading_added']
+        widgets = {
+            'reading_added': DateInput(),
+        }
+        
+class WaterBillUpdateForm(forms.ModelForm):
+    class Meta:
+        model = WaterBilling
+        exclude = ['updated',]
+        widgets = {
+            'from_date': DateInput(),
+            'to_date': DateInput(),
+            'due_date': DateInput(),
+        }
+
+class WaterBillPaymentsForm(forms.ModelForm):
+    class Meta:
+        model = WaterPayments
+        fields = ['payment_code','amount','payment_method','date_paid']
+        widgets = {
+            'date_paid': DateInput(),
+        }

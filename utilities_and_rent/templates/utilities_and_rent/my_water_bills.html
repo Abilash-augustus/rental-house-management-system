@@ -59,13 +59,13 @@
             <div class="row">
               <div class="col-sm-3">
                 <form method='get'>
-                    {{water_billing_set.form|crispy }}
+                    {{water_bills_qs.form|crispy }}
                     <br>
                         <div class="form-group text-center">
                             <button class="btn btn-outline-secondary" type="submit">Get</button>
                         </div>
                 </form>
-              </div>
+              </div> 
 
               <div class="col-sm-9">
                 <div class="row">
@@ -73,7 +73,7 @@
                       <div class="card card-body">
 
                         <div class="btn-group" role="group" aria-label="Basic mixed styles example">
-                            <button type="button" class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#waterBillingBackdrop">Start New Billing</button>
+                            <!-- add filter -->
                           </div>
                           &nbsp;&nbsp;&nbsp;
                           <input class="form-control" id="myInput" type="text" placeholder="Search..">
@@ -94,7 +94,7 @@
                               </tr>
                             </thead>
                             <tbody id='ourTable'>
-                        {% for bill in water_billing_set.qs %}
+                        {% for bill in water_bills_qs.qs %}
                         <tr>
                           <th scope="row"> {{bill.bill_code}} </th>
                             <td > {{bill.meter_number}} </th>
@@ -105,7 +105,7 @@
                             <td {% if bill.total == 0 %} title="Not Yet Updated"{% endif %}> {{bill.total}} </td>
                             <td> {{bill.cleared}} </td>
                             <td> {% if bill.lock_cycle == True %} Locked {% else %} Open {% endif %}</td>
-                            <td> <a href="{% url 'water-billing-details' building.slug unit.slug tenant.associated_account.username bill.bill_code %}">
+                            <td> <a href="{% url 'my_water_billing_details' building.slug unit.slug tenant.associated_account.username bill.bill_code %}">
                               View </a>
                         {% empty %}
                         <tbody>
@@ -128,49 +128,22 @@
             </div>
           </div>
         </div>
+</section>
 
+<script>
 
-    <!-- start billing modal -->
-    <div class="modal fade" id="waterBillingBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="waterBillingBackdropLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title" id="waterBillingBackdropLabel">Start New Billing</h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-              <form action="" method="post" class="no-padding">
-                  {% csrf_token %}
-                  {{add_bill_form|crispy }}
-                  <br>
-                  <div class="form-group text-center">
-                    <button class="btn btn-outline-secondary" type="submit">Start</button>
-                  </div>
-              </form>
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">close</button>
-            </div>
-          </div>
-        </div>
-      </div>
-      <!-- end billing modal -->
-    </section>
-
-
-    <script>
-
-        $(function () {var $waterChart = $("#waterUsage");
-        $.ajax({url: $waterChart.data("url"),success: function (data) {
-            var ctx = $waterChart[0].getContext("2d");
-            new Chart(ctx, {type: 'line',data: {labels: data.labels,
-                datasets: [{label: 'Litres',backgroundColor: '#d4f1f9',
-                  data: data.data}]},
-                  options: {responsive: true,legend: {display: false,},
-                  scales: {xAxes: [{ticks: {display: false,}}],yAxes: [{
-                    scaleLabel: {display: true,labelString: 'Litres'}}]},
-                  title: {display: true,text: 'Water (L) Usage Overview'}}});}});});
-      
-      </script>
+    $(function () {var $waterChart = $("#waterUsage");
+    $.ajax({url: $waterChart.data("url"),success: function (data) {
+        var ctx = $waterChart[0].getContext("2d");
+        new Chart(ctx, {type: 'line',data: {labels: data.labels,
+            datasets: [{label: 'Litres',backgroundColor: '#d4f1f9',
+              data: data.data}]},
+              options: {responsive: true,legend: {display: false,},
+              scales: {xAxes: [{ticks: {display: false,}}],yAxes: [{
+                scaleLabel: {display: true,labelString: 'Litres'}}]},
+              title: {display: true,text: 'Water (L) Usage Overview'}}});}});});
+  
+  </script>
       
 {% endblock %}
+

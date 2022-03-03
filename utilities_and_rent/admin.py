@@ -28,3 +28,7 @@ class WaterConsumptionAdmin(admin.StackedInline):
 @admin.register(WaterBilling)
 class WaterAdmin(admin.ModelAdmin):
     inlines = [WaterConsumptionAdmin]
+    """def get_inline_instances(self,request,obj=None):
+        if not obj:
+            return list()
+        return super(WaterAdmin,self).get_inline_instances(request,obj)"""

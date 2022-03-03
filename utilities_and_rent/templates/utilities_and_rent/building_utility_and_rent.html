@@ -3,6 +3,11 @@
 {% load humanize %}
 {% load crispy_forms_tags %}
 
+{% block extra_head %} 
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js"></script>
+{% endblock %}
+
 {% block content %}	
 
 <section class="container border border-5" style="margin-top:2%; margin-bottom:4%;">
@@ -25,7 +30,7 @@
           <div class="col-sm-4">
             <div class="card border-0">
               <div class="card-body">
-                <canvas id="rent-chart1" data-url="#">
+                <canvas id="buildingWaterUsage" data-url="#">
                 </canvas>
               </div>
             </div>
@@ -105,5 +110,4 @@
           </div>
         </div>
     </section>
-
 {% endblock %}
