@@ -1,5 +1,6 @@
 from itertools import chain
-
+from django.db.models import Count
+from django.http import JsonResponse
 from accounts.models import Tenants
 from complaints.models import UnitReport
 from django.contrib import messages
@@ -13,6 +14,7 @@ from rental_property.forms import (AddRentalUnitForm, BuildingUpdateForm,
                                    UnitAlbumForm, UpdateRentalUnit)
 from rental_property.models import (Building, Counties, Estate, RentalUnit,
                                     UnitAlbum, UnitType)
+from rental_property.filters import UnitsFilter,TenantsFilter
 
 
 def property_by_county(request, county_slug):
@@ -69,11 +71,9 @@ def building_dashboard(request, building_slug):
     building_reports_count = UnitReport.objects.filter(unit__building=building).count()
     
     get_tenants_with_status = request.GET.get('status', 'current-tenants')
-
-    if get_tenants_with_status == 'current-tenants':
-        tenants = Tenants.objects.filter(moved_in=True, rented_unit__building=building)
-    elif get_tenants_with_status == 'not-moved-in':
-        tenants = Tenants.objects.filter(moved_in=False, rented_unit__building=building)
+    
+    tenants = Tenants.objects.filter(moved_in=True, rented_unit__building=building)
+    tenants_filter = TenantsFilter(request.GET,queryset=tenants)
 
     active_tenants_count = Tenants.objects.filter(moved_in=True, rented_unit__building=building).count()
     waiting_tenants_count = Tenants.objects.filter(moved_in=False, rented_unit__building=building).count()
@@ -83,7 +83,7 @@ def building_dashboard(request, building_slug):
     
 
     context = {
-        'building': building, 'tenants': tenants, 'active_tenants_count':active_tenants_count,
+        'building': building, 'tenants': tenants_filter, 'active_tenants_count':active_tenants_count,
         'waiting_tenants_count':waiting_tenants_count,'oc_units_count':oc_units_count, 'em_units_count':em_units_count,
         'building_reports_count':building_reports_count, 'get_tenants_with_status':get_tenants_with_status}
     return render(request, 'rental_property/managed-building-dashboard.html', context)
@@ -93,32 +93,11 @@ def building_dashboard(request, building_slug):
 def managed_building_units(request, building_slug):
     building = Building.objects.get(slug=building_slug)
     
-    # get units by occupation status
-    get_status = request.GET.get('unit-status', '')
-    if get_status == 'occupied':
-        units = RentalUnit.objects.filter(building=building, status='occupied')
-    elif get_status == 'ready-for-movein':
-        units = RentalUnit.objects.filter(building=building, status='ready')
-    elif get_status == 'on-hold':
-        units = RentalUnit.objects.filter(building=building, status='hold')
-    elif get_status == 'under-maintanance':
-        units = RentalUnit.objects.filter(building=building, status='maintanance')
-    elif get_status == 'unchecked':
-        units = RentalUnit.objects.filter(building=building, maintanance_status='nm')
-    elif get_status == 'starting-inspection':
-        units = RentalUnit.objects.filter(building=building, maintanance_status='ip')
-    elif get_status == 'maintanace-in-progress':
-        units = RentalUnit.objects.filter(building=building, maintanance_status='ir')
-    elif get_status == 'no-reports':
-        units = RentalUnit.objects.filter(building=building, maintanance_status='op')
-    else:
-        units = RentalUnit.objects.filter(building=building)
+    units = RentalUnit.objects.filter(building=building)
+    units_filter = UnitsFilter(request.GET, queryset=units)
+    total_units = units.count()
         
-    paginator = Paginator(units, 6)
-    page_number = request.GET.get('page')
-    units_obj = paginator.get_page(page_number)
-        
-    context = {'units':units_obj, 'building':building,}
+    context = {'units':units_filter,'total_units':total_units, 'building':building,}
     return render(request, 'rental_property/managed_building_units.html', context)
     
 # TODO: filter buildings to a specific area
@@ -187,3 +166,21 @@ def update_unit(request, building_slug, unit_slug):
     
     context = {'unit_update_form':unit_update_form,'unit':unit,'building':building}
     return render(request, 'rental_property/update-unit.html', context)
+
+@login_required
+def units_overview(request, building_slug):
+    building = Building.objects.get(slug=building_slug)
+    
+    labels = []
+    data = []
+    
+    queryset = RentalUnit.objects.filter(building=building).values(
+        'status').annotate(count=Count('status'))
+    
+    for entry in queryset:
+        labels.append(entry['status'])
+        data.append(entry['count'])
+    
+    data = {'labels': labels,'data': data}
+    return JsonResponse(data)
+    

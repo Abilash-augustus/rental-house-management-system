@@ -1,13 +1,17 @@
+from django.http import HttpResponse, JsonResponse
 from accounts.models import Tenants
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.db.models import Count
 from django.forms import modelformset_factory
 from django.shortcuts import redirect, render
 from rental_property.models import Building, RentalUnit
 
-from complaints.forms import (NewComplaintForm, ReportUpdateForm, UpdateComplaintForm,
-                              UnitReportAlbumForm, UnitReportForm)
+from complaints.filters import UnitReportFilter
+from complaints.forms import (NewComplaintForm, ReportUpdateForm,
+                              UnitReportAlbumForm, UnitReportForm,
+                              UpdateComplaintForm)
 from complaints.models import (Complaints, UnitReport, UnitReportAlbum,
                                UnitReportType)
 
@@ -55,20 +59,10 @@ def create_a_report(request, unit_slug, username):
 def view_reports(request, building_slug):
     building = Building.objects.get(slug=building_slug)
 
-    status = request.GET.get('status', 'received')
-
-    if status == 'received':
-        reports = UnitReport.objects.filter(unit__building=building, status='rc')
-    elif status == 'processing':
-        reports = UnitReport.objects.filter(unit__building=building, status='pr')
-    elif status == 'cancelled':
-        reports = UnitReport.objects.filter(unit__building=building, status='dr')
-    elif status == 'resolved':
-        reports = UnitReport.objects.filter(unit__building=building, status='rs')
-    else:
-        reports = UnitReport.objects.filter(unit__building=building)
-
-    context = {'reports': reports, 'building': building,}
+    reports = UnitReport.objects.filter(unit__building=building)
+    reports_filter = UnitReportFilter(request.GET, queryset=reports)
+    
+    context = {'reports':reports_filter, 'building': building,}
     return render(request, 'complaints/reports-by-building.html', context)
 
 @login_required
@@ -141,3 +135,20 @@ def complaint_update(request, building_slug, complaint_code):
         update_form = UpdateComplaintForm(instance=complaint)
     context = {'building':building, 'update_form':update_form, 'complaint':complaint}
     return render(request, 'complaints/complaint_update.html', context)
+
+@login_required
+def reports_overview(request,building_slug):
+    building = Building.objects.get(slug=building_slug)
+    
+    labels = []
+    data = []
+    
+    queryset = UnitReport.objects.filter(unit__building=building).values(
+        'report_type__name').annotate(count=Count('pk'))
+    
+    for entry in queryset:
+        labels.append(entry['report_type__name'])
+        data.append(entry['count'])
+    
+    data = {'labels': labels,'data': data}
+    return JsonResponse(data)

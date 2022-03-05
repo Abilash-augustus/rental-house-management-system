@@ -17,4 +17,7 @@ urlpatterns = [
     path('cancel-notice/<slug:building_slug>/<slug:username>/<slug:notice_code>/', views.cancel_vacate_notice, name='cancel-notice'),
     path('view-notice/<slug:building_slug>/<slug:username>/<slug:notice_code>/', views.view_move_out_notice, name="views-moveout-notice"),
     path('vacate-notice-update/<slug:building_slug>/<slug:notice_code>/', views.vacate_notice_update, name='vacate-notice-update'),
+    
+    path('building/<slug:building_slug>/stats/', views.building_dashboard, name="building_stats"),
+    path('visits_overview/<slug:building_slug>/', views.visits_overview, name="visits_overview"),
 ]

@@ -81,8 +81,8 @@
                     </a>
                     <div class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton">
     
-                      <a href="{% url 'profile' %}" class="dropdown-item" class="dropdown-item"> Profile</a>
-                      <a href="#" class="dropdown-item" class="dropdown-item"> My History</a>
+                      <a href="{% url 'profile' %}" class="dropdown-item"> Profile</a>
+                      <a href="#" class="dropdown-item"> My History</a>
                       <a href="{% url 'account_logout' %}" class="dropdown-item" type="button">Logout</a>
                     </div>
                   </div>
@@ -102,7 +102,7 @@
             {% if user.is_manager %}
             <div class="offcanvas offcanvas-start" tabindex="-1" id="hrmsCanvas" aria-labelledby="hrmsCanvasLabel">
               <div class="offcanvas-header">
-                <h5 class="offcanvas-title" id="hrmsCanvasLabel">Managers' Menu</h5>
+                <h5 class="offcanvas-title text-uppercase" id="hrmsCanvasLabel">Managers' Menu</h5>
                 <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
               </div>
 
@@ -115,24 +115,19 @@
                         <div class="list-group list-group-flush mx-3 mt-4">
                           
                       <li class="list-group-item list-group-item-action py-2 ripple">
-                        <a class="nav-link" href="#">Other</a>
-                      </li>
-                      <li class="list-group-item list-group-item-action py-2 ripple">
                         <a class="nav-link" href="{% url 'add-new-manager' %}"> Add New Managers</a>
                       </li>
+
                       <li class="list-group-item list-group-item-action py-2 ripple">
-                        <a class="nav-link" href="#">other</a>
-                      </li>
-                      <li class="nav-item dropdown list-group-item list-group-item-action py-2 ripple">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                          Managed Buildings
-                        </a>
-                        <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                          {% for managed_building in managed_buildings %}
-                          <li><a class="dropdown-item list-group-item list-group-item-action py-2 ripple" href="{% url 'building-dashboard' managed_building.slug %}">{{managed_building.name}}</a></li>
+                        <h4> Managed Building List</h4>
+                        <ul class="list-group" style="list-style: none;">
+                        {% for managed_building in managed_buildings %}
+                          <li><a class="list-group-item list-group-item-action py-2 ripple" href="{% url 'building-dashboard' managed_building.slug %}">{{managed_building.name}}</a></li>
                           {% empty %}
-                          <li><a class="dropdown-item list-group-item list-group-item-action py-2 ripple" href="#notassigned">No buildings have been assigned to you yet!</a></li>
+                          <li><a class="list-group-item list-group-item-action py-2 ripple" href="#notassigned">No buildings have been assigned to you yet!</a></li>
                           {% endfor %}
+                        </ul>
+                      </li>
                         </ul>
                       </li>
                     </ul>
@@ -148,7 +143,7 @@
 
     {% if messages %}
     {% for message in messages %}
-    <div class="alert {% if message.tags %} {{ message.tags }} {% endif %} alert-dismissible fade show user-alert"role="alert">
+    <div class="alert {% if message.tags %} {{ message.tags }} {% endif %} alert-dismissible fade show user-alert" role="alert">
       {{message}}
       <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
@@ -159,9 +154,9 @@
 
 
     <!-- live chat bot -->
-    
+    <!--
 <script id="TelegramLiveChatLoader" data-bot="81B58C84-8B5C-11EC-A9B8-05FC22E822B5" src="//livechatbot.net/assets/chat/js/loader.js"></script>
-  
+  -->
 
 
 <!-- in page search -->

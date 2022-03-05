@@ -30,7 +30,8 @@
                     </div>
                       <div class="card-footer">
                           <small class="text-muted">Status: {{building.get_building_status_display}}</small>
-                          &nbsp;&nbsp;&nbsp;&nbsp; <small> <a href="{% url 'update-building-status' building.slug %}"> update </a> </small>
+                          &nbsp;&nbsp;&nbsp;&nbsp; <small> <a href="{% url 'update-building-status' building.slug %}"> update </a> </small> &nbsp;&nbsp;
+                          <small> <a href="{% url 'core:building_stats' building.slug %}"> stats </a> </small>
                       </div>
                   </div>
               </div>
@@ -42,31 +43,34 @@
                     <div class="list-group">
                       <h5 class='list-group-item list-group-item-action'>Building Menu</h5>
                       {% if user.is_manager %}
+                      <a href="{% url 'managed-building-units' building.slug %}" type="button" class="list-group-item list-group-item-action" role="button">All Units</a>
                       <a href="{% url 'add-rental-unit' building.slug %}" type="button" class="list-group-item list-group-item-action" role="button">Add rental unit</a>
                       <a href="{% url 'add-new-tenant' building.slug %}" type="button" class="list-group-item list-group-item-action" role="button">Add Tenants</a>
                       <a href="{% url 'rent-and-utilities' building.slug %}" type="button" class="list-group-item list-group-item-action" role="button"> Rent and Utilities </a>
-                      <a href="{% url 'core:visits' building.slug %}" type="button" class="list-group-item list-group-item-action" role="button">Tours</a>
+                      <a href="{% url 'core:visits' building.slug %}" type="button" class="list-group-item list-group-item-action" role="button">Visits</a>
                       <a href="{% url 'reports' building.slug %}" type="button" class="list-group-item list-group-item-action" role="button">Reports 
                         <small class="position-absolute top-1 start-100 translate-middle badge rounded-pill bg-secondary">({{building_reports_count}})</small></a>
                       <a href="{% url 'building-complaints' building.slug %}" type="button" class="list-group-item list-group-item-action" role="button">Complaints</a>
                       <a href="{% url 'core:evictions' building.slug %}" type="button" class="list-group-item list-group-item-action" role="button">Evictions</a>
                       <a href="{% url 'core:move-out-notices' building.slug %}" title="submitted move out notices" type="button" class="list-group-item list-group-item-action" role="button">Move Out Notices</a>
-                      <a href="{% url 'managed-building-units' building.slug %}" type="button" class="list-group-item list-group-item-action" role="button">Building Units</a>
                       {% endif %}
                     </div>
                   </div>
                   <div class="col-sm-9">
                     <div class="row">
                       <div class="col-8 col-sm-12">
+                        <div class="card card-body mb-2">
+                          <h4 class="card-header text-center"> Query Tenants</h4>
+                          <form class="no-padding" method="get">
+                              {{tenants.form|crispy}}
+                              <br>
+                              <div class="form-group text-center">
+                                  <button class="btn btn-outline-secondary" type="submit">Search</button>
+                              </div>
+                          </form>
+                        </div>
                         <div class="card card-body">
-                          <div class="d-grid gap-2 d-md-block">
-                              <a href="?status=current-tenants" type="button" 
-                              class="btn btn-outline-success" role="button">Active Tenants ({{active_tenants_count}})</a>
-                              <a href="?status=not-moved-in" type="button" class="btn btn-outline-info" role="button">Waiting Move In ({{waiting_tenants_count}})</a>
-                          </div>
-                          &nbsp; &nbsp;
-
-                          <input class="form-control" id="myInput" type="text" placeholder="Search..">
+                          <input class="form-control" id="myInput" type="text" placeholder="table search..">
                           <div class="table-responsive">
                           <table class="table table-striped table-hover">
                             <caption> Tenants </caption>
@@ -80,7 +84,7 @@
                                 </tr>
                               </thead>
                               <tbody id='ourTable'>
-                                  {% for tenant in tenants %}
+                                  {% for tenant in tenants.qs %}
                                 <tr>
                                   <th scope="row">{{ tenant.associated_account }}</th>
                                   <td>{{ tenant.rented_unit.unit_number }}</td>

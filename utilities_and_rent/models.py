@@ -154,7 +154,7 @@ class WaterBilling(models.Model):
         return f'{self.rental_unit} - {self.tenant}'
     
     class Meta:
-        verbose_name_plural = 'Billing | Water '
+        verbose_name_plural = 'Billing | Water Billing Cycles'
     
 class WaterConsumption(models.Model):
     parent = models.ForeignKey(WaterBilling, on_delete=models.CASCADE)
@@ -164,7 +164,6 @@ class WaterConsumption(models.Model):
     reading_added = models.DateField()
     
     def save(self, *args, **kwargs):
-        #TODO: correct the math
         if self.current_reading:
             self.consumption = self.current_reading-self.previous_reading
             super(WaterConsumption,self).save(*args,**kwargs)
@@ -179,7 +178,7 @@ class WaterPayments(models.Model):
     parent = models.ForeignKey(WaterBilling, on_delete=models.DO_NOTHING)
     payment_code = models.CharField(max_length=30)
     amount = models.DecimalField(decimal_places=2, max_digits=9)
-    payment_method = models.CharField(max_length=30)
+    payment_method = models.CharField(max_length=30,help_text="e.g. MPESA, KCB ...")
     date_paid = models.DateField()
     status = models.CharField(max_length=10, default='pending', choices=PAYMENT_STATUS_CHOICES)
     remarks = models.TextField(blank=True,null=True,max_length=155)
@@ -189,35 +188,69 @@ class WaterPayments(models.Model):
     def __str__(self):
         return f"{self.payment_code}"
     
+    class Meta:
+        verbose_name = 'Billing | Water Bills Payments'
+        verbose_name_plural = verbose_name
     
-class Electricity(models.Model):
+    
+class ElectricityBilling(models.Model):
     rental_unit = models.ForeignKey(RentalUnit, on_delete=models.DO_NOTHING)
     tenant = models.ForeignKey(Tenants, on_delete=models.DO_NOTHING)
-    quantity = models.DecimalField(decimal_places=2, max_digits=9)
-    unit = models.CharField(max_length=20)
+    bill_code = models.CharField(max_length=20, unique=True, null=True, blank=True)
+    meter_id = models.CharField(max_length=20)
+    measuring_unit = models.CharField(max_length=20, default='KWH')
+    units = models.DecimalField(decimal_places=2, max_digits=9)
     unit_price = models.DecimalField(decimal_places=2, max_digits=9)
-    total = models.DecimalField(decimal_places=2, max_digits=9)
-    pay_for_month = MultiSelectField(choices=MONTHS_SELECT)
+    total = models.DecimalField(decimal_places=2, max_digits=9, null=True, blank=True)
+    month = MultiSelectField(choices=MONTHS_SELECT)
     remarks = models.TextField(blank=True)
-    cleared = models.BooleanField(default=False)    
+    cleared = models.BooleanField(default=False)  
+    lock_cycle = models.BooleanField(default=False)  
     from_date = models.DateField()
     to_date = models.DateField()
     due_date = models.DateField()
+    added = models.DateTimeField(default=datetime.now)
+    updated = models.DateTimeField(auto_now=True)
+    
+    def save(self, *args, **kwargs):
+        if not self.bill_code:
+            self.bill_code = ''.join(random.choices(string.ascii_letters+string.digits, k=12))
+        if self.units:
+            self.total = self.units*self.unit_price
+            super(ElectricityBilling, self).save(*args, **kwargs)
+        super(ElectricityBilling, self).save(*args, **kwargs)
     
     def __str__(self):
         return f'{self.rental_unit} - {self.tenant}'
     
     class Meta:
-        verbose_name_plural = "Billing | Electricity"
+        verbose_name_plural = "Billing | Electricity Billing Cycles"
+        
+class ElectricityReadings(models.Model):
+    parent = models.ForeignKey(ElectricityBilling, on_delete=models.CASCADE)
+    previous_reading = models.DecimalField(decimal_places=2,max_digits=9)
+    current_reading = models.DecimalField(decimal_places=2,max_digits=9)
+    units = models.DecimalField(decimal_places=2,max_digits=9)
+    reading_date = models.DateTimeField()
+        
     
 class ElectricityPayments(models.Model):
-    utility = models.ForeignKey(Electricity, on_delete=models.DO_NOTHING)
+    parent = models.ForeignKey(ElectricityBilling, on_delete=models.DO_NOTHING)
+    tracking_code = models.CharField(max_length=15, unique=True, null=True, blank=True)
     payment_code = models.CharField(max_length=30)
     amount = models.DecimalField(decimal_places=2, max_digits=9)
-    payment_method = models.CharField(max_length=30)
-    status = models.CharField(max_length=10, choices=PAYMENT_STATUS_CHOICES)
+    payment_method = models.CharField(max_length=30, help_text="e.g. MPESA, KCB ...")
+    status = models.CharField(max_length=10, choices=PAYMENT_STATUS_CHOICES, default='pending')
+    remarks = models.TextField(null=True, blank=True)
     created = models.DateTimeField(default=datetime.now)
     updated = models.DateTimeField(auto_now=True)
     
-    class Reading(models.Model):
-        previous = models.CharField(max_length=20)
+    def save(self, *args, **kwargs):
+        if not self.tracking_code:
+            self.tracking_code = ''.join(random.choices(string.digits+string.ascii_letters, k=10))
+            super(ElectricityPayments, self).save(*args, **kwargs)
+        super(ElectricityPayments, self).save(*args, **kwargs)
+    
+    class Meta:
+        verbose_name = 'Billing | Electricity Bill Payments'
+        verbose_name_plural = verbose_name

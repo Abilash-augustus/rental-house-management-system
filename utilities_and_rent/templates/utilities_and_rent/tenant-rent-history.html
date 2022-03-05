@@ -72,27 +72,17 @@
                       <a class="list-group-item list-group-item-action" href="{% url 'manager-water-billing' building.slug unit.slug tenant.associated_account.username %}" role="button">
                         Water Billing for {{tenant.associated_account.username}}
                       </a>
-                      <a class="list-group-item list-group-item-action"  data-bs-toggle="collapse" href="#electicityCollapse" role="button" aria-expanded="false" aria-controls="electicityCollapse">
+                      <a class="list-group-item list-group-item-action" href=" {% url 'manage_tenant_electric_bills' building.slug unit.slug tenant.associated_account.username %}" role="button">
                         Electricity Billing for {{tenant.associated_account.username}} </a>
                       
                     </div>
                   </div>
               </div>
 
-              <div class="col-sm-8">
+              <div class="col-sm-8 m                                                                                ">
                 <div class="row">
-                  <div class="col-8 col-sm-12">
-                      <div class="card card-body">                        
-                          {% if due_status %}
-                            {% if due_status == 'due' %} <span class="badge bg-danger"> Due Payments </span>
-                            {% elif due_status == 'cleared' %} <span class="badge bg-info"> Cleared Payments </span>
-                            {% elif due_status == 'upcoming' %} <span class="badge bg-info"> Upcoming Payments </span>
-                            {% elif due_status == 'un_cleared' %} <span class="badge bg-info"> Un Cleared Payments </span>
-
-                        {% endif %}
-                           
-                           {% endif %}
-                          &nbsp;&nbsp;
+                  <div class="col-12">
+                      <div class="card card-body"> 
                           <input class="form-control" id="myInput" type="text" placeholder="Search..">
                           <div class="table-responsive">
                         <table class="table table-striped table-hover">
@@ -126,7 +116,7 @@
                             {% endif %}
                             {% if rent.amount_paid > 0 %}
                             <td> <a href="{% url 'view-update-rent' building.slug unit.slug rent.tenant.associated_account.username rent.code %}">
-                                View Payments </a>
+                                View Payments </a> </td>
                             {% else %}
                             <td> No payments Made </td>
                             {% endif %}

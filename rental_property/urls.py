@@ -12,4 +12,6 @@ urlpatterns = [
     path('vacancies/county/<slug:county_slug>/', views.property_by_county, name='by-county'),
     path('add-rental-unit/<slug:building_slug>/', views.add_rental_unit, name='add-rental-unit'),
     path('update-rental-unit/<slug:building_slug>/<slug:unit_slug>/', views.update_unit, name="update-unit"),
+    
+    path('units_overview/<slug:building_slug>/', views.units_overview, name="units_overview"),
 ]

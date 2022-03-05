@@ -1,20 +1,28 @@
-from audioop import reverse
+from django.db.models import Count
+import datetime
 
 from accounts.models import Managers, Tenants
+from complaints.models import Complaints, UnitReport
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.messages.views import SuccessMessageMixin
+from django.core import serializers
+from django.db.models import Sum
+from django.http import JsonResponse
 from django.shortcuts import HttpResponse, get_object_or_404, redirect, render
 from django.urls import reverse_lazy
 from django.views.generic import CreateView
 from rental_property.models import Building, RentalUnit
-
+from utilities_and_rent.models import ElectricityBilling, RentPayment, WaterBilling
+from django.template.loader import render_to_string
+from django.core.mail import EmailMessage
 from core.forms import (CancelMoveOutForm, ContactForm, EvictionNoticeForm,
                         NewVacateNoticeForm, UnitTourForm, UpdateVacateNotice,
                         VisitUpdateForm)
 from core.models import Contact, EvictionNotice, UnitTour, VacateNotice
-
+from core.filters import VisitFilter
+from config.settings import DEFAULT_FROM_EMAIL
 User = get_user_model()
 
 
@@ -35,8 +43,7 @@ def schedule_unit_tour(request, unit_slug):
         if tour_form.is_valid():
             tour_form.instance.unit = unit
             tour_form.save()
-            # add sending email by template.
-            messages.success(request, 'Visit has been added, check email for confirmation.')
+            messages.success(request, 'Visit has been added, an email will be sent after checking.')
             return redirect('unit-details', building_slug=unit.building.slug, unit_slug=unit.slug)
     else:
         tour_form = UnitTourForm()
@@ -47,22 +54,17 @@ def schedule_unit_tour(request, unit_slug):
 @user_passes_test(lambda user: user.is_manager==True, login_url='profile')
 def scheduled_visits(request, building_slug):
     building = Building.objects.get(slug=building_slug)
+    
+    visits = UnitTour.objects.filter(unit__building=building).order_by('-created')
+    visits_filter = VisitFilter(request.GET, queryset=visits)
+    
+    visited = UnitTour.objects.filter(unit__building=building,visit_status='visited').count()
+    waiting = UnitTour.objects.filter(unit__building=building,visit_status='waiting').count()
+    cancelled = UnitTour.objects.filter(unit__building=building,visit_status='visited').count()
 
-    get_by = request.GET.get('filter', 'waiting')
-
-    if get_by == 'waiting':
-        visits = UnitTour.objects.filter(unit__building=building, visit_status='waiting')
-    elif get_by == 'cancelled':
-        visits = UnitTour.objects.filter(unit__building=building, visit_status='cancelled')
-    elif get_by == 'visited':
-        visits = UnitTour.objects.filter(unit__building=building, visit_status='visited')
-    elif get_by == 'approved':
-        visits = UnitTour.objects.filter(unit__building=building, visit_status='approved')
-    else:
-        visits = UnitTour.objects.filter(unit__building=building)
-
-    context = {'building':building, 'visits':visits}
-    return render(request, 'core/vists.html', context)
+    context = {'building':building, 'visits':visits_filter,
+               'visited':visited,'waiting':waiting,'cancelled':cancelled}
+    return render(request, 'core/manager-vists.html', context)
 
 @login_required
 @user_passes_test(lambda user: user.is_manager==True, login_url='profile')
@@ -70,16 +72,26 @@ def update_view_visits(request, building_slug, visit_code):
     building = Building.objects.get(slug=building_slug)
     visit = UnitTour.objects.get(visit_code=visit_code, unit__building=building)
 
-    last_updater = Managers.objects.get(associated_account=request.user)
+    last_updated_by = Managers.objects.get(associated_account=request.user)
 
     if request.method == 'POST':
         update_visit_form = VisitUpdateForm(request.POST, instance=visit)
         if update_visit_form.is_valid():
-            update_visit_form.instance.last_updated_by = last_updater
+            update_visit_form.instance.last_updated_by = last_updated_by
             update_visit_form.save()
+            check_status = update_visit_form.instance.visit_status
+            
+            if check_status == 'cancelled' or check_status == 'approved':
+                subject = 'Visit {0}'.format(check_status)
+                html_content = 'core/mail/confirm-visit.html'
+                html_message = render_to_string(html_content, {'building':building,'visit':visit})
+                from_email = DEFAULT_FROM_EMAIL
+                to_email = visit.visitor_email
+                message = EmailMessage(subject, html_message, from_email, [to_email])
+                message.content_subtype = 'html'
+                message.send()
             messages.success(request, 'Visit was updated successfully')
-            return redirect('visits', building_slug=building.slug)
-            # TODO: Add send email if visit is Approved
+            return redirect('core:visits', building_slug=building.slug)
     else:
         update_visit_form = VisitUpdateForm(instance=visit)
     context = {'visit':visit, 'update_visit_form': update_visit_form}
@@ -137,7 +149,7 @@ def eviction_notice_display(request,building_slug, notice_code):
     notice = EvictionNotice.objects.get(unit__building=building, notice_code=notice_code)
     context = {'building':building, 'notice':notice}
     return render(request, 'core/e-notice-display.html', context)
-#evictipn notice display for users
+#eviction notice display for users
     
 @login_required
 @user_passes_test(lambda user: user.is_tenant==True, login_url='profile')
@@ -237,3 +249,105 @@ def view_move_out_notice(request, building_slug, username, notice_code):
         return redirect('profile')
     context = {'notice':notice,'building':building,'tenant':tenant}
     return render(request, 'core/move-out-notice.html', context)
+
+
+def building_dashboard(request,building_slug):
+    building = Building.objects.get(slug=building_slug)
+    
+    movedin_tenants = Tenants.objects.filter(rented_unit__building=building).exclude(moved_in=False).count()
+    waiting_tenants = Tenants.objects.filter(rented_unit__building=building,moved_in=False).count()
+    
+    occupied_units = RentalUnit.objects.filter(building_id=building.id,status='occupied').count()
+    un_occupied_units = RentalUnit.objects.filter(building_id=building.id).exclude(status='occupied').count()
+    
+    #move out notices
+    received_move_out_notices = VacateNotice.objects.filter(tenant__rented_unit__building=building,notice_status='received').count()
+    confirmed_move_out_notices = VacateNotice.objects.filter(tenant__rented_unit__building=building,notice_status='confirmed').count()
+    checking_move_out_notices = VacateNotice.objects.filter(tenant__rented_unit__building=building,notice_status='checking').count()
+    dropped_move_out_notices = VacateNotice.objects.filter(tenant__rented_unit__building=building,notice_status='dropped').count()
+    
+    #eviction notices
+    initiated_evictions = EvictionNotice.objects.filter(unit__building=building,eviction_status="initiated").count()
+    evicted_evictions = EvictionNotice.objects.filter(unit__building=building,eviction_status="evicted").count()
+    dropped_evictions = EvictionNotice.objects.filter(unit__building=building,eviction_status="dropped").count() 
+    
+    # unit reports
+    recieved_unit_reports =UnitReport.objects.filter(unit__building=building,status='rc').count()
+    processing_unit_reports = UnitReport.objects.filter(unit__building=building,status='pr').count()
+    resolved_unit_reports = UnitReport.objects.filter(unit__building=building,status='rs').count() 
+    dropped_unit_reports = UnitReport.objects.filter(unit__building=building,status='dr').count()
+    
+    #Complaints
+    open_complaints = Complaints.objects.filter(building=building,status='rc').count()
+    resolved_complaints = Complaints.objects.filter(building=building,status='rs').count()
+    
+    # Building tours
+    cancelled_tours = UnitTour.objects.filter(unit__building=building,visit_status="cancelled").count()
+    waiting_tours = UnitTour.objects.filter(unit__building=building,visit_status="waiting").count()
+    approved_tours = UnitTour.objects.filter(unit__building=building,visit_status="approved").count()
+    visited_tours = UnitTour.objects.filter(unit__building=building,visit_status="visited").count()
+    
+    #Utility billing
+    electric_consumption = ElectricityBilling.objects.filter(rental_unit__building=building,added__lte=datetime.datetime.today(), 
+                                                             added__gt=datetime.datetime.today()-datetime.timedelta(days=30))
+    sum_electric_consumption = electric_consumption.aggregate(Sum('units')).get('units__sum')
+    
+    water_consumption = WaterBilling.objects.filter(rental_unit__building=building,added__lte=datetime.datetime.today(), 
+                                                             added__gt=datetime.datetime.today()-datetime.timedelta(days=30))
+    sum_water_consumption = water_consumption.aggregate(Sum('quantity')).get('quantity__sum')
+    
+    context = {
+        'building':building,
+        
+        'movedin_tenants':movedin_tenants,
+        'waiting_tenants':waiting_tenants,
+        
+        'initiated_evictions':initiated_evictions,
+        'evicted_evictions':evicted_evictions,
+        'dropped_evictions':dropped_evictions,
+        
+        'received_move_out_notices':received_move_out_notices,
+        'confirmed_move_out_notices':confirmed_move_out_notices,
+        'checking_move_out_notices':checking_move_out_notices,
+        'dropped_move_out_notices':dropped_move_out_notices,
+        
+        'occupied_units':occupied_units,
+        'un_occupied_units':un_occupied_units,
+        
+        'recieved_unit_reports':recieved_unit_reports,
+        'processing_unit_reports':processing_unit_reports,
+        'resolved_unit_reports':resolved_unit_reports,
+        'dropped_unit_reports':dropped_unit_reports,
+        
+        'open_complaints':open_complaints,
+        'closed_complaints':resolved_complaints,
+        
+        'cancelled_tours':cancelled_tours,
+        'waiting_tours':waiting_tours,
+        'approved_tours':approved_tours,
+        'visited_tours':visited_tours,
+        
+        'sum_electric_consumption':sum_electric_consumption,
+        'sum_water_consumption':sum_water_consumption,
+             
+    }
+    return render(request, 'core/dashboard.html', context)
+
+
+#charts
+@login_required
+def visits_overview(request,building_slug):
+    building = Building.objects.get(slug=building_slug)
+    
+    labels = []
+    data = []
+    
+    queryset = UnitTour.objects.filter(unit__building=building).values(
+        'visit_status').annotate(count=Count('visit_status'))
+    
+    for entry in queryset:
+        labels.append(entry['visit_status'])
+        data.append(entry['count'])
+    
+    data = {'labels': labels,'data': data}
+    return JsonResponse(data)

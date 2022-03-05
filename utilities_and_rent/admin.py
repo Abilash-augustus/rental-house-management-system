@@ -1,7 +1,9 @@
 from django.contrib import admin
 
-from utilities_and_rent.models import (PaymentMethods, RentPayment,
-                                     UnitRentDetails, WaterBilling, WaterConsumption)
+from utilities_and_rent.models import (ElectricityBilling, ElectricityPayments,
+                                       ElectricityReadings, PaymentMethods,
+                                       RentPayment, UnitRentDetails,
+                                       WaterBilling, WaterPayments, WaterConsumption)
 
 
 @admin.register(UnitRentDetails)
@@ -20,15 +22,30 @@ class RentPaymentAdmin(admin.ModelAdmin):
 
 @admin.register(PaymentMethods)
 class PaymentMethodsAdmin(admin.ModelAdmin):
-    pass
+    list_display = ['name','account_name','paybill_number','account_number','added']
 
 class WaterConsumptionAdmin(admin.StackedInline):
     model = WaterConsumption
+
+@admin.register(WaterPayments)
+class WaterPaymentsAdmin(admin.ModelAdmin):
+    pass
     
 @admin.register(WaterBilling)
-class WaterAdmin(admin.ModelAdmin):
+class WaterBillingAdmin(admin.ModelAdmin):
+    list_display = ['tenant','bill_code','quantity','measuring_unit','total','total','cleared','added']
+    search_fields = ['bill_code','tenant']
     inlines = [WaterConsumptionAdmin]
-    """def get_inline_instances(self,request,obj=None):
-        if not obj:
-            return list()
-        return super(WaterAdmin,self).get_inline_instances(request,obj)"""
+    
+class ElectricityReadingsAdmin(admin.StackedInline):
+    model = ElectricityReadings
+
+@admin.register(ElectricityBilling)
+class ElectricityBillingAdmin(admin.ModelAdmin):
+    list_display = ['tenant','bill_code','rental_unit','measuring_unit','total','month','due_date','cleared','added']
+    inlines = [ElectricityReadingsAdmin]
+    
+@admin.register(ElectricityPayments)
+class ElectricityPaymentsAdmin(admin.ModelAdmin):
+    list_display = ['parent','tracking_code','payment_code','amount','payment_method','status','created']
+    

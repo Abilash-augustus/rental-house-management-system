@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+
+{% block content %}
+<div class="card">
+   <a href="{% url 'building-dashboard' building.slug %}"> <span> Back to mainBoard </em> </a>
+
+</div>
+
+<div class="card">
+    <span> Building Managers </em>
+    <em> #todo </em>
+</div>
+
+<div class="card">
+    <span> Tenants </span> <br>
+    <em> "Moved In" : {{movedin_tenants}} </em>
+    <em> "Waiting" : {{waiting_tenants}} </em>
+</div>
+<div class="card">
+    <span> Units </span> <br>
+    <em> "Occupied" : {{occupied_units}} </em> </br>
+    <em> "Un Occupied" : {{un_occupied_units}} </em>
+</div>
+<div class="card">
+    <span> Move Out Notices </span> <br>
+    <em> "Received" : {{received_move_out_notices}} </em> </br>
+    <em> "Confirmed" : {{confirmed_move_out_notices}} </em> <br>
+    <em> "Checking" : {{checking_move_out_notices}} </em>
+    <em> "Dropped" : {{dropped_move_out_notices}} </em>
+</div>
+<div class="card">
+    <span> Eviction Notices </span> <br>
+    <em> "Initiated" : {{initiated_evictions}} </em> </br>
+    <em> "Evicted" : {{evicted_evictions}} </em>
+    <em> "Dropped" : {{dropped_evictions}} </em> </br>
+</div>
+
+<div class="card">
+    <span> Unit Reports </span> <br>
+    <em> "Received" : {{recieved_unit_reports}} </em> </br>
+    <em> "Processing" : {{processing_unit_reports}} </em>
+    <em> "Resolved" : {{resolved_unit_reports}} </em> </br>
+    <em> "Dropped" : {{dropped_unit_reports}} </em>
+</div>
+<div class="card">
+    <span> Building Complaints </span> <br>
+    <em> "Open" : {{open_complaints}} </em> </br>
+    <em> "Closed" : {{closed_complaints}} </em>
+</div>
+<div class="card">
+    <span> Planned Tours </span> <br>
+    <em> "Waiting" : {{waiting_tours}} </em> </br>
+    <em> "Cancelled" : {{cancelled_tours}} </em>
+    <em> "Approved" : {{approved_tours}} </em> </br>
+    <em> "Visited" : {{visited_tours}} </em>
+</div>
+
+<div class="card">
+    <span> Utilities (30 Days) </span> <br>
+    <div class="card">
+        <span> Electricity </span> <br>
+        <em> "KwH" : {{sum_electric_consumption}} </em> </br>
+    </div>
+    <div class="card">
+        <span> Water </span> <br>
+        <em> "Litres" : {{sum_water_consumption}} </em> </br>
+    </div>
+</div>
+{% endblock %}

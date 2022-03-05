@@ -16,29 +16,13 @@
       <!-- overview start -->
       <div class="container card p-0 mb-2">
         <div class="card-header text-center w-100">
-          {{building.name}} Rent Overview
+          Rent Overview - {{building.name}} "{{current_year}}"
         </div>
         <div class="row">
-          <div class="col-sm-4">
+          <div class="col-sm-12">
             <div class="card border-0">
               <div class="card-body">
-                <canvas id="rent-chart" data-url="#">
-                </canvas>
-              </div>
-            </div>
-          </div>
-          <div class="col-sm-4">
-            <div class="card border-0">
-              <div class="card-body">
-                <canvas id="buildingWaterUsage" data-url="#">
-                </canvas>
-              </div>
-            </div>
-          </div>
-          <div class="col-sm-4">
-            <div class="card border-0">
-              <div class="card-body">
-                <canvas id="rent-chart2" data-url="#">
+                <canvas id="rent-chart" data-url="{% url 'building_rent_overview' building.slug %}">
                 </canvas>
               </div>
             </div>
@@ -49,27 +33,27 @@
 
         <div class="row">
             <div class="col-sm-3">
-              <div class="list-group">
-                    <a href="#" type="button" class="list-group-item list-group-item-action" role="button">Other Link</a>
-                    <a href="#" type="button" class="list-group-item list-group-item-action" role="button">Other Link</a>
-                    <a href="#" type="button" class="list-group-item list-group-item-action" role="button">Other link</a>
-              </div>
+              <div class="list-group mb-2">
+                    <a href="#" type="button" class="list-group-item list-group-item-action" role="button">Notify Tenants #todo</a>
+                </div>
+                <div class="card card-body mb-2">
+                  <h5 class="card-header text-center">Search Area</h5>
+                  <form method="get">
+                    <br>
+                    {{ tenants_filter.form|crispy }}
+                    <br>
+                    <div class="form-group text-center">
+                      <button class="btn btn-outline-secondary" type="submit">Get</button>
+                    </div>
+                  </form>
+                </div>
             </div>
 
               <div class="col-sm-9">
                 <div class="row">
-                  <div class="col-8 col-sm-12 card">
-                    <form method="get">
-                        {{ tenants_filter.form|crispy }}
-                        <br>
-                        <div class="form-group text-center">
-                            <button class="btn btn-outline-secondary" type="submit">Get</button>
-                        </div>
-                      </form>
-                      <br>
-                      <div class="card-body">
-
-                                <div class="mb-3">
+                  <div class="col-12 card">
+                    <div class="card-body">
+                             <div class="mb-3">
                                     <div class="card-header text-center">
                                       Tenants
                                     </div>
@@ -99,6 +83,8 @@
                                         </div>
                                       </div>
                                     </div>
+                                    {% empty %}
+                                      <div class="ms-2 me-auto"> <span> <h7 class="card-title">Nothing to show</h7> </div>  
                                       {% endfor %}
                                       </div>
                                     </div>
@@ -109,5 +95,51 @@
             </div>
           </div>
         </div>
+
+        <script>
+          $(function () {        
+            var $rentChart = $("#rent-chart");
+            $.ajax({
+              url: $rentChart.data("url"),
+              success: function (data) {        
+                var ctx = $rentChart[0].getContext("2d");        
+                new Chart(ctx, {
+                  type: 'pie',
+                  data: {
+                    labels: data.labels,
+                    datasets: [{
+                      label: 'Rent',
+                      data: data.data,
+                      backgroundColor: [
+                      '#fcba03', '#88fc03', '#A9A9A9', '#1daba8', '#3d5454', '#1e3152',
+                      '#47410b', '#557310', '#277310', '#107331', '#2792b0', '#d47a6a',
+                      ],
+                    }]          
+                  },
+                  options: {
+                    responsive: true,
+                    legend: {
+                      display: false,
+                    },
+                    scales: {
+                      yAxes: [{
+                        ticks: {
+                          display: false,
+                        }
+                      }]
+                    },
+                    title: {
+                      display: true,
+                      text: 'Rent Overview'
+                    }
+                  }
+                });
+        
+              }
+            });
+        
+          });
+        
+        </script>
     </section>
 {% endblock %}

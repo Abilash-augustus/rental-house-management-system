@@ -48,7 +48,7 @@ class UnitTour(models.Model):
     message = models.TextField(null=True, blank=True)
     unit = models.ForeignKey(RentalUnit, on_delete=models.DO_NOTHING)
     visit_status = models.CharField(choices=VISIT_STATUS_CHOICES, default='waiting', max_length=10)
-    last_updated_by = models.ForeignKey(Managers, on_delete=models.DO_NOTHING)
+    last_updated_by = models.ForeignKey(Managers, on_delete=models.DO_NOTHING, null=True, blank=True)
     created = models.DateTimeField(default=datetime.datetime.now)
     updated = models.DateTimeField(auto_now=True)
 

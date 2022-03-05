@@ -1,8 +1,9 @@
 from django import forms
 
-from utilities_and_rent.models import (RentPayment, UnitRentDetails,
-                                       WaterBilling, WaterConsumption,
-                                       WaterPayments)
+from utilities_and_rent.models import (ElectricityBilling, ElectricityPayments,
+                                       ElectricityReadings, RentPayment,
+                                       UnitRentDetails, WaterBilling,
+                                       WaterConsumption, WaterPayments)
 
 
 class DateInput(forms.DateInput):
@@ -93,3 +94,33 @@ class WaterBillPaymentsForm(forms.ModelForm):
         widgets = {
             'date_paid': DateInput(),
         }
+
+class StartEBillCycleForm(forms.ModelForm):
+    class Meta:
+        model = ElectricityBilling
+        fields = ['meter_id','measuring_unit','units','unit_price','month','remarks',
+                  'from_date','to_date','due_date']
+        widgets = {
+            'from_date': DateInput(),
+            'to_date': DateInput(),
+            'due_date': DateInput(),
+        }
+        
+class BillCycleUpdateForm(forms.ModelForm):
+    class Meta:
+        model = ElectricityBilling
+        exclude = ['updated',]
+        
+        
+class ElectricityReadingForm(forms.ModelForm):
+    class Meta:
+        model = ElectricityReadings
+        fields = ['previous_reading','current_reading','reading_date']
+        widgets = {
+            'reading_date': DateInput(),
+        }
+        
+class ElectricityPaySubmitForm(forms.ModelForm):
+    class Meta:
+        model = ElectricityPayments
+        fields = ['payment_code','amount','payment_method','remarks']

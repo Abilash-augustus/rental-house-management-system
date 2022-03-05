@@ -7,5 +7,6 @@ urlpatterns = [
     path('reports/update-view/<slug:building_slug>/<slug:unit_slug>/<slug:report_code>/', views.update_reports, name='view-update-reports'),
     path('create-complaint/<slug:building_slug>/', views.create_complaint, name='create-complaint'),
     path('<slug:building_slug>/copmlaints/', views.building_complaints, name='building-complaints'),
-    path('update-complaint/<slug:building_slug>/<slug:complaint_code>/', views.complaint_update, name='complaint_update')
+    path('update-complaint/<slug:building_slug>/<slug:complaint_code>/', views.complaint_update, name='complaint_update'),
+    path('reports_overview/<slug:building_slug>/', views.reports_overview, name="reports_overview"),
 ]

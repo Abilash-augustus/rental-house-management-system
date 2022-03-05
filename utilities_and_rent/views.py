@@ -1,5 +1,4 @@
-import datetime
-
+from datetime import datetime
 from accounts.models import Managers, Tenants
 from django.contrib import messages
 from django.contrib.auth import get_user_model
@@ -11,14 +10,19 @@ from django.shortcuts import (HttpResponseRedirect, get_object_or_404,
                               redirect, render)
 from rental_property.models import Building, RentalUnit
 
-from utilities_and_rent.filters import (PaymentsFilter, RentDetailsFilter,
+from utilities_and_rent.filters import (ManagerElectricityBillsFilter,
+                                        PaymentsFilter, RentDetailsFilter,
+                                        TenantElectricityBillsFilter,
                                         UnitTypeFilter, WaterBilingFilter)
-from utilities_and_rent.forms import (AddRentDetailsForm, PaymentUpdateForm,
+from utilities_and_rent.forms import (AddRentDetailsForm, BillCycleUpdateForm,
+                                      ElectricityReadingForm,ElectricityPaySubmitForm,
+                                      PaymentUpdateForm, StartEBillCycleForm,
                                       StartWaterBillingForm,
                                       SubmitPaymentsForm, UpdateRentDetails,
                                       WaterBillPaymentsForm,
                                       WaterBillUpdateForm, WaterReadingForm)
-from utilities_and_rent.models import (PaymentMethods, RentPayment,
+from utilities_and_rent.models import (ElectricityBilling, ElectricityReadings,
+                                       PaymentMethods, RentPayment,
                                        UnitRentDetails, WaterBilling,
                                        WaterConsumption)
 
@@ -31,9 +35,6 @@ def my_rent_details(request, building_slug, unit_slug, username):
     unit = RentalUnit.objects.get(slug=unit_slug, building=building)
     tenant = Tenants.objects.get(rented_unit=unit, associated_account__username=username)
     payment_options = PaymentMethods.objects.all()
-    
-    today = datetime.datetime.now()
-    today_formatted = today.strftime('%Y-%m-%d')
     
     tenant_rent_details = UnitRentDetails.objects.filter(tenant=tenant, unit=unit).order_by('due_date')
     tenant_rent_details_qs = RentDetailsFilter(request.GET, queryset=tenant_rent_details)
@@ -99,7 +100,6 @@ def my_water_billing_details(request,building_slug,unit_slug,username,bill_code)
             bill_pay_form.instance.parent = water_bill
             bill_pay_form.save()
             #TODO: Do the math
-            # manager update function
             messages.success(request, 'Payment submitted')
             return HttpResponseRedirect("")
     else:
@@ -109,6 +109,45 @@ def my_water_billing_details(request,building_slug,unit_slug,username,bill_code)
                'bill_pay_form':bill_pay_form,'child_readings':child_readings}
     return render(request, 'utilities_and_rent/my_water_bill_details.html', context)
 
+@login_required
+def my_electric_bills(request, building_slug, unit_slug, username):
+    building = Building.objects.get(slug=building_slug)
+    unit = RentalUnit.objects.get(building=building,slug=unit_slug)
+    tenant = Tenants.objects.get(rented_unit=unit,associated_account__username=username)
+    e_bills = ElectricityBilling.objects.filter(rental_unit=unit,tenant=tenant).order_by('added')
+    
+    e_bills_qs = TenantElectricityBillsFilter(request.GET, queryset=e_bills)
+    oldest_bill = e_bills.exclude(added=None).order_by('-added').last()
+    newest_bill = e_bills.exclude(added=None).order_by('added').first()
+    
+    context = {'building':building,'unit':unit,'tenant':tenant,'e_bills':e_bills_qs,
+               'oldest_bill':oldest_bill,'newest_bill':newest_bill}
+    return render(request, 'utilities_and_rent/my_e_bills.html', context)
+
+@login_required
+def my_electricity_billing_details(request,building_slug,unit_slug,username,bill_code):
+    building = Building.objects.get(slug=building_slug)
+    unit = RentalUnit.objects.get(building=building,slug=unit_slug)
+    tenant = Tenants.objects.get(rented_unit=unit, associated_account__username=username)
+    e_bill = ElectricityBilling.objects.get(rental_unit=unit,tenant=tenant,bill_code=bill_code)
+    readings = ElectricityReadings.objects.filter(parent=e_bill)
+    
+    if request.method == 'POST':
+        pay_submit_form = ElectricityPaySubmitForm(request.POST)
+        if pay_submit_form.is_valid():
+            pay_submit_form.instance.parent = e_bill
+            pay_submit_form.save()
+            messages.success(request, 'Your record has been subitted')
+            return HttpResponseRedirect("")
+    else:
+        pay_submit_form = ElectricityPaySubmitForm()
+        
+    context = {'building':building,'unit':unit,'tenant':tenant,'e_bill':e_bill,
+               'readings':readings,'pay_submit_form':pay_submit_form}
+    return render(request, 'utilities_and_rent/my_elctric_bill_details.html', context)
+
+#TODO: Do the math in models when record is approved
+
 ############### manager functions ###################
 
 @login_required
@@ -117,13 +156,14 @@ def rent_and_utilities(request, building_slug):
     building = Building.objects.get(slug=building_slug)
     tenants = Tenants.objects.filter(rented_unit__building=building)
     tenants_filter = UnitTypeFilter(request.GET, queryset=tenants)
+    current_year = datetime.now().year
     
-    context = {'building':building, 'tenants_filter':tenants_filter}
+    context = {'building':building, 'tenants_filter':tenants_filter,'current_year':current_year}
     return render(request, 'utilities_and_rent/building_utility_and_rent.html', context)
 
 @login_required
 @user_passes_test(lambda user: user.is_manager==True, login_url='profile')
-def unit_rent_history(request, building_slug, unit_slug, username):
+def tenant_rent_history(request, building_slug, unit_slug, username):
     building = Building.objects.get(slug=building_slug)
     unit = RentalUnit.objects.get(slug=unit_slug, building=building)
     tenant = Tenants.objects.get(rented_unit=unit, associated_account__username=username)
@@ -132,7 +172,7 @@ def unit_rent_history(request, building_slug, unit_slug, username):
     
     context = {'building': building,'unit':unit,
                'tenant':tenant,'rent_details':rental_details_filter}
-    return render(request, 'utilities_and_rent/rent-history.html', context)
+    return render(request, 'utilities_and_rent/tenant-rent-history.html', context)
 
 @login_required
 @user_passes_test(lambda user: user.is_manager==True, login_url='profile')
@@ -271,8 +311,67 @@ def update_tenant_water_billing_details(request, building_slug, unit_slug, usern
                'building':building,'unit':unit,'tenant':tenant,'bill_cycle':bill_cycle,'readings':readings}
     return render(request, 'utilities_and_rent/water-billing-details.html', context)
 
+@login_required
+@user_passes_test(lambda user: user.is_manager==True, login_url='profile')
+def manage_tenant_electric_bills(request, building_slug, unit_slug, username):
+    building = Building.objects.get(slug=building_slug)
+    unit = RentalUnit.objects.get(building=building,slug=unit_slug)
+    tenant = Tenants.objects.get(rented_unit=unit,associated_account__username=username)
+    related_bills = ElectricityBilling.objects.filter(rental_unit=unit,tenant=tenant).order_by('added')
+    
+    bills_qs = ManagerElectricityBillsFilter(request.GET, queryset=related_bills)
+    
+    check_open_billing = ElectricityBilling.objects.filter(rental_unit=unit,tenant=tenant,lock_cycle=False)
+    
+    if request.method == 'POST':
+        start_e_bill_cycle_form = StartEBillCycleForm(request.POST)
+        if start_e_bill_cycle_form.is_valid():
+            start_e_bill_cycle_form.instance.tenant = tenant
+            start_e_bill_cycle_form.instance.rental_unit = unit
+            start_e_bill_cycle_form.save()
+            messages.success(request, "Successfully started new billing")
+            return HttpResponseRedirect("")
+            #TODO: Do the math
+    else:
+        start_e_bill_cycle_form = StartEBillCycleForm()
+    
+    context = {'building':building,'unit':unit,'tenant':tenant,'bills':bills_qs,
+               'bill_form':start_e_bill_cycle_form,'check_open_billing':check_open_billing}
+    return render(request, 'utilities_and_rent/tenant_electricity_bills.html', context)
 
-
+@login_required
+@user_passes_test(lambda user: user.is_manager==True, login_url='profile')
+def update_tenant_electric_bill_details(request,building_slug,unit_slug,username,bill_code):
+    building = Building.objects.get(slug=building_slug)
+    unit = RentalUnit.objects.get(building=building,slug=unit_slug)
+    tenant = Tenants.objects.get(rented_unit=unit,associated_account__username=username)
+    e_bill = ElectricityBilling.objects.get(rental_unit=unit,tenant=tenant,bill_code=bill_code)
+    added_readings = ElectricityReadings.objects.filter(parent=e_bill)
+    
+    if request.method == 'POST':
+        update_bill_form = BillCycleUpdateForm(request.POST, instance=e_bill)
+        reading_form = ElectricityReadingForm(request.POST)
+        if update_bill_form.is_valid():
+            update_bill_form.save()
+            messages.success(request, 'Cycle updated successfully!')
+            return HttpResponseRedirect("")
+        if reading_form.is_valid():
+            reading_form.instance.parent = e_bill
+            reading_form.instance.units = reading_form.instance.current_reading-reading_form.instance.previous_reading
+            reading_form.save()
+            send_update = e_bill
+            send_update.units += reading_form.instance.units
+            send_update.save(update_fields=['units','total'])
+            messages.success(request, 'Reading adde successfully!')
+            return HttpResponseRedirect("")
+    else:
+        reading_form = ElectricityReadingForm()
+        update_bill_form = BillCycleUpdateForm(instance=e_bill)
+    
+    context = {'building':building, 'unit':unit,'tenant':tenant,'e_bill':e_bill,
+               'added_readings':added_readings,'update_bill_form':update_bill_form,'reading_form':reading_form}
+    return render(request, 'utilities_and_rent/tenant_electricity_bill_details.html', context)
+    
 ########## Graphs #############
 
 @login_required
@@ -306,11 +405,49 @@ def tenant_water_usage(request,building_slug,unit_slug,username):
     tenant = Tenants.objects.get(rented_unit=unit,associated_account__username=username)
     queryset = WaterConsumption.objects.filter(
         parent__rental_unit=unit,parent__tenant=tenant).values('reading_added').annotate(
-            consumption=Sum('consumption')).order_by('reading_added')[:8]
+            consumption=Sum('consumption')).order_by('reading_added')[:10] #last 10 readings
     
     for entry in queryset:
         labels.append(entry['reading_added'])
         data.append(entry['consumption'])
     
     data = {'labels':labels,'data':data}
+    return JsonResponse(data)
+
+@login_required
+def tenant_electricity_usage(request,building_slug,unit_slug,username):
+    labels = []
+    data = []
+    building = Building.objects.get(slug=building_slug)
+    unit = RentalUnit.objects.get(building=building,slug=unit_slug)
+    tenant = Tenants.objects.get(rented_unit=unit,associated_account__username=username)
+    queryset = ElectricityReadings.objects.filter(
+        parent__rental_unit=unit,parent__tenant=tenant).values('reading_date').annotate(
+            units=Sum('units')).order_by('reading_date')[:10] #last 10 readings
+    
+    for entry in queryset:
+        labels.append(entry['reading_date'])
+        data.append(entry['units'])
+    
+    data = {'labels':labels,'data':data}
+    return JsonResponse(data)
+
+@login_required
+def building_rent_overview(request,building_slug):
+    building = Building.objects.get(slug=building_slug)
+    
+    data = []
+    labels = []
+    
+    current_year = datetime.now().year
+        
+    queryset = UnitRentDetails.objects.filter(unit__building=building,added__year=current_year
+                                              ).values('pay_for_month').annotate(
+                                                  amount=Sum('rent_amount'))
+                                              
+    for entry in queryset:
+        labels.append(entry['pay_for_month'])
+        data.append(entry['amount'])
+    
+    data = {'labels': labels,'data': data}
     return JsonResponse(data)
