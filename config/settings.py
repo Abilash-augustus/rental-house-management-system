@@ -146,12 +146,13 @@ CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
 #cloudinary storage : handling imaeges in deployment
 
-CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': 'hqrwhofew',
-    'API_KEY': os.environ.get('CLOUDINARY_API_KEY'),
-    'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET'),
-}
-DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+if DEBUG == False:
+    CLOUDINARY_STORAGE = {
+        'CLOUD_NAME': 'hqrwhofew',
+        'API_KEY': os.environ.get('CLOUDINARY_API_KEY'),
+        'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET'),
+    }
+    DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 
 

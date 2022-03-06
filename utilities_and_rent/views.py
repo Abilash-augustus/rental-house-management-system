@@ -25,8 +25,13 @@ from utilities_and_rent.models import (ElectricityBilling, ElectricityReadings,
                                        PaymentMethods, RentPayment,
                                        UnitRentDetails, WaterBilling,
                                        WaterConsumption)
+from config.settings import DEFAULT_FROM_EMAIL
+from django.core.mail import EmailMessage
+from django.template.loader import render_to_string
 
 User = get_user_model()
+
+current_year = datetime.now().year
 
 @login_required
 @user_passes_test(lambda user: user.is_tenant==True, login_url='profile')
@@ -156,7 +161,6 @@ def rent_and_utilities(request, building_slug):
     building = Building.objects.get(slug=building_slug)
     tenants = Tenants.objects.filter(rented_unit__building=building)
     tenants_filter = UnitTypeFilter(request.GET, queryset=tenants)
-    current_year = datetime.now().year
     
     context = {'building':building, 'tenants_filter':tenants_filter,'current_year':current_year}
     return render(request, 'utilities_and_rent/building_utility_and_rent.html', context)
@@ -179,6 +183,7 @@ def tenant_rent_history(request, building_slug, unit_slug, username):
 def add_tenant_rent(request, building_slug, unit_slug):
     building = Building.objects.get(slug=building_slug)
     unit = RentalUnit.objects.get(building=building, slug=unit_slug)
+    
     if unit.status == 'occupied':
         tenant = Tenants.objects.get(rented_unit=unit)
         if request.method == 'POST':
@@ -187,15 +192,26 @@ def add_tenant_rent(request, building_slug, unit_slug):
                 rent_form.instance.tenant = tenant
                 rent_form.instance.unit = unit
                 rent_form.save()
-                # add email notification
                 messages.success(request, 'Rent added successfully')
+                notify = rent_form.instance
+                if notify.notify_tenant == True:
+                    subject = "Rent Added For '{0} {1}'".format(notify.pay_for_month, current_year)
+                    notify_content = 'utilities_and_rent/mails/notify_rent.html'
+                    html_message = render_to_string(notify_content, 
+                                                    {'building':building,'notify':notify,'current_year':current_year,})
+                    from_email = DEFAULT_FROM_EMAIL
+                    to_email = tenant.associated_account.email
+                    message = EmailMessage(subject, html_message, from_email, [to_email])
+                    message.content_subtype = 'html'
+                    message.send()
+                    messages.info(request,'Tenant Notified')
                 return redirect('rent-and-utilities', building_slug=building.slug)
         else:
             rent_form = AddRentDetailsForm()
     else:
         messages.success(request, 'The rental unit is empty')
         return redirect('rent-and-utilities', building_slug=building.slug)
-    context = {'rent_form':rent_form, 'building':building, 'unit':unit, 'tenant':tenant}
+    context = {'rent_form':rent_form, 'building':building, 'unit':unit,'tenant':tenant}
     return render(request, 'utilities_and_rent/add-rent.html', context)
 
 @login_required

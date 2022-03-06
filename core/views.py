@@ -1,28 +1,30 @@
-from django.db.models import Count
 import datetime
 
 from accounts.models import Managers, Tenants
 from complaints.models import Complaints, UnitReport
+from config.settings import DEFAULT_FROM_EMAIL
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core import serializers
-from django.db.models import Sum
+from django.core.mail import EmailMessage
+from django.db.models import Count, Sum
 from django.http import JsonResponse
 from django.shortcuts import HttpResponse, get_object_or_404, redirect, render
+from django.template.loader import render_to_string
 from django.urls import reverse_lazy
 from django.views.generic import CreateView
 from rental_property.models import Building, RentalUnit
-from utilities_and_rent.models import ElectricityBilling, RentPayment, WaterBilling
-from django.template.loader import render_to_string
-from django.core.mail import EmailMessage
+from utilities_and_rent.models import (ElectricityBilling, RentPayment,
+                                       WaterBilling)
+
+from core.filters import VisitFilter
 from core.forms import (CancelMoveOutForm, ContactForm, EvictionNoticeForm,
                         NewVacateNoticeForm, UnitTourForm, UpdateVacateNotice,
                         VisitUpdateForm)
 from core.models import Contact, EvictionNotice, UnitTour, VacateNotice
-from core.filters import VisitFilter
-from config.settings import DEFAULT_FROM_EMAIL
+
 User = get_user_model()
 
 
