@@ -1,11 +1,82 @@
 {% extends "base.html" %}
 
+{% block extra_css %}
+<style type="text/css">
+    .card {
+        transition: all 0.2s ease;
+        cursor: pointer
+    }
+    .card:hover {
+        box-shadow: 5px 6px 6px 2px #e9ecef;
+        transform: scale(1.1)
+          }
+          a:link { text-decoration: none; }
+
+a:visited { text-decoration: none; }
+
+a:hover { text-decoration: none; }
+
+a:active { text-decoration: none; }
+    </style>
+{% endblock %}
 
 {% block content %}
-<div class="card">
-   <a href="{% url 'building-dashboard' building.slug %}"> <span> Back to mainBoard </em> </a>
+<section class="container mb-3 mt-4">
+    <div class="row justify-content-center">
 
-</div>
+        <div class="row">
+
+            <div class="col-md-3 col-sm-3 mb-2">
+                <div class="card card-stats">
+                    <a href="{% url 'building-dashboard' building.slug %}" class="">
+                    <div class="card-header card-header-success card-header-icon">
+                      <div class="card-icon">
+                        <em class="material-icons">store</em>
+                      </div>
+                      <h3 class="card-title">DASHBOARD</h3>
+                    </div>
+                    </a>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-sm-6 mb-2">
+                <div class="card card-stats">
+                    <div class="card-header card-header-warning card-header-icon">
+                      <div class="card-icon">
+                          <i class="material-icons">content_copy</i>
+                      </div>
+                      <p class="card-category">Used Space</p>
+                      <h3 class="card-title">oof</small></h3>
+                    </div>
+                    <div class="card-footer">
+                        <div class="stats">
+                            <em class="material-icons text-danger">warning</em>
+                            <a href="#pablo">Get More Space...</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+          
+            <div class="col-md-6 col-sm-6 mb-2">
+                <div class="card card-stats">
+                    <div class="card-header card-header-success card-header-icon">
+                      <div class="card-icon">
+                        <em class="material-icons">store</em>
+                      </div>
+                      <p class="card-category">tuup</p>
+                      <h3 class="card-title">90909</h3>
+                    </div>
+                    <div class="card-footer">
+                        <div class="stats">
+                            <em class="material-icons">date_range</em> Last 24 Hours
+                        </div>
+                    </div>
+                </div>
+            </div>
+          
+            </div>
+        </div>
+    </section>
 
 <div class="card">
     <span> Building Managers </em>

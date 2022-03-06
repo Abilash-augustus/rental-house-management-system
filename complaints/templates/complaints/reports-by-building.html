@@ -8,9 +8,8 @@
 {% endblock %}
 
 {% block content %} 
-<div class="container-fluid">
-<section class="container d-flex justify-content-center p-5">
-    <div class="row">
+<section class="container border border-5 mb-3 mt-3">
+  <div class="row justify-content-center">
 
       <!-- overview start -->
       <div class="container card p-0 mb-2">
@@ -53,11 +52,13 @@
                       <button class="btn btn-outline-secondary" type="submit">Search</button>
                   </div>
           </form>
+        </br>
         </div>
 
         <div class="col-sm-9">
             <div class="card card-body">
                 <input class="form-control" id="myInput" type="text" placeholder="Search..">
+                <div class="table-responsive">
                 <table class="table table-striped table-hover">
                   <caption>Reports</caption>
                     <thead>
@@ -94,10 +95,10 @@
         
                     </tbody>
                 </table>
+              </div>
         </div>
       </div>
       </div>
-    </div>
     </div>
 </section>
 

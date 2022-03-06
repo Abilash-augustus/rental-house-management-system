@@ -64,7 +64,7 @@ class UnitTour(models.Model):
     class Meta:
         verbose_name_plural = 'Scheduled Visits'
 
-class VacateNotice(models.Model):
+class MoveOutNotice(models.Model):
     NOTICE_CHOICES = [
         ('received', 'Recieved'),
         ('dropped', 'Dropped'),
@@ -83,8 +83,8 @@ class VacateNotice(models.Model):
     def save(self, *args, **kwargs):
         if not self.code:
             self.code = ''.join(random.choices(string.digits, k=12))
-            super(VacateNotice, self).save()
-        super(VacateNotice, self).save()
+            super(MoveOutNotice, self).save()
+        super(MoveOutNotice, self).save()
     
     class Meta:
         verbose_name = "Tenant's Notices To Move Out"
@@ -103,6 +103,7 @@ class EvictionNotice(models.Model):
     tenant = models.OneToOneField(Tenants, on_delete=models.DO_NOTHING)
     unit = models.ForeignKey(RentalUnit, on_delete=models.DO_NOTHING)
     notice_detail = models.TextField(max_length=2000)
+    eviction_due = models.DateTimeField()
     sent_by = models.ForeignKey(Managers, on_delete=models.DO_NOTHING)
     help_contact_phone = models.CharField(max_length=14)
     help_contact_email = models.EmailField(max_length=50)

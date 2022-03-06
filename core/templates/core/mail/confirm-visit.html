@@ -1,5 +1,7 @@
+{% load humanize %}
 <!DOCTYPE html>
     <html lang="en">
+
     
     <head>
         <title></title>
@@ -137,6 +139,7 @@
                                 <div class="text-center">
                                     <p> Visitint unit: {{visit.unit.unit_number}} </p>
                                     <p> Address Line: {{building.address_line}} </p>
+                                    <p> Date: {{visit.visit_date|naturalday}} </p>
                                 </div>
 
                             </td>

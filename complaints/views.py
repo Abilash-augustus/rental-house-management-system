@@ -8,7 +8,7 @@ from django.forms import modelformset_factory
 from django.shortcuts import redirect, render
 from rental_property.models import Building, RentalUnit
 
-from complaints.filters import UnitReportFilter
+from complaints.filters import ComplaintsFilter, UnitReportFilter
 from complaints.forms import (NewComplaintForm, ReportUpdateForm,
                               UnitReportAlbumForm, UnitReportForm,
                               UpdateComplaintForm)
@@ -107,16 +107,10 @@ def create_complaint(request, building_slug):
 def building_complaints(request, building_slug):
     building = Building.objects.get(slug=building_slug)
     
-    get_complaint_by_status = request.GET.get('complaint', 'unchecked')
+    complaints = Complaints.objects.filter(building=building)
+    complaint_filter = ComplaintsFilter(request.GET, queryset=complaints)
     
-    if get_complaint_by_status == 'unchecked':
-        complaints = Complaints.objects.filter(building=building,status='rc')
-    elif get_complaint_by_status == 'checked':
-        complaints = Complaints.objects.filter(status='rs')
-    else:
-        complaints = Complaints.objects.filter(building=building)
-    
-    context = {'complaints':complaints, 'building':building}
+    context = {'complaints':complaint_filter, 'building':building}
     return render(request, 'complaints/complaints.html', context)
 
 @login_required
@@ -148,6 +142,23 @@ def reports_overview(request,building_slug):
     
     for entry in queryset:
         labels.append(entry['report_type__name'])
+        data.append(entry['count'])
+    
+    data = {'labels': labels,'data': data}
+    return JsonResponse(data)
+
+@login_required
+def complaints_overview(request, building_slug):
+    building = Building.objects.get(slug=building_slug)
+    
+    labels = []
+    data = []
+    
+    queryset = Complaints.objects.filter(building=building).values(
+        'status').annotate(count=Count('status'))
+    
+    for entry in queryset:
+        labels.append(entry['status'])
         data.append(entry['count'])
     
     data = {'labels': labels,'data': data}

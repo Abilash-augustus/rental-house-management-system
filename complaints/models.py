@@ -77,14 +77,14 @@ class UnitReportAlbum(models.Model):
 
 class Complaints(models.Model):
     STATUS_CHOICES = [
-        ('rc', 'Received'),
-        ('rs', 'Resolved'),
+        ('received', 'Received'),
+        ('resolved', 'Resolved'),
     ]
     complaint_code = models.CharField(max_length=15, unique=True, blank=True, null=True)
     name = models.CharField(max_length=60, default='anonymous', help_text='Ignore field for an anonymous complaint')
     body = models.TextField(max_length=2000, verbose_name='Content')
     building = models.ForeignKey(Building, on_delete=models.CASCADE)
-    status = models.CharField(max_length=5, choices=STATUS_CHOICES, default='rc')
+    status = models.CharField(max_length=12, choices=STATUS_CHOICES,default='received')
     created = models.DateTimeField(default=datetime.now)
     updated = models.DateTimeField(auto_now=True)
     

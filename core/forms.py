@@ -1,7 +1,7 @@
 from django import forms
 from django_summernote.widgets import SummernoteWidget
 
-from core.models import Contact, EvictionNotice, UnitTour, VacateNotice
+from core.models import Contact, EvictionNotice, UnitTour, MoveOutNotice
 
 
 class DateInput(forms.DateInput):
@@ -42,14 +42,15 @@ class VisitUpdateForm(forms.ModelForm):
 class EvictionNoticeForm(forms.ModelForm):
     class Meta:
         model = EvictionNotice
-        fields = ['notice_detail','help_contact_phone', 'help_contact_email', 'eviction_status']
+        fields = ['notice_detail','help_contact_phone', 'help_contact_email', 'eviction_status','eviction_due']
         widgets = {
             'notice_detail': SummernoteWidget(attrs={'summernote': {'width': '100%', 'height': '400px'}}),
+            'eviction_due': DateInput(),
         }
 
-class NewVacateNoticeForm(forms.ModelForm):
+class NewMoveOutNoticeForm(forms.ModelForm):
     class Meta:
-        model = VacateNotice
+        model = MoveOutNotice
         fields = ['move_out_date', 'reason', ]
         widgets = {
             'reason': SummernoteWidget(attrs={'summernote': {'width': '100%', 'height': '400px'}}),
@@ -58,17 +59,17 @@ class NewVacateNoticeForm(forms.ModelForm):
         
 class CancelMoveOutForm(forms.ModelForm):
     class Meta:
-        model = VacateNotice
+        model = MoveOutNotice
         fields = ['drop',]
         
-class UpdateVacateNotice(forms.ModelForm):
+class UpdateMoveOutNotice(forms.ModelForm):
     def __init__(self, *args, **kwargs):
-        super(UpdateVacateNotice, self).__init__(*args, **kwargs)
+        super(UpdateMoveOutNotice, self).__init__(*args, **kwargs)
         self.fields['code'].disabled = True
         self.fields['tenant'].disabled = True
         self.fields['move_out_date'].disabled = True
         self.fields['created'].disabled = True
         self.fields['drop'].disabled = True
     class Meta:
-        model = VacateNotice
+        model = MoveOutNotice
         exclude = ['updated','reason']
