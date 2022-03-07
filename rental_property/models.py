@@ -1,3 +1,5 @@
+import random
+import string
 from datetime import datetime
 
 from django.contrib.auth import get_user_model
@@ -134,8 +136,6 @@ class RentalUnit(models.Model):
     def __str__(self):
         return f"{self.unit_number} - {self.building}"
 
-#TODO: Display only units in tenant building when updating the user
-
 class UnitAlbum(models.Model):
     unit = models.ForeignKey(RentalUnit, on_delete=models.CASCADE)
     image = models.ImageField(upload_to=get_house_album_path, width_field='image_width', height_field='image_height')
@@ -144,3 +144,21 @@ class UnitAlbum(models.Model):
 
     def __str__(self):
         return f"{self.unit.unit_number}"
+
+class MaintananceNotice(models.Model):
+    notice_by = models.ForeignKey(Managers, on_delete=models.DO_NOTHING)
+    ref_number = models.CharField(max_length=15,unique=True, null=True, blank=True)
+    building = models.ForeignKey(Building, on_delete=models.DO_NOTHING)
+    title = models.CharField(max_length=100)
+    message = models.TextField()
+    from_date = models.DateTimeField()
+    to_date = models.DateTimeField()
+    created = models.DateTimeField(default=datetime.now)
+    updated = models.DateTimeField(auto_now=True)
+    send_email = models.BooleanField(default=False)
+    
+    def save(self, *args, **kwargs):
+        if not self.ref_number:
+            self.ref_number = ''.join(random.choices(string.digits, k=10))
+            super(MaintananceNotice, self).save(*args, **kwargs)
+        super(MaintananceNotice, self).save(*args, **kwargs)

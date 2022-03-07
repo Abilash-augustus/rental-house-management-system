@@ -1,6 +1,10 @@
 from django import forms
+from django_summernote.widgets import SummernoteWidget
+from rental_property.models import (Building, MaintananceNotice, RentalUnit,
+                                    UnitAlbum, UnitType)
 
-from rental_property.models import RentalUnit, UnitType, UnitAlbum, Building
+class DateInput(forms.DateInput):
+    input_type = 'date'
 
 class AddRentalUnitForm(forms.ModelForm):
     class Meta:
@@ -35,3 +39,23 @@ class UpdateRentalUnit(forms.ModelForm):
     class Meta:
         model = RentalUnit
         exclude = ['slug','updated',]
+
+class NewMaintananceNoticeForm(forms.ModelForm):
+    class Meta:
+        model = MaintananceNotice
+        fields = ['title','message','from_date','to_date','send_email']
+        widgets = {
+            'message' : SummernoteWidget(attrs={'summernote': {'width': '100%', 'height': '400px'}}),
+            'from_date': DateInput(),
+            'to_date': DateInput(),
+        }
+        
+class UpdateMaintainanceNotice(forms.ModelForm):
+    class Meta:
+        model = MaintananceNotice
+        exclude = ['created','updated','send_email']
+        widgets = {
+            'message' : SummernoteWidget(attrs={'summernote': {'width': '100%', 'height': '400px'}}),
+            'from_date': DateInput(),
+            'to_date': DateInput(),
+        }

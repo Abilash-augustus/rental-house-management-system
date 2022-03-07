@@ -87,7 +87,7 @@
                                 <th scope="col"> From </th>
                                 <th scope="col"> To </th>
                                 <th scope="col"> Due </th>
-                                <th scope="col"> Quantity(L) </th>
+                                <th scope="col"> Units </th>
                                 <th scope="col"> EST. Cost </th>
                                 <th scope="col"> Cleared </th>
                                 <th scope="col"> Status </th>
@@ -101,7 +101,7 @@
                             <td> {{bill.from_date}}</td>
                             <td> {{bill.to_date}}</td>
                             <td> {{bill.due_date}} </td>
-                            <td {% if bill.quantity == 0 %} title="Not Yet Updated"{% endif %}> {{bill.quantity}} </td>
+                            <td {% if bill.units == 0 %} title="Not Yet Updated"{% endif %}> {{bill.units}} </td>
                             <td {% if bill.total == 0 %} title="Not Yet Updated"{% endif %}> {{bill.total}} </td>
                             <td> {{bill.cleared}} </td>
                             <td> {% if bill.lock_cycle == True %} Locked {% else %} Open {% endif %}</td>
@@ -159,16 +159,15 @@
 
 
     <script>
-
         $(function () {var $waterChart = $("#waterUsage");
         $.ajax({url: $waterChart.data("url"),success: function (data) {
             var ctx = $waterChart[0].getContext("2d");
             new Chart(ctx, {type: 'line',data: {labels: data.labels,
-                datasets: [{label: 'Litres',backgroundColor: '#d4f1f9',
+                datasets: [{label: 'units',backgroundColor: '#d4f1f9',
                   data: data.data}]},
                   options: {responsive: true,legend: {display: false,},
                   scales: {xAxes: [{ticks: {display: false,}}],yAxes: [{
-                    scaleLabel: {display: true,labelString: 'Litres'}}]},
+                    scaleLabel: {display: true,labelString: 'units'}}]},
                   title: {display: true,text: 'Water (L) Usage Overview'}}});}});});
       
       </script>

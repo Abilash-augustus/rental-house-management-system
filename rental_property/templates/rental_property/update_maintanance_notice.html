@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block metadescription %} Update Maintanance Notice {% endblock %}
+{% load crispy_forms_tags %}
+
+{% block content %} 
+<section style="background-color: #dfe8da;">
+    <div class="container py-5 h-100">
+      <div class="row d-flex justify-content-center align-items-center h-100">
+        <div class="col-12 col-md-8 col-lg-9 col-xl-9">
+          <div class="card shadow-2-strong" style="border-radius: 1rem;">
+            <div class="card-body p-5">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                        {{ form|crispy }}                    
+                    <br/>
+                    <input class="btn btn-primary" type="submit" name="submit" value="submit" />
+                </form>
+            </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

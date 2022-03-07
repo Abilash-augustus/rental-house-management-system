@@ -22,6 +22,9 @@
                             <button class="btn btn-outline-secondary" type="submit">Add New</button>
                         </div>
                     </form>
+                    <div class="mt-5 mb-2 d-grid gap-2">
+                      <a href="#payments-direct" class="btn btn-outline-success" type="button">Go to payments</a>
+                    </div>
             </div>
 
         <div class="col-sm-9">
@@ -63,7 +66,15 @@
                       <li class="list-group-item d-flex justify-content-between align-items-start">
                         <div class="ms-2 me-auto"> Est. Cost </div>
                         <span> KES {{e_bill.total|intcomma}}</span>
-                      </li> <!-- TODO: update KES to be dynamic -->
+                      </li>
+                      <li class="list-group-item d-flex justify-content-between align-items-start">
+                        <div class="ms-2 me-auto"> Amount Paid </div>
+                        <span> KES {{e_bill.amount_paid|intcomma}}</span>
+                      </li>
+                      <li class="list-group-item d-flex justify-content-between align-items-start">
+                        <div class="ms-2 me-auto"> Remaining </div>
+                        <span> KES {{e_bill.remaining_amount|intcomma}}</span>
+                      </li>
                       <li class="list-group-item d-flex justify-content-between align-items-start">
                         <div class="ms-2 me-auto">Cleared </div>
                         <span> {{e_bill.cleared}} </span>
@@ -75,7 +86,7 @@
 
                       <li class="list-group-item d-flex justify-content-between align-items-start">
                         <div class="ms-2 me-auto">Due Date</div>
-                        <span>{% if e_bill.cleared == False %} {{e_bill.due_date}} {% else %} 
+                        <span>{% if e_bill.cleared == False %} <em class="bg-danger"> {{e_bill.due_date}} </em> {% else %} 
                             <em class="bg-success">{{e_bill.due_date}} {% endif %}</em> </span>
                       </li>
                       <li class="list-group-item d-flex justify-content-between align-items-start">
@@ -108,7 +119,7 @@
                     </tr>
                     {% empty %}
                     <tr> 
-                      <td> No payments submitted. </td>
+                      <td> No readings submitted. </td>
                     </tr>
                     {% endfor %} 
                   </tbody>
@@ -121,7 +132,7 @@
     </div>
   </div>
 
-  <!-- start billing modal -->
+  <!-- update billing modal -->
   <div class="modal fade" id="waterbillingUpdatebackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="waterbillingUpdatebackdropLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
       <div class="modal-content">
@@ -145,7 +156,55 @@
       </div>
     </div>
   </div>
-  <!-- end billing modal -->
+  <!-- end update modal -->
+</section>
 
+<section class="mb-5 mt-2">
+  <div class="container">
+    <div class="row d-flex justify-content-center align-items-center h-100">
+
+      <div class="row">
+      <div class="col-sm-3">
+        <span id="payments-direct"> </span>
+      </div>
+
+      <div class="col-sm-9 card table-responsive">
+        <table class="table caption-top">
+          <caption> payments for this cycle </caption>
+          <thead>
+            <tr>
+              <th scope="col">Payment Code</th>
+              <th scope="col">Paid Amount</th>
+              <th scope="col">Payment Method</th>
+              <th scope="col"> Date </th>
+              <th scope="col"> Status </th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for p in electricity_payments %}
+            <tr>
+              <td>{{p.payment_code}}</td>
+              <td>KES {{p.amount}}</td>
+              <td> {{p.payment_method}} </td>
+              <td> {{p.payment_date|naturalday}} </td>
+              <td> {{p.get_status_display}}</td>
+              {% if p.lock %}
+              <td> <em class="fa fa-lock"></em> Locked </td>
+              {% else %}
+              <td> <a href=" {% url 'update_electricity_payments' building.slug unit.slug tenant.associated_account.username water_bill.bill_code p.tracking_code %} "> update </a> </td>
+              {% endif %}
+            </tr>
+            {% empty %}
+            <tr> 
+              <td> No payments submitted. </td>
+            </tr>
+            {% endfor %} 
+          </tbody>
+        </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
 </section>
 {% endblock %}

@@ -15,7 +15,7 @@ from django.shortcuts import HttpResponse, get_object_or_404, redirect, render
 from django.template.loader import render_to_string
 from django.urls import reverse_lazy
 from django.views.generic import CreateView
-from rental_property.models import Building, RentalUnit
+from rental_property.models import Building, MaintananceNotice, RentalUnit
 from utilities_and_rent.models import (ElectricityBilling, RentPayment,
                                        WaterBilling)
 
@@ -173,15 +173,17 @@ def my_move_out_notice(request, building_slug, username):
     return render(request, 'core/my_vacate_notice.html', context)
 
 @login_required
-def my_move_out_notices(request,building_slug,unit_slug,username):
+def my_notices_(request,building_slug,unit_slug,username):
     building = Building.objects.get(slug=building_slug)
     unit = RentalUnit.objects.get(building=building,slug=unit_slug)
     tenant = Tenants.objects.get(rented_unit=unit,associated_account__username=username)
     notices = MoveOutNotice.objects.filter(tenant=tenant)
+    maintanance_notices = MaintananceNotice.objects.filter(building=building).order_by('-created')[:12]
     eviction_notices = EvictionNotice.objects.filter(tenant=tenant,unit=unit)
     notices_filter = MyNoticeFilter(request.GET, queryset=notices)
     
-    context = {'building':building,'notices':notices_filter,'eviction_notices':eviction_notices}
+    context = {'building':building,'notices':notices_filter,
+               'eviction_notices':eviction_notices,'maintanance_notices':maintanance_notices}
     return render(request, 'core/my_notices.html', context)
 
 @login_required
@@ -331,7 +333,7 @@ def building_dashboard(request,building_slug):
     
     water_consumption = WaterBilling.objects.filter(rental_unit__building=building,added__lte=datetime.datetime.today(), 
                                                              added__gt=datetime.datetime.today()-datetime.timedelta(days=30))
-    sum_water_consumption = water_consumption.aggregate(Sum('quantity')).get('quantity__sum')
+    sum_water_consumption = water_consumption.aggregate(Sum('units')).get('quantity__sum')
     
     context = {
         'building':building,

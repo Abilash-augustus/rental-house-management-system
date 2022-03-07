@@ -12,6 +12,9 @@ urlpatterns = [
     path('vacancies/county/<slug:county_slug>/', views.property_by_county, name='by-county'),
     path('add-rental-unit/<slug:building_slug>/', views.add_rental_unit, name='add-rental-unit'),
     path('update-rental-unit/<slug:building_slug>/<slug:unit_slug>/', views.update_unit, name="update-unit"),
-    
+    path('property_maintanance_notice/<slug:building_slug>/', views.property_maintanance_notice, name='property_maintanance_notice'),
+    path('maintanance_notices/<slug:building_slug>/', views.maintanance_notices, name='maintanance_notices'),
+    path('view_maintanance_notice_pdf/<slug:building_slug>/<slug:ref_number>/', views.view_maintanance_notice_pdf, name='view_maintanance_notice_pdf'),
+    path('update_maintanance_notice/<slug:building_slug>/<slug:ref_number>/', views.update_maintanance_notice, name='update_maintanance_notice'),
     path('units_overview/<slug:building_slug>/', views.units_overview, name="units_overview"),
 ]

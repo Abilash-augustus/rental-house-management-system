@@ -7,7 +7,6 @@ from utilities_and_rent.models import (ElectricityBilling, RentPayment,
 
 
 class UnitTypeFilter(django_filters.FilterSet):
-    
     class Meta:
         model = Tenants
         fields = ['rented_unit__unit_type','rented_unit__unit_number']

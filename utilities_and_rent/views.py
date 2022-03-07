@@ -17,14 +17,14 @@ from utilities_and_rent.filters import (ManagerElectricityBillsFilter,
 from utilities_and_rent.forms import (AddRentDetailsForm, BillCycleUpdateForm,
                                       ElectricityReadingForm,ElectricityPaySubmitForm,
                                       PaymentUpdateForm, StartEBillCycleForm,
-                                      StartWaterBillingForm,
-                                      SubmitPaymentsForm, UpdateRentDetails,
+                                      StartWaterBillingForm,UpdateElectricityPayForm,
+                                      SubmitPaymentsForm, UpdateRentDetails, UpdateWaterPaymentForm,
                                       WaterBillPaymentsForm,
                                       WaterBillUpdateForm, WaterReadingForm)
-from utilities_and_rent.models import (ElectricityBilling, ElectricityReadings,
+from utilities_and_rent.models import (ElectricityBilling, ElectricityPayments, ElectricityReadings,
                                        PaymentMethods, RentPayment,
                                        UnitRentDetails, WaterBilling,
-                                       WaterConsumption)
+                                       WaterConsumption, WaterPayments)
 from config.settings import DEFAULT_FROM_EMAIL
 from django.core.mail import EmailMessage
 from django.template.loader import render_to_string
@@ -96,22 +96,20 @@ def my_water_billing_details(request,building_slug,unit_slug,username,bill_code)
     unit = RentalUnit.objects.get(building=building,slug=unit_slug)
     tenant = Tenants.objects.get(rented_unit=unit, associated_account__username=username)
     water_bill = WaterBilling.objects.get(rental_unit=unit,tenant=tenant,bill_code=bill_code)
-    
     child_readings = WaterConsumption.objects.filter(parent=water_bill)
+    payments_made = WaterPayments.objects.filter(parent=water_bill)
     
     if request.method == 'POST':
         bill_pay_form = WaterBillPaymentsForm(request.POST)
         if bill_pay_form.is_valid():
             bill_pay_form.instance.parent = water_bill
             bill_pay_form.save()
-            #TODO: Do the math
             messages.success(request, 'Payment submitted')
             return HttpResponseRedirect("")
     else:
         bill_pay_form = WaterBillPaymentsForm()
-    
     context = {'building':building,'unit':unit,'tenant':tenant,'water_bill':water_bill,
-               'bill_pay_form':bill_pay_form,'child_readings':child_readings}
+               'bill_pay_form':bill_pay_form,'child_readings':child_readings,'payments_made':payments_made}
     return render(request, 'utilities_and_rent/my_water_bill_details.html', context)
 
 @login_required
@@ -136,6 +134,7 @@ def my_electricity_billing_details(request,building_slug,unit_slug,username,bill
     tenant = Tenants.objects.get(rented_unit=unit, associated_account__username=username)
     e_bill = ElectricityBilling.objects.get(rental_unit=unit,tenant=tenant,bill_code=bill_code)
     readings = ElectricityReadings.objects.filter(parent=e_bill)
+    payments_made = ElectricityPayments.objects.filter(parent=e_bill)
     
     if request.method == 'POST':
         pay_submit_form = ElectricityPaySubmitForm(request.POST)
@@ -148,7 +147,7 @@ def my_electricity_billing_details(request,building_slug,unit_slug,username,bill
         pay_submit_form = ElectricityPaySubmitForm()
         
     context = {'building':building,'unit':unit,'tenant':tenant,'e_bill':e_bill,
-               'readings':readings,'pay_submit_form':pay_submit_form}
+               'readings':readings,'pay_submit_form':pay_submit_form,'payments_made':payments_made}
     return render(request, 'utilities_and_rent/my_elctric_bill_details.html', context)
 
 #TODO: Do the math in models when record is approved
@@ -204,7 +203,7 @@ def add_tenant_rent(request, building_slug, unit_slug):
                     message = EmailMessage(subject, html_message, from_email, [to_email])
                     message.content_subtype = 'html'
                     message.send()
-                    messages.info(request,'Tenant Notified')
+                    messages.info(request,'Notification sent')
                 return redirect('rent-and-utilities', building_slug=building.slug)
         else:
             rent_form = AddRentDetailsForm()
@@ -227,7 +226,18 @@ def update_tenant_rent(request, building_slug, unit_slug, username, rent_code):
         if update_form.is_valid():
             update_form.save()
             messages.success(request, 'Rent updated successfully')
-            #TODO: email when notify user = True
+            notify = update_form.instance
+            if notify.notify_tenant == True:
+                subject = "Rent Adjustment for '{0} {1}'".format(notify.pay_for_month, current_year)
+                notify_content = 'utilities_and_rent/mails/notify_rent.html'
+                html_message = render_to_string(notify_content,
+                                                {'building':building,'notify':notify,'current_year':current_year,})
+                from_email = DEFAULT_FROM_EMAIL
+                to_email = tenant.associated_account.email
+                message = EmailMessage(subject, html_message, from_email, [to_email])
+                message.content_subtype = 'html'
+                message.send()
+                messages.info(request,'Tenant Notified')
             return HttpResponseRedirect("")
     else:
         update_form = UpdateRentDetails(instance=rent_details)
@@ -256,7 +266,19 @@ def update_tenant_rent_payment(request, building_slug, unit_slug, username, rent
                 update_rent = parent_rent
                 update_rent.amount_paid += pay_update_form.instance.amount
                 update_rent.save()
-            messages.success(request, 'Payment updated successfully')
+                messages.success(request, 'Payment updated successfully')
+                notify = pay_update_form.instance
+                if notify.status == 'approved' and notify.notify_tenant == True:
+                    subject = "Rent Payment Status '{0}'".format(notify.status)
+                    notify_content = 'utilities_and_rent/mails/notify_rent_payment.html'
+                    html_message = render_to_string(notify_content,
+                                                {'building':building,'notify':notify,})
+                    from_email = DEFAULT_FROM_EMAIL
+                    to_email = tenant.associated_account.email
+                    message = EmailMessage(subject, html_message, from_email, [to_email])
+                    message.content_subtype = 'html'
+                    message.send()
+                    messages.info(request,'Tenant notification sent')
             return HttpResponseRedirect("")
     else:
         pay_update_form = PaymentUpdateForm(instance=payment)
@@ -303,6 +325,7 @@ def update_tenant_water_billing_details(request, building_slug, unit_slug, usern
     tenant = Tenants.objects.get(rented_unit=unit,associated_account__username=username)
     bill_cycle = WaterBilling.objects.get(rental_unit=unit,tenant=tenant,bill_code=bill_code)
     readings = WaterConsumption.objects.filter(parent=bill_cycle)
+    water_bill_payments = WaterPayments.objects.filter(parent=bill_cycle)
     
     if request.method == 'POST':
         update_bill_form = WaterBillUpdateForm(request.POST, instance=bill_cycle)
@@ -315,17 +338,49 @@ def update_tenant_water_billing_details(request, building_slug, unit_slug, usern
             reading_form.instance.parent = bill_cycle
             reading_form.save()
             bill_update = bill_cycle
-            bill_update.quantity += reading_form.instance.consumption 
-            bill_update.save(update_fields=['quantity','total'])
+            bill_update.units += reading_form.instance.consumption 
+            bill_update.save(update_fields=['units','total'])
             messages.success(request, 'Reading added successfully!')
             return HttpResponseRedirect("")
     else:
         reading_form = WaterReadingForm()
         update_bill_form = WaterBillUpdateForm(instance=bill_cycle)
         
-    context = {'update_bill_form':update_bill_form,'reading_form':reading_form,
-               'building':building,'unit':unit,'tenant':tenant,'bill_cycle':bill_cycle,'readings':readings}
-    return render(request, 'utilities_and_rent/water-billing-details.html', context)
+    context = {'update_bill_form':update_bill_form,'reading_form':reading_form,'building':building,
+               'unit':unit,'tenant':tenant,'bill_cycle':bill_cycle,'readings':readings,'water_bill_payments':water_bill_payments}
+    return render(request, 'utilities_and_rent/tenant-water-billing-details.html', context)
+
+@login_required
+@user_passes_test(lambda user: user.is_manager==True, login_url='profile')
+def update_water_payments(request,building_slug,unit_slug,username,bill_code,tracking_code):
+    building = Building.objects.get(slug=building_slug)
+    unit = RentalUnit.objects.get(building=building,slug=unit_slug)
+    tenant = Tenants.objects.get(rented_unit=unit,associated_account__username=username)
+    water_bill = WaterBilling.objects.get(rental_unit=unit,tenant=tenant,bill_code=bill_code)
+    pay_to_update = WaterPayments.objects.get(parent=water_bill,tracking_code=tracking_code)
+    
+    if pay_to_update.lock:
+        messages.error(request, 'This instance is locked, updates not allowed')
+        return redirect('update_tenant_water_billing_details', building_slug=building.slug,unit_slug=unit.slug,
+                            username=tenant.associated_account.username,bill_code=water_bill.bill_code)
+    else:
+        if request.method == 'POST':
+            update_form = UpdateWaterPaymentForm(request.POST, instance=pay_to_update)
+            if update_form.is_valid():
+                update_form.save()
+                messages.success(request, 'Record updated')
+                updater = update_form.instance
+                if updater.status == 'approved':
+                    bill = water_bill
+                    bill.amount_paid += updater.amount
+                    bill.save()
+                    messages.success(request, 'Water bill updated')
+                return redirect('update_tenant_water_billing_details', building_slug=building.slug,unit_slug=unit.slug,
+                            username=tenant.associated_account.username,bill_code=water_bill.bill_code)
+        else:
+            update_form = UpdateWaterPaymentForm(instance=pay_to_update)
+    context = {'form': update_form}
+    return render(request, 'utilities_and_rent/update_waterbill_pay.html', context)
 
 @login_required
 @user_passes_test(lambda user: user.is_manager==True, login_url='profile')
@@ -347,7 +402,6 @@ def manage_tenant_electric_bills(request, building_slug, unit_slug, username):
             start_e_bill_cycle_form.save()
             messages.success(request, "Successfully started new billing")
             return HttpResponseRedirect("")
-            #TODO: Do the math
     else:
         start_e_bill_cycle_form = StartEBillCycleForm()
     
@@ -363,6 +417,7 @@ def update_tenant_electric_bill_details(request,building_slug,unit_slug,username
     tenant = Tenants.objects.get(rented_unit=unit,associated_account__username=username)
     e_bill = ElectricityBilling.objects.get(rental_unit=unit,tenant=tenant,bill_code=bill_code)
     added_readings = ElectricityReadings.objects.filter(parent=e_bill)
+    electricity_payments = ElectricityPayments.objects.filter(parent=e_bill)
     
     if request.method == 'POST':
         update_bill_form = BillCycleUpdateForm(request.POST, instance=e_bill)
@@ -384,9 +439,42 @@ def update_tenant_electric_bill_details(request,building_slug,unit_slug,username
         reading_form = ElectricityReadingForm()
         update_bill_form = BillCycleUpdateForm(instance=e_bill)
     
-    context = {'building':building, 'unit':unit,'tenant':tenant,'e_bill':e_bill,
-               'added_readings':added_readings,'update_bill_form':update_bill_form,'reading_form':reading_form}
+    context = {'building':building, 'unit':unit,'tenant':tenant,'e_bill':e_bill,'added_readings':added_readings,
+               'update_bill_form':update_bill_form,'reading_form':reading_form,'electricity_payments':electricity_payments,}
     return render(request, 'utilities_and_rent/tenant_electricity_bill_details.html', context)
+
+@login_required
+@user_passes_test(lambda user: user.is_manager==True, login_url='profile')
+def update_electricity_payments(request,building_slug,unit_slug,username,bill_code,t_code):
+    building = Building.objects.get(slug=building_slug)
+    unit = RentalUnit.objects.get(building=building,slug=unit_slug)
+    tenant = Tenants.objects.get(rented_unit=unit,associated_account__username=username)
+    e_bill = ElectricityBilling.objects.get(rental_unit=unit,tenant=tenant,bill_code=bill_code)
+    pay_to_update = ElectricityPayments.objects.get(parent=e_bill,tracking_code=t_code)
+    
+    if pay_to_update.lock:
+        messages.error(request, 'Further updates not allowed!')
+        return redirect('tenant_electric_bill_details', building_slug=building.slug,unit_slug=unit.slug,
+                            username=tenant.associated_account.username,bill_code=e_bill.bill_code)
+    else:
+        if request.method == 'POST':
+            update_form = UpdateElectricityPayForm(request.POST, instance=pay_to_update)
+            if update_form.is_valid():
+                update_form.save()
+                messages.success(request, 'Record updated')
+                updater = update_form.instance
+                if updater.status == 'approved':
+                    bill = e_bill
+                    bill.amount_paid += updater.amount
+                    bill.save()
+                    messages.success(request, 'Electricity bill updated')
+                return redirect('tenant_electric_bill_details', building_slug=building.slug,unit_slug=unit.slug,
+                            username=tenant.associated_account.username,bill_code=e_bill.bill_code)
+        else:
+            update_form = UpdateElectricityPayForm(instance=pay_to_update)
+            
+    context = {'form': update_form}
+    return render(request, 'utilities_and_rent/update_electricity_pay.html', context)
     
 ########## Graphs #############
 

@@ -1,6 +1,6 @@
 from django.contrib import admin
 from rental_property.models import (Building, Counties, Estate, RentalUnit,
-                                    UnitAlbum, UnitType)
+                                    UnitAlbum, UnitType, MaintananceNotice)
 
 
 class UnitAlbumAdmin(admin.StackedInline):
@@ -33,3 +33,9 @@ class CountiesAdmmin(admin.ModelAdmin):
     list_display = ['name','slug','created','updated']
     search_fields = ['name',]
     prepopulated_fields = {'slug': ('name',)}
+    
+@admin.register(MaintananceNotice)
+class MaintananceNoticeAdmin(admin.ModelAdmin):
+    list_display = ['notice_by','ref_number','title','from_date','to_date','created']
+    list_filter = ['from_date','to_date','created']
+    search_fields = ['ref_number','title',]

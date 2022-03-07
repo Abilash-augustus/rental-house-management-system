@@ -1,7 +1,7 @@
 from itertools import chain
 from django.db.models import Count
-from django.http import JsonResponse
-from accounts.models import Tenants
+from django.http import HttpResponse, JsonResponse
+from accounts.models import Managers, Tenants
 from complaints.models import UnitReport
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -9,13 +9,16 @@ from django.core.paginator import InvalidPage, PageNotAnInteger, Paginator
 from django.forms import modelformset_factory
 from django.shortcuts import (HttpResponseRedirect, get_object_or_404,
                               redirect, render)
-
-from rental_property.forms import (AddRentalUnitForm, BuildingUpdateForm,
-                                   UnitAlbumForm, UpdateRentalUnit)
+from django.template.loader import get_template
+from rental_property.forms import (AddRentalUnitForm, BuildingUpdateForm, NewMaintananceNoticeForm,
+                                   UnitAlbumForm, UpdateMaintainanceNotice, UpdateRentalUnit)
 from rental_property.models import (Building, Counties, Estate, RentalUnit,
-                                    UnitAlbum, UnitType)
-from rental_property.filters import UnitsFilter,TenantsFilter
-
+                                    UnitAlbum, UnitType,MaintananceNotice)
+from rental_property.filters import MaintananceNoticeFilter, UnitsFilter,TenantsFilter
+from core.utils import render_to_pdf
+from config.settings import DEFAULT_FROM_EMAIL
+from django.core.mail import EmailMessage
+from django.template.loader import render_to_string
 
 def property_by_county(request, county_slug):
     if county_slug != None:
@@ -166,6 +169,93 @@ def update_unit(request, building_slug, unit_slug):
     
     context = {'unit_update_form':unit_update_form,'unit':unit,'building':building}
     return render(request, 'rental_property/update-unit.html', context)
+
+@login_required
+@user_passes_test(lambda user: user.is_manager==True, login_url='profile')
+def property_maintanance_notice(request,building_slug):
+    building = Building.objects.get(slug=building_slug)
+    tenants = Tenants.objects.filter(rented_unit__building=building)
+    
+    email_receivers = []
+    for tenant in tenants:
+        email_receivers.append(tenant.associated_account.email)
+    
+    get_user = request.user
+    if get_user.is_manager:
+        manager = Managers.objects.get(associated_account=get_user)
+    else:
+        return redirect('profile')
+    
+    if request.method == 'POST':
+        new_m_form = NewMaintananceNoticeForm(request.POST)
+        if new_m_form.is_valid():
+            new_m_form.instance.building = building
+            new_m_form.instance.notice_by = manager
+            new_m_form.save()
+            notify = new_m_form.instance
+            if notify.send_email:
+                subject = 'Maintanance notice from {0}'.format(notify.from_date)
+                notify_content = 'rental_property/mails/maintanance_notify.html'
+                html_message = render_to_string(notify_content,
+                                                {'building':building,'notify':notify,})
+                from_email = DEFAULT_FROM_EMAIL
+                to_email = email_receivers
+                message = EmailMessage(subject, html_message, from_email, to_email)
+                message.content_subtype = 'html'
+                message.send()
+                messages.info(request,'Tenants will be notified')
+            messages.success(request,'Maintanance notice added')
+            return redirect('maintanance_notices', building_slug=building.slug)#change to go to notices
+    else:
+        new_m_form = NewMaintananceNoticeForm()
+    context = {'form': new_m_form}
+    return render(request, 'rental_property/new_maintanance_notice.html', context)
+
+@login_required
+@user_passes_test(lambda user: user.is_manager==True, login_url='profile')
+def maintanance_notices(request, building_slug):
+    building = Building.objects.get(slug=building_slug)
+    m_notices = MaintananceNotice.objects.filter(building=building)
+    m_notices_filters = MaintananceNoticeFilter(request.GET, queryset=m_notices)
+    context = {'building':building,'notices': m_notices_filters,}
+    return render(request, 'rental_property/maintanance_notices.html', context)
+
+@login_required
+@user_passes_test(lambda user: user.is_manager==True, login_url='profile')
+def update_maintanance_notice(request, building_slug, ref_number):
+    building = Building.objects.get(slug=building_slug)
+    notice = MaintananceNotice.objects.get(building=building,ref_number=ref_number)
+    
+    if request.method == 'POST':
+        update_form = UpdateMaintainanceNotice(request.POST,instance=notice)
+        if update_form.is_valid():
+            update_form.save()
+            messages.success(request, 'notice updated')
+            return redirect('maintanance_notices', building_slug=building.slug)
+    else:
+        update_form = UpdateMaintainanceNotice(instance=notice)
+    context = {'form': update_form}
+    return render(request, 'rental_property/update_maintanance_notice.html', context)
+
+@login_required
+def view_maintanance_notice_pdf(request, building_slug, ref_number):
+    building = Building.objects.get(slug=building_slug)
+    notice = MaintananceNotice.objects.get(building=building,ref_number=ref_number)
+    
+    context = {'notice':notice,'building':building}
+    template = get_template('pdf/maintanance_notice.html')
+    html = template.render(context)
+    pdf = render_to_pdf('pdf/maintanance_notice.html', context)
+    if pdf:
+        response = HttpResponse(pdf,content_type='application/pdf')
+        filename = "maintanance_notice_%s" %(notice.ref_number)
+        content = "inline; filename='%s'" %(filename)
+        download = request.GET.get('download')
+        if download:
+            content = "attachment; filename='%s'" %(filename)
+        response['Content-Disposition'] = content
+        return response
+    return HttpResponse("Not Found")
 
 @login_required
 def units_overview(request, building_slug):

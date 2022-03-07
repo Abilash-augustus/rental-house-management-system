@@ -33,7 +33,7 @@ class WaterPaymentsAdmin(admin.ModelAdmin):
     
 @admin.register(WaterBilling)
 class WaterBillingAdmin(admin.ModelAdmin):
-    list_display = ['tenant','bill_code','quantity','measuring_unit','total','total','cleared','added']
+    list_display = ['tenant','bill_code','units','total','total','cleared','added']
     search_fields = ['bill_code','tenant']
     inlines = [WaterConsumptionAdmin]
     

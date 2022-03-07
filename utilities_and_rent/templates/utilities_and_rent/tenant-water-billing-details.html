@@ -11,6 +11,7 @@
         <div class="row">
             <div class="col-sm-3">
               <form action="" method="post" class="no-padding">
+                <h6 class="card-header text-center"> Add New Water Reading </h6>
                   {% csrf_token %}
                   {{reading_form|crispy}}
                   <br>
@@ -18,12 +19,15 @@
                           <button class="btn btn-outline-secondary" type="submit">Add New</button>
                       </div>
               </form>
+              <div class="mt-5 mb-2 d-grid gap-2">
+                <a href="#payments-direct" class="btn btn-outline-success" type="button">Go to payments</a>
+              </div>
             </div>
 
         <div class="col-sm-9">
           <div class="card shadow-2-strong" style="border-radius: 1rem;">
             <div class="card-body p-5">
-                <h3 class="text-uppercase text-center"> Billing Cycle For "{{bill_cycle.from_date|naturalday}} - {{bill_cycle.to_date|naturalday}}" </h3> </h3>
+                <h3 class="text-uppercase text-center"> Water Billing Cycle For "{{bill_cycle.from_date|naturalday}} - {{bill_cycle.to_date|naturalday}}" </h3> </h3>
             
                 <ul class="list-group">
                     <li class="list-group-item d-flex justify-content-between align-items-start">
@@ -45,9 +49,9 @@
                       <span> {{bill_cycle.meter_number}}</span>
                     </li>
                     <li class="list-group-item d-flex justify-content-between align-items-start">
-                        <div class="ms-2 me-auto">Current consumption</div>
-                        {% if bill_cycle.quantity %}
-                        <span> {{bill_cycle.quantity|intcomma}} {{bill_cycle.measuring_unit}} </span>
+                        <div class="ms-2 me-auto">Units</div>
+                        {% if bill_cycle.units %}
+                        <span> {{bill_cycle.units|intcomma}}</span>
                         {% else %}
                         <span> Not Yet Updated </span>
                         {% endif %}
@@ -90,7 +94,7 @@
                     <tr>
                       <th scope="col">Previous Reading</th>
                       <th scope="col">Current Reading</th>
-                      <th scope="col">Calculated Consumption</th>
+                      <th scope="col">Units</th>
                       <th scope="col"> Reading Date </th>
                     </tr>
                   </thead>
@@ -100,11 +104,11 @@
                       <td>{{r.previous_reading}}</td>
                       <td>{{r.current_reading}}</td>
                       <td> {{r.consumption}} </td>
-                      <td> {{r.date_added}} </td>
+                      <td> {{r.reading_added|naturalday}} </td>
                     </tr>
                     {% empty %}
                     <tr> 
-                      <td> No payments submitted. </td>
+                      <td> No readings added. </td>
                     </tr>
                     {% endfor %} 
                   </tbody>
@@ -143,5 +147,54 @@
   </div>
   <!-- end billing modal -->
 
+</section>
+
+<section class="mb-5 mt-2">
+  <div class="container">
+    <div class="row d-flex justify-content-center align-items-center h-100">
+
+      <div class="row">
+      <div class="col-sm-3">
+        <span id="payments-direct"> </span>
+      </div>
+
+      <div class="col-sm-9 card table-responsive">
+        <table class="table caption-top">
+          <caption> payments for this cycle </caption>
+          <thead>
+            <tr>
+              <th scope="col">Payment Code</th>
+              <th scope="col">Paid Amount</th>
+              <th scope="col">Payment Method</th>
+              <th scope="col"> Date </th>
+              <th scope="col"> Status </th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for p in water_bill_payments %}
+            <tr>
+              <td>{{p.payment_code}}</td>
+              <td>KES {{p.amount}}</td>
+              <td> {{p.payment_method}} </td>
+              <td> {{p.date_paid|naturalday}} </td>
+              <td> {{p.get_status_display}}</td>
+              {% if p.lock %}
+              <td> <em class="fa fa-lock"></em> Locked </td>
+              {% else %}
+              <td> <a href="{% url 'update_water_payments' building.slug unit.slug tenant.associated_account.username bill_cycle.bill_code p.tracking_code %} "> update </a> </td>
+              {% endif %}
+            </tr>
+            {% empty %}
+            <tr> 
+              <td> No payments submitted. </td>
+            </tr>
+            {% endfor %} 
+          </tbody>
+        </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
 </section>
 {% endblock %}

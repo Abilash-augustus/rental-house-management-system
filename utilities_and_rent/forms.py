@@ -33,17 +33,14 @@ class UpdateRentDetails(forms.ModelForm):
         super(UpdateRentDetails, self).__init__(*args, **kwargs)
         self.fields['currency'].disabled = True
         self.fields['rent_amount'].disabled = True
-        self.fields['amount_paid'].disabled = True
         self.fields['pay_for_month'].disabled = True
-        self.fields['paid_in_advance'].disabled = True
-        self.fields['amount_paid_in_advance'].disabled = True
         self.fields['cleared'].disabled = True
         self.fields['start_date'].disabled = True
         self.fields['end_date'].disabled = True
         self.fields['added'].disabled = True
     class Meta:
         model = UnitRentDetails
-        fields = ['currency','rent_amount','amount_paid','pay_for_month','paid_in_advance','amount_paid_in_advance',
+        fields = ['currency','rent_amount','amount_paid','pay_for_month',
                   'cleared','start_date','end_date','added','due_date','status','notify_tenant']
         widgets = {
             'due_date': DateInput(),
@@ -57,13 +54,12 @@ class PaymentUpdateForm(forms.ModelForm):
 class StartWaterBillingForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(StartWaterBillingForm, self).__init__(*args, **kwargs)
-        self.fields['measuring_unit'].disabled = True
         self.fields['total'].disabled = True
         self.fields['cleared'].disabled = True
-        self.fields['quantity'].disabled = True
+        self.fields['units'].disabled = True
     class Meta:
         model = WaterBilling
-        fields = ['meter_number','quantity','measuring_unit', 'unit_price', 'total', 'from_date', 'to_date', 'cleared', 'remarks']
+        fields = ['meter_number','units', 'unit_price', 'total', 'from_date', 'to_date', 'cleared', 'remarks']
         widgets = {
             'from_date': DateInput(),
             'to_date': DateInput(),
@@ -94,6 +90,10 @@ class WaterBillPaymentsForm(forms.ModelForm):
         widgets = {
             'date_paid': DateInput(),
         }
+class UpdateWaterPaymentForm(forms.ModelForm):
+    class Meta:
+        model = WaterPayments
+        exclude = ['created','updated']
 
 class StartEBillCycleForm(forms.ModelForm):
     class Meta:
@@ -123,4 +123,8 @@ class ElectricityReadingForm(forms.ModelForm):
 class ElectricityPaySubmitForm(forms.ModelForm):
     class Meta:
         model = ElectricityPayments
-        fields = ['payment_code','amount','payment_method','remarks']
+        fields = ['payment_code','amount','payment_method','payment_date','remarks']
+class UpdateElectricityPayForm(forms.ModelForm):
+    class Meta:
+        model = ElectricityPayments
+        exclude = ['created','updated']

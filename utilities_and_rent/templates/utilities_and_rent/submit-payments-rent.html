@@ -91,7 +91,7 @@
 
                 <div class="table-responsive">
                 <table class="table caption-top">
-                  <caption> Submitted Payments </caption>
+                  <caption> My Submitted Payments </caption>
                   <thead>
                     <tr>
                       <th scope="col">Code</th>
@@ -100,7 +100,7 @@
                       <th scope="col"> Payment Method </th>
                       <th scope="col"> Date </th>
                       <th scope="col"> Status </th>
-                      <th scope="col"> </th>
+                      <th scope="col"> Message </th>
 
                     </tr>
                   </thead>
@@ -114,12 +114,14 @@
                       <td> {{pay.paid_on}} </td>
                       <td> {{pay.get_status_display}}</td>
                       {% if pay.reason %}
-                      <td> <a href="#"> View </a> </td>
+                      <td> {{pay.reason|safe}} </td>
+                      {% else %}
+                      <td> No message left </td>
                       {% endif %}
                     </tr>
                     {% empty %}
                     <tr> 
-                      <td> No payments submitted. </td>
+                      <td> None. </td>
                     </tr>
                     {% endfor %} 
                   </tbody>

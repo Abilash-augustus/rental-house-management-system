@@ -115,11 +115,12 @@
                             <td> {{rent.due_date|naturalday}} </td>
                             {% endif %}
                             {% if rent.amount_paid > 0 %}
-                            <td> <a href="{% url 'view-update-rent' building.slug unit.slug rent.tenant.associated_account.username rent.code %}">
-                                View Payments </a> </td>
+                            <td> Payments made </td>
                             {% else %}
-                            <td> No payments Made </td>
+                            <td> No payments approved </td>
                             {% endif %}
+                            <td> <a href="{% url 'view-update-rent' building.slug unit.slug rent.tenant.associated_account.username rent.code %}">
+                                Details </a> </td>
                         {% empty %}
                         <tbody>
                             <tr>

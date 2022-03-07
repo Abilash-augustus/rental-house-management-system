@@ -49,8 +49,6 @@ class UnitRentDetails(models.Model):
     currency = models.CharField(max_length=10, default='KES')
     amount_paid = models.DecimalField(max_digits=9, decimal_places=2, default=0)
     pay_for_month = MultiSelectField(choices=MONTHS_SELECT)
-    paid_in_advance = models.BooleanField(default=False)
-    amount_paid_in_advance = models.DecimalField(max_digits=9, decimal_places=2, null=True, blank=True)
     cleared = models.BooleanField(default=False)
     status = models.CharField(max_length=15, choices=STATUS_CHOICES, default='no_payment')
     start_date = models.DateField()
@@ -60,6 +58,7 @@ class UnitRentDetails(models.Model):
     added = models.DateTimeField(default=datetime.now)
     updated = models.DateTimeField(auto_now=True)
     
+    
     def amount_remaining(self):
         r_amount = (self.rent_amount-self.amount_paid)
         return r_amount       
@@ -67,12 +66,7 @@ class UnitRentDetails(models.Model):
     def save(self, *args, **kwargs):
         if not self.code:
             self.code = ''.join(random.choices(string.digits, k=12))
-        if self.amount_paid > self.rent_amount:
-            self.cleared = True
-            if self.amount_paid-self.rent_amount > 0:
-                self.paid_in_advance = True
-                self.amount_paid_in_advance = self.amount_paid-self.rent_amount
-        elif self.rent_amount == self.amount_paid:
+        if self.amount_paid > self.rent_amount or self.rent_amount == self.amount_paid:
             self.cleared = True
         elif self.rent_amount > self.amount_paid:
             self.cleared = False
@@ -127,11 +121,10 @@ class WaterBilling(models.Model):
     tenant = models.ForeignKey(Tenants, on_delete=models.DO_NOTHING)
     bill_code = models.CharField(max_length=15, unique=True, null=True, blank=True)
     meter_number = models.CharField(max_length=10)
-    quantity = models.DecimalField(decimal_places=2, max_digits=9, default=0, null=True, blank=True)
-    measuring_unit = models.CharField(max_length=20, default='Litres')
+    units = models.DecimalField(decimal_places=2, max_digits=9, default=0, null=True, blank=True)
     unit_price = models.DecimalField(decimal_places=2, max_digits=9, verbose_name='Unit Price (KES)')
-    re_billed = models.DecimalField(decimal_places=2, max_digits=9, null=True, blank=True)
     total = models.DecimalField(decimal_places=2, max_digits=9, default=0)
+    amount_paid = models.DecimalField(decimal_places=2, max_digits=9, default=0)
     month = MultiSelectField(choices=MONTHS_SELECT, null=True, blank=True)
     remarks = models.TextField(blank=True)
     cleared = models.BooleanField(default=False)    
@@ -145,8 +138,12 @@ class WaterBilling(models.Model):
     def save(self, *args, **kwargs):
         if not self.bill_code:
             self.bill_code = ''.join(random.choices(string.ascii_lowercase, k=10))
-        if self.quantity:
-            self.total = self.quantity*self.unit_price
+        if self.units:
+            self.total = self.units*self.unit_price
+        if self.total < self.amount_paid or self.total == self.amount_paid:
+            self.cleared = True
+        elif self.total > self.amount_paid:
+            self.cleared = False
             super(WaterBilling, self).save(*args, **kwargs)
         super(WaterBilling, self).save(*args, **kwargs)
     
@@ -169,29 +166,36 @@ class WaterConsumption(models.Model):
             super(WaterConsumption,self).save(*args,**kwargs)
         super(WaterConsumption,self).save(*args,**kwargs)
     
-    
-    
     def __str__(self):
         return f"{self.reading_added}"
     
 class WaterPayments(models.Model):
     parent = models.ForeignKey(WaterBilling, on_delete=models.DO_NOTHING)
+    tracking_code = models.CharField(max_length=15, unique=True, blank=True, null=True)
     payment_code = models.CharField(max_length=30)
     amount = models.DecimalField(decimal_places=2, max_digits=9)
     payment_method = models.CharField(max_length=30,help_text="e.g. MPESA, KCB ...")
     date_paid = models.DateField()
     status = models.CharField(max_length=10, default='pending', choices=PAYMENT_STATUS_CHOICES)
     remarks = models.TextField(blank=True,null=True,max_length=155)
+    lock = models.BooleanField(default=False)
     created = models.DateTimeField(default=datetime.now)
     updated = models.DateTimeField(auto_now=True)
     
+    def save(self, *args, **kwargs):
+        if not self.tracking_code:
+            self.tracking_code = ''.join(random.choices(string.ascii_letters+string.digits, k=10))
+        if self.status == 'approved':
+            self.lock = True
+            super(WaterPayments, self).save(*args, **kwargs)
+        super(WaterPayments, self).save(*args, **kwargs)
+        
     def __str__(self):
         return f"{self.payment_code}"
     
     class Meta:
         verbose_name = 'Billing | Water Bills Payments'
         verbose_name_plural = verbose_name
-    
     
 class ElectricityBilling(models.Model):
     rental_unit = models.ForeignKey(RentalUnit, on_delete=models.DO_NOTHING)
@@ -202,6 +206,7 @@ class ElectricityBilling(models.Model):
     units = models.DecimalField(decimal_places=2, max_digits=9)
     unit_price = models.DecimalField(decimal_places=2, max_digits=9)
     total = models.DecimalField(decimal_places=2, max_digits=9, null=True, blank=True)
+    amount_paid = models.DecimalField(decimal_places=2, max_digits=9, null=True, blank=True, default=0)
     month = MultiSelectField(choices=MONTHS_SELECT)
     remarks = models.TextField(blank=True)
     cleared = models.BooleanField(default=False)  
@@ -212,11 +217,19 @@ class ElectricityBilling(models.Model):
     added = models.DateTimeField(default=datetime.now)
     updated = models.DateTimeField(auto_now=True)
     
+    def remaining_amount(self):
+        remaining = (self.total-self.amount_paid)
+        return remaining
+    
     def save(self, *args, **kwargs):
         if not self.bill_code:
             self.bill_code = ''.join(random.choices(string.ascii_letters+string.digits, k=12))
         if self.units:
             self.total = self.units*self.unit_price
+        if self.total < self.amount_paid or self.total == self.amount_paid:
+            self.cleared = True
+        elif self.total > self.amount_paid:
+            self.cleared = False
             super(ElectricityBilling, self).save(*args, **kwargs)
         super(ElectricityBilling, self).save(*args, **kwargs)
     
@@ -242,12 +255,16 @@ class ElectricityPayments(models.Model):
     payment_method = models.CharField(max_length=30, help_text="e.g. MPESA, KCB ...")
     status = models.CharField(max_length=10, choices=PAYMENT_STATUS_CHOICES, default='pending')
     remarks = models.TextField(null=True, blank=True)
+    lock = models.BooleanField(default=False)
+    payment_date = models.DateField()
     created = models.DateTimeField(default=datetime.now)
     updated = models.DateTimeField(auto_now=True)
     
     def save(self, *args, **kwargs):
         if not self.tracking_code:
             self.tracking_code = ''.join(random.choices(string.digits+string.ascii_letters, k=10))
+        if self.status == 'approved':
+            self.lock = True
             super(ElectricityPayments, self).save(*args, **kwargs)
         super(ElectricityPayments, self).save(*args, **kwargs)
     

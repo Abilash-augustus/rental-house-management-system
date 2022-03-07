@@ -27,7 +27,8 @@
                       <div class="card-footer">
                           <small class="text-muted">Status: {{building.get_building_status_display}}</small>
                           &nbsp;&nbsp;&nbsp;&nbsp; <small> <a href="{% url 'update-building-status' building.slug %}"> update </a> </small> &nbsp;&nbsp;
-                          <small> <a href="{% url 'core:building_stats' building.slug %}"> stats </a> </small>
+                          <small> <a href="{% url 'core:building_stats' building.slug %}"> stats </a> </small> &nbsp;&nbsp;
+                          <small> <a href="{% url 'property_maintanance_notice' building.slug %}"> Maintanance Notice </a> </small>
                       </div>
                   </div>
               </div>
