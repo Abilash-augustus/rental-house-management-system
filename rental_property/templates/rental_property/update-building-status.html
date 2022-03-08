@@ -19,7 +19,8 @@
                     </fieldset>
                     <br>
                     <div class="form-group">
-                        <button class="btn btn-outline-primary" type="submit">Update</button>
+                        <a href="{% url 'building-dashboard' building.slug %}" class="btn btn-outline-danger" type="submit">Cancel</a>
+                        <button class="btn btn-outline-success" type="submit">Update</button>
                     </div>
                 </form>
             </div>

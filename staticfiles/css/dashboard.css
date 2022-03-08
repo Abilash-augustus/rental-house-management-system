@@ -1,0 +1,115 @@
+.describe {
+    position: relative;
+    width: 100%;
+    padding: 45px 0 15px 0;
+}
+
+.describe .describe-item {
+    position: relative;
+    margin-bottom: 30px;
+}
+
+.describe .describe-header,
+.describe .describe-body,
+.describe .describe-footer {
+    position: relative;
+    width: 100%;
+    text-align: center;
+    background: #ffffff;
+    overflow: hidden;
+}
+
+.describe .describe-header {
+    padding: 30px;
+    background: #32CD32;
+    color: black;
+}
+
+.describe .describe-item.featured-item .describe-header {
+    background: black;
+    color: #32CD32;
+}
+
+.describe .describe-status {
+    margin-top: -30px;
+    text-align: right;
+}
+
+
+.describe .describe-title h2 {
+    font-size: 25px;
+    font-weight: 700;
+}
+
+.describe .describe-describes h2 {
+    font-size: 45px;
+    font-weight: 700;
+    margin-left: 10px;
+}
+
+.describe .describe-describes h2 small {
+    position: relative;
+    font-size: 18px;
+    font-weight: 400;
+    margin-top: 9px;
+    margin-left: -12px;
+}
+
+.describe .describe-describes h2 span {
+    margin-left: 1px;
+    font-size: 18px;
+    font-weight: 400;
+}
+
+.describe .describe-item.featured-item h2 {
+    color: #32CD32;
+}
+
+.describe .describe-body {
+    padding: 25px 0 20px 0;
+    border: 1px solid rgba(0, 0, 0, .07);
+    border-bottom: none;
+}
+
+.describe .describe-description ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.describe .describe-description ul li {
+    padding: 7px;
+    border-bottom: 1px solid rgba(0, 0, 0, .07);
+}
+
+.describe .describe-description ul li:last-child {
+    border: none;
+}
+
+.describe .describe-action {
+    border: 1px solid rgba(0, 0, 0, .07);
+    border-top: none;
+}
+
+.describe .describe-action a.btn {
+    margin-bottom: 30px;
+    padding: 12px 20px;
+    color: #343148;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    border-radius: 0;
+    background: #F7CAC9;
+    transition: .3s;
+}
+
+.describe .describe-action a:hover,
+.describe .describe-item.featured-item .describe-action a {
+    color: #F7CAC9;
+    background: #343148;
+}
+
+.describe .describe-item.featured-item .describe-action a:hover {
+    color: #343148;
+    background: #F7CAC9;
+}

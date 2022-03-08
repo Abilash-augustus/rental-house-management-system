@@ -41,7 +41,7 @@ def my_rent_details(request, building_slug, unit_slug, username):
     tenant = Tenants.objects.get(rented_unit=unit, associated_account__username=username)
     payment_options = PaymentMethods.objects.all()
     
-    tenant_rent_details = UnitRentDetails.objects.filter(tenant=tenant, unit=unit).order_by('due_date')
+    tenant_rent_details = UnitRentDetails.objects.filter(tenant=tenant, unit=unit).order_by('-added')
     tenant_rent_details_qs = RentDetailsFilter(request.GET, queryset=tenant_rent_details)
               
     context = {'building':building, 'unit':unit, 'tenant':tenant,'tenant_rent_details_qs':tenant_rent_details_qs,'payment_options':payment_options}
@@ -66,7 +66,7 @@ def submit_rent_payments(request, building_slug, unit_slug, rent_code, username)
             pay_info_form.instance.manager = manager
             pay_info_form.instance.paid_for_month = rent.pay_for_month
             pay_info_form.save()
-            messages.success(request, 'Payment info submitted, update will be done once approved')
+            messages.success(request, 'Record submitted, update will be done once approved')
             return redirect('my-rent', building_slug=building.slug, unit_slug=unit.slug, username=tenant.associated_account.username)
     else:
         pay_info_form = SubmitPaymentsForm()
@@ -150,7 +150,6 @@ def my_electricity_billing_details(request,building_slug,unit_slug,username,bill
                'readings':readings,'pay_submit_form':pay_submit_form,'payments_made':payments_made}
     return render(request, 'utilities_and_rent/my_elctric_bill_details.html', context)
 
-#TODO: Do the math in models when record is approved
 
 ############### manager functions ###################
 
@@ -170,7 +169,7 @@ def tenant_rent_history(request, building_slug, unit_slug, username):
     building = Building.objects.get(slug=building_slug)
     unit = RentalUnit.objects.get(slug=unit_slug, building=building)
     tenant = Tenants.objects.get(rented_unit=unit, associated_account__username=username)
-    rent_details = UnitRentDetails.objects.filter(tenant=tenant, unit=unit)
+    rent_details = UnitRentDetails.objects.filter(tenant=tenant, unit=unit).order_by('-added')
     rental_details_filter = RentDetailsFilter(request.GET, queryset=rent_details)
     
     context = {'building': building,'unit':unit,
@@ -204,7 +203,7 @@ def add_tenant_rent(request, building_slug, unit_slug):
                     message.content_subtype = 'html'
                     message.send()
                     messages.info(request,'Notification sent')
-                return redirect('rent-and-utilities', building_slug=building.slug)
+                return redirect('rent-history', building_slug=building.slug, unit_slug=unit.slug, username=tenant.associated_account.username)
         else:
             rent_form = AddRentDetailsForm()
     else:
@@ -238,7 +237,7 @@ def update_tenant_rent(request, building_slug, unit_slug, username, rent_code):
                 message.content_subtype = 'html'
                 message.send()
                 messages.info(request,'Tenant Notified')
-            return HttpResponseRedirect("")
+            return redirect('rent-history', building_slug=building.slug, unit_slug=unit.slug, username=tenant.associated_account.username)
     else:
         update_form = UpdateRentDetails(instance=rent_details)
     

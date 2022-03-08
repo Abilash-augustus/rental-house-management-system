@@ -1,6 +1,8 @@
 {% extends "base.html" %}
-
+{% load humanize %} 
+{% load static %}
 {% block extra_css %}
+<link type="text/css" href="{% static 'css/dashboard.css' %}" rel="stylesheet" crossorigin="anonymous">
 <style type="text/css">
     .card {
         transition: all 0.2s ease;
@@ -26,116 +28,176 @@ a:active { text-decoration: none; }
 
         <div class="row">
 
-            <div class="col-md-3 col-sm-3 mb-2">
-                <div class="card card-stats">
-                    <a href="{% url 'building-dashboard' building.slug %}" class="">
-                    <div class="card-header card-header-success card-header-icon">
-                      <div class="card-icon">
-                        <em class="material-icons">store</em>
-                      </div>
-                      <h3 class="card-title">DASHBOARD</h3>
-                    </div>
-                    </a>
-                </div>
-            </div>
 
-            <div class="col-md-6 col-sm-6 mb-2">
-                <div class="card card-stats">
-                    <div class="card-header card-header-warning card-header-icon">
-                      <div class="card-icon">
-                          <em class="material-icons">content_copy</em>
-                      </div>
-                      <p class="card-category">Used Space</p>
-                      <h3 class="card-title">oof</small></h3>
-                    </div>
-                    <div class="card-footer">
-                        <div class="stats">
-                            <em class="material-icons text-danger">warning</em>
-                            <a href="#pablo">Get More Space...</a>
+        <div class="describe">
+            <div class="container">
+                <div class="section-header text-center wow zoomIn" data-wow-delay="0.1s">
+                    <div class="col-md-3 col-sm-3 mb-2">
+                    <div class="card card-stats">
+                        <a href="{% url 'building-dashboard' building.slug %}" class="">
+                        <div class="card-header card-header-success card-header-icon">
+                          <div class="card-icon">
+                            <em class="material-icons">store</em>
+                          </div>
+                          <h3 class="card-title"><em class="fa fa-arrow-left"></em> Go Back</h3>
                         </div>
+                        </a>
                     </div>
                 </div>
-            </div>
-          
-            <div class="col-md-6 col-sm-6 mb-2">
-                <div class="card card-stats">
-                    <div class="card-header card-header-success card-header-icon">
-                      <div class="card-icon">
-                        <em class="material-icons">store</em>
-                      </div>
-                      <p class="card-category">tuup</p>
-                      <h3 class="card-title">90909</h3>
-                    </div>
-                    <div class="card-footer">
-                        <div class="stats">
-                            <em class="material-icons">date_range</em> Last 24 Hours
-                        </div>
-                    </div>
+                <div class="mb-4 section-header text-center">
+                    <h2 class="card-header text-center"> Stats </h2>
                 </div>
-            </div>
-          
+                </div>
+              <div class="row">
+                  <div class="col-md-4 wow fadeInUp" data-wow-delay="0.0s">
+                      <div class="describe-item">
+                          <div class="describe-header">
+                              <div class="describe-title">
+                                  <h2>Tenants</h2>
+                              </div>
+                          </div>
+                          <div class="describe-body">
+                              <div class="describe-description">
+                                  <ul>
+                                      <li><em>"Moved In": {{movedin_tenants}}</em></li>
+                                      <li><em>"Waiting": {{waiting_tenants}}</em></li>
+                                  </ul>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+                  <div class="col-md-4 wow fadeInUp" data-wow-delay="0.3s">
+                      <div class="describe-item featured-item">
+                          <div class="describe-header">
+                              <div class="describe-title">
+                                  <h2>Units</h2>
+                              </div>
+                          </div>
+                          <div class="describe-body">
+                              <div class="describe-description">
+                                  <ul>
+                                      <li><em>"Occupied": {{occupied_units}}</em></li>
+                                      <li><em>"Un Occupied": {{un_occupied_units}}</em></li>
+                                  </ul>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+                  <div class="col-md-4 wow fadeInUp" data-wow-delay="0.6s">
+                      <div class="describe-item">
+                          <div class="describe-header">
+                              <div class="describe-title">
+                                  <h2>Move Out Notices</h2>
+                              </div>
+                          </div>
+                          <div class="describe-body">
+                              <div class="describe-description">
+                                  <ul>
+                                      <li>"Received": {{received_move_out_notices}}</li>
+                                      <li><em>"Confirmed": {{confirmed_move_out_notices}}</em></li>
+                                      <li><em>"Checking": {{checking_move_out_notices}}</em></li>
+                                      <li><em>"Dropped": {{dropped_move_out_notices}}</em></li>
+                                  </ul>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+              <div class="row">
+                  <div class="col-md-4 wow fadeInUp" data-wow-delay="0.9s">
+                      <div class="describe-item">
+                          <div class="describe-header">
+                              <div class="describe-title">
+                                  <h2>Eviction Notices</h2>
+                              </div>
+                          </div>
+                          <div class="describe-body">
+                              <div class="describe-description">
+                                  <ul>
+                                      <li><em>"Initiated": {{initiated_evictions}}</em></li>
+                                      <li><em>"Evicted": {{evicted_evictions}}</em></li>
+                                      <li><em>"Dropped": {{dropped_evictions}}</em></li>
+                                  </ul>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+                  <div class="col-md-4 wow fadeInUp" data-wow-delay="1.2s">
+                      <div class="describe-item featured-item">
+                          <div class="describe-header">
+                              <div class="describe-title">
+                                  <h2>Unit Reports</h2>
+                              </div>
+                          </div>
+                          <div class="describe-body">
+                              <div class="describe-description">
+                                  <ul>
+                                      <li><em>"Received": {{recieved_unit_reports}}</em></li>
+                                      <li><em>"Processing": {{processing_unit_reports}}</em></li>
+                                      <li><em>"Resolved": {{resolved_unit_reports}}</em></li>
+                                      <li><em>"Dropped": {{dropped_unit_reports}}</em></li>
+                                  </ul>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+                  <div class="col-md-4 wow fadeInUp" data-wow-delay="1.2s">
+                      <div class="describe-item">
+                          <div class="describe-header">
+                              <div class="describe-title">
+                                  <h2>Building Complaints</h2>
+                              </div>
+                          </div>
+                          <div class="describe-body">
+                              <div class="describe-description">
+                                  <ul>
+                                      <li><em>"Open": {{open_complaints}}</em></li>
+                                      <li><em>"Closed": {{closed_complaints}}</em></li>
+                                  </ul>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+                  <div class="col-md-4 wow fadeInUp" data-wow-delay="1.2s">
+                      <div class="describe-item">
+                          <div class="describe-header">
+                              <div class="describe-title">
+                                  <h2>Planned Tours</h2>
+                              </div>
+                          </div>
+                          <div class="describe-body">
+                              <div class="describe-description">
+                                  <ul>
+                                      <li><em>"Waiting": {{waiting_tours}}</em></li>
+                                      <li><em>"Cancelled": {{cancelled_tours}}</em></li>
+                                      <li><em>"Approved": {{approved_tours}}</em></li>
+                                      <li><em>"Visited": {{visited_tours}}</em></li>
+                                  </ul>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+                  <div class="col-md-4 wow fadeInUp" data-wow-delay="1.2s">
+                      <div class="describe-item featured-item">
+                          <div class="describe-header">
+                              <div class="describe-title">
+                                  <h2>Utilities (30 Days)</h2>
+                              </div>
+                          </div>
+                          <div class="describe-body">
+                              <div class="describe-description">
+                                  <ul>
+                                      <h5>Electricity</h5>
+                                      <li><em>"Units (KwH)": {{sum_electric_consumption.normalize|intcomma}}</em></li>
+                                      <h5>Water</h5>
+                                      <li><em>"Units": {{sum_water_consumption.normalize|intcomma}}</em></li>
+                                  </ul>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
             </div>
         </div>
-    </section>
-
-<div class="card">
-    <span> Building Managers </em>
-    <em> #todo </em>
-</div>
-
-<div class="card">
-    <span> Tenants </span> <br>
-    <em> "Moved In" : {{movedin_tenants}} </em>
-    <em> "Waiting" : {{waiting_tenants}} </em>
-</div>
-<div class="card">
-    <span> Units </span> <br>
-    <em> "Occupied" : {{occupied_units}} </em> </br>
-    <em> "Un Occupied" : {{un_occupied_units}} </em>
-</div>
-<div class="card">
-    <span> Move Out Notices </span> <br>
-    <em> "Received" : {{received_move_out_notices}} </em> </br>
-    <em> "Confirmed" : {{confirmed_move_out_notices}} </em> <br>
-    <em> "Checking" : {{checking_move_out_notices}} </em>
-    <em> "Dropped" : {{dropped_move_out_notices}} </em>
-</div>
-<div class="card">
-    <span> Eviction Notices </span> <br>
-    <em> "Initiated" : {{initiated_evictions}} </em> </br>
-    <em> "Evicted" : {{evicted_evictions}} </em>
-    <em> "Dropped" : {{dropped_evictions}} </em> </br>
-</div>
-
-<div class="card">
-    <span> Unit Reports </span> <br>
-    <em> "Received" : {{recieved_unit_reports}} </em> </br>
-    <em> "Processing" : {{processing_unit_reports}} </em>
-    <em> "Resolved" : {{resolved_unit_reports}} </em> </br>
-    <em> "Dropped" : {{dropped_unit_reports}} </em>
-</div>
-<div class="card">
-    <span> Building Complaints </span> <br>
-    <em> "Open" : {{open_complaints}} </em> </br>
-    <em> "Closed" : {{closed_complaints}} </em>
-</div>
-<div class="card">
-    <span> Planned Tours </span> <br>
-    <em> "Waiting" : {{waiting_tours}} </em> </br>
-    <em> "Cancelled" : {{cancelled_tours}} </em>
-    <em> "Approved" : {{approved_tours}} </em> </br>
-    <em> "Visited" : {{visited_tours}} </em>
-</div>
-
-<div class="card">
-    <span> Utilities (30 Days) </span> <br>
-    <div class="card">
-        <span> Electricity </span> <br>
-        <em> "KwH" : {{sum_electric_consumption}} </em> </br>
     </div>
-    <div class="card">
-        <span> Water </span> <br>
-        <em> "Litres" : {{sum_water_consumption}} </em> </br>
-    </div>
-</div>
+</section>
 {% endblock %}

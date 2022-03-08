@@ -3,11 +3,6 @@
 {% load humanize %}
 {% load crispy_forms_tags %}
 
-{% block extra_head %} 
-<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js"></script>
-{% endblock %}
-
 {% block content %}	
 
 <section class="container border border-5" style="margin-top:2%; margin-bottom:4%;">
@@ -50,7 +45,7 @@
               <div class="col-sm-4">
                 <div class="card border-0">
                   <div class="card-body">
-                    <canvas id="rent-chart" data-url="{% url 'rent_chart' building.slug unit.slug tenant.associated_account.username %}">
+                    <canvas id="tenantRentChart" data-url="{% url 'rent_chart' building.slug unit.slug tenant.associated_account.username %}">
                     </canvas>
                   </div>
                 </div>
@@ -58,7 +53,7 @@
               <div class="col-sm-4">
                 <div class="card border-0">
                   <div class="card-body">
-                    <canvas id="waterUsage" data-url="{% url 'tenant-water-usage' building.slug unit.slug tenant.associated_account.username %}">
+                    <canvas id="tenantWaterUsageChart" data-url="{% url 'tenant-water-usage' building.slug unit.slug tenant.associated_account.username %}">
                     </canvas>
                   </div>
                 </div>
@@ -66,7 +61,7 @@
               <div class="col-sm-4">
                 <div class="card border-0">
                   <div class="card-body">
-                    <canvas id="electricityOverview" data-url="{% url 'tenant_electricity_usage' building.slug unit.slug tenant.associated_account.username %}">
+                    <canvas id="tenantsElectricityUsage" data-url="{% url 'tenant_electricity_usage' building.slug unit.slug tenant.associated_account.username %}">
                     </canvas>
                   </div>
                 </div>
@@ -161,37 +156,4 @@
           </div>
         </div>
     </section>
-
-   
-<script>
-  $(function () {var $rentChart = $("#rent-chart");
-    $.ajax({url: $rentChart.data("url"),success: function (data) {
-        var ctx = $rentChart[0].getContext("2d");new Chart(ctx,{type: 'line',data: {
-            labels: data.labels,datasets: [{label: 'Rent',backgroundColor: '#521449',
-              data: data.data}]},options: {responsive: true,legend: {
-              display: false,},scales: {yAxes: [{ticks: {display: false,}}]},
-            title: {display: true,text: 'Rent Overview'}}});}});});
-
-  $(function () {var $waterChart = $("#waterUsage");
-    $.ajax({url: $waterChart.data("url"),success: function (data) {
-        var ctx = $waterChart[0].getContext("2d");
-        new Chart(ctx, {type: 'line',data: {labels: data.labels,
-            datasets: [{label: 'units',backgroundColor: '#d4f1f9',
-              data: data.data}]},
-              options: {responsive: true,legend: {display: false,},
-              scales: {xAxes: [{ticks: {display: false,}}],yAxes: [{
-                scaleLabel: {display: false,labelString: 'units'}}]},
-              title: {display: true,text: 'Water Usage Overview (10W)'}}});}});});
-
-  $(function () {var $electricUsage = $("#electricityOverview");
-    $.ajax({url: $electricUsage.data("url"),success: function (data) {
-      var ctx = $electricUsage[0].getContext("2d");
-        new Chart(ctx, {type: 'line',data: {labels: data.labels,
-          datasets: [{label: 'units',backgroundColor: '#B3CEFF',
-            data: data.data}]},
-              options: {responsive: true,legend: {display: false,},
-                scales: {xAxes: [{ticks: {display: false,}}],yAxes: [{
-                  scaleLabel: {display: false,labelString: 'Units'}}]},
-                    title: {display: true,text: 'Electricity Usage Overview (10W)'}}});}});});
-</script>
 {% endblock %}

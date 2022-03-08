@@ -333,7 +333,7 @@ def building_dashboard(request,building_slug):
     
     water_consumption = WaterBilling.objects.filter(rental_unit__building=building,added__lte=datetime.datetime.today(), 
                                                              added__gt=datetime.datetime.today()-datetime.timedelta(days=30))
-    sum_water_consumption = water_consumption.aggregate(Sum('units')).get('quantity__sum')
+    sum_water_consumption = water_consumption.aggregate(Sum('units')).get('units__sum')
     
     context = {
         'building':building,

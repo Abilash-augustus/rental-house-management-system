@@ -32,16 +32,12 @@ class UpdateRentDetails(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(UpdateRentDetails, self).__init__(*args, **kwargs)
         self.fields['currency'].disabled = True
-        self.fields['rent_amount'].disabled = True
-        self.fields['pay_for_month'].disabled = True
-        self.fields['cleared'].disabled = True
-        self.fields['start_date'].disabled = True
-        self.fields['end_date'].disabled = True
         self.fields['added'].disabled = True
+        self.fields['amount_paid'].disabled = True
     class Meta:
         model = UnitRentDetails
         fields = ['currency','rent_amount','amount_paid','pay_for_month',
-                  'cleared','start_date','end_date','added','due_date','status','notify_tenant']
+                  'cleared','start_date','rent_type','end_date','added','due_date','status','notify_tenant']
         widgets = {
             'due_date': DateInput(),
         }

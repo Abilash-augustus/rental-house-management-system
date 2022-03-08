@@ -3,11 +3,6 @@
 {% load humanize %}
 {% load crispy_forms_tags %}
 
-{% block extra_head %} 
-<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js"></script>
-{% endblock %}
-
 {% block content %}	
 
 <section class="container border border-5 mb-3 mt-3">
@@ -22,7 +17,7 @@
           <div class="col-sm-12">
             <div class="card border-0">
               <div class="card-body">
-                <canvas id="rent-chart" data-url="{% url 'building_rent_overview' building.slug %}">
+                <canvas id="building-rent-chart" data-url="{% url 'building_rent_overview' building.slug %}">
                 </canvas>
               </div>
             </div>
@@ -73,10 +68,9 @@
                                                 <span> <h class="card-title">{{tenant.associated_account.first_name}} {{tenant.associated_account.last_name}}</h5> </span> <br>
                                             </li>   
                                             {% if tenant.rented_unit.status == 'occupied' %}                                
-                                            <li class="list-group-item d-flex justify-content-between align-items-start">
-                                              <div class="ms-2 me-auto"> <span> <a href="{% url 'add-rent' building.slug tenant.rented_unit.slug %}"> Add Rent </a> </span></div> &nbsp;
-                                              <span><a href="{% url 'rent-history' building.slug tenant.rented_unit.slug tenant.associated_account.username %}"> 
-                                                  Rent History </a></span>
+                                            <li class="list-group-item text-center">
+                                              <span><a  class="btn btn-outline-success" href="{% url 'rent-history' building.slug tenant.rented_unit.slug tenant.associated_account.username %}"> 
+                                                  Enter </a></span>
                                             </li>
                                             {% endif %}
                                           </ul>                       
@@ -95,51 +89,5 @@
             </div>
           </div>
         </div>
-
-        <script>
-          $(function () {        
-            var $rentChart = $("#rent-chart");
-            $.ajax({
-              url: $rentChart.data("url"),
-              success: function (data) {        
-                var ctx = $rentChart[0].getContext("2d");        
-                new Chart(ctx, {
-                  type: 'pie',
-                  data: {
-                    labels: data.labels,
-                    datasets: [{
-                      label: 'Rent',
-                      data: data.data,
-                      backgroundColor: [
-                      '#fcba03', '#88fc03', '#A9A9A9', '#1daba8', '#3d5454', '#1e3152',
-                      '#47410b', '#557310', '#277310', '#107331', '#2792b0', '#d47a6a',
-                      ],
-                    }]          
-                  },
-                  options: {
-                    responsive: true,
-                    legend: {
-                      display: false,
-                    },
-                    scales: {
-                      yAxes: [{
-                        ticks: {
-                          display: false,
-                        }
-                      }]
-                    },
-                    title: {
-                      display: true,
-                      text: 'Rent Overview'
-                    }
-                  }
-                });
-        
-              }
-            });
-        
-          });
-        
-        </script>
     </section>
 {% endblock %}

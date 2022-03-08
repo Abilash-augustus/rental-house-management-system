@@ -3,11 +3,6 @@
 {% load humanize %}
 {% load crispy_forms_tags %}
 
-{% block extra_head %} 
-<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js"></script>
-{% endblock %}
-
 {% block content %}	
 
 <section class="container border border-5" style="margin-top:2%; margin-bottom:4%;">
@@ -47,7 +42,7 @@
               <div class="col-sm-6">
                 <div class="card border-0">
                   <div class="card-body">
-                    <canvas id="waterUsage" data-url="{% url 'tenant-water-usage' building.slug unit.slug tenant.associated_account.username %}">
+                    <canvas id="tenantWaterUsageChart" data-url="{% url 'tenant-water-usage' building.slug unit.slug tenant.associated_account.username %}">
                     </canvas>
                     </div>
                 </div>
@@ -155,21 +150,5 @@
         </div>
       </div>
       <!-- end billing modal -->
-    </section>
-
-
-    <script>
-        $(function () {var $waterChart = $("#waterUsage");
-        $.ajax({url: $waterChart.data("url"),success: function (data) {
-            var ctx = $waterChart[0].getContext("2d");
-            new Chart(ctx, {type: 'line',data: {labels: data.labels,
-                datasets: [{label: 'units',backgroundColor: '#d4f1f9',
-                  data: data.data}]},
-                  options: {responsive: true,legend: {display: false,},
-                  scales: {xAxes: [{ticks: {display: false,}}],yAxes: [{
-                    scaleLabel: {display: true,labelString: 'units'}}]},
-                  title: {display: true,text: 'Water (L) Usage Overview'}}});}});});
-      
-      </script>
-      
+    </section>      
 {% endblock %}

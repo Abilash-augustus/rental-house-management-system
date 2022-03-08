@@ -18,7 +18,7 @@ class BuildingAdmin(admin.ModelAdmin):
 
 
 @admin.register(RentalUnit)
-class HouseAdmin(admin.ModelAdmin):
+class RentalUnitAdmin(admin.ModelAdmin):
     inlines = [UnitAlbumAdmin]
     list_display = ['unit_number', 'building', 'unit_type', 'bathrooms', 'bedrooms', 'status']
     list_filter = ['building',]

@@ -39,8 +39,13 @@ class PaymentMethods(models.Model):
     
 class UnitRentDetails(models.Model):
     STATUS_CHOICES = [
-        ('payment_made', 'Payment Made'),
-        ('no_payment', 'No Payment Made'),
+        ('refunded', 'Refunded'),
+        ('open','open'),
+        ('closed','closed'),
+    ]
+    RENT_TYPE_CHOICES = [
+        ('rent','Rent'),
+        ('s_deposit','Security Deposit'),
     ]
     code = models.CharField(max_length=15, unique=True, null=True, blank=True)
     tenant = models.ForeignKey(Tenants, on_delete=models.DO_NOTHING)
@@ -50,7 +55,8 @@ class UnitRentDetails(models.Model):
     amount_paid = models.DecimalField(max_digits=9, decimal_places=2, default=0)
     pay_for_month = MultiSelectField(choices=MONTHS_SELECT)
     cleared = models.BooleanField(default=False)
-    status = models.CharField(max_length=15, choices=STATUS_CHOICES, default='no_payment')
+    status = models.CharField(max_length=15, choices=STATUS_CHOICES, default='open')
+    rent_type = models.CharField(max_length=15,choices=RENT_TYPE_CHOICES,default='rent')
     start_date = models.DateField()
     end_date = models.DateField()
     due_date = models.DateField()
@@ -68,6 +74,7 @@ class UnitRentDetails(models.Model):
             self.code = ''.join(random.choices(string.digits, k=12))
         if self.amount_paid > self.rent_amount or self.rent_amount == self.amount_paid:
             self.cleared = True
+            self.status = 'closed'
         elif self.rent_amount > self.amount_paid:
             self.cleared = False
             super(UnitRentDetails, self).save(*args, **kwargs)
@@ -88,7 +95,7 @@ PAYMENT_STATUS_CHOICES = [
     ]
 
 class RentPayment(models.Model):
-    rent_details = models.ForeignKey(UnitRentDetails, on_delete=models.DO_NOTHING)
+    rent_details = models.ForeignKey(UnitRentDetails, on_delete=models.CASCADE)
     tenant = models.ForeignKey(Tenants, on_delete=models.DO_NOTHING)
     manager = models.ForeignKey(Managers, on_delete=models.CASCADE, null=True, blank=True)
     tracking_code = models.CharField(max_length=15, unique=True, null=True, blank=True)

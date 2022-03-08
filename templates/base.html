@@ -20,6 +20,8 @@
     <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.11.2/css/all.css" integrity="sha384-zrnmn8R8KkWl12rAZFt4yKjxplaDaT7/EUkKm7AovijfrQItFWR7O/JJn4DAa/gx" crossorigin="anonymous">
     <meta name="description" content="{% block metadescription %}{% endblock %}">
 
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+
     <title> House Rental Management System | {% block head_title %}{% trans "Home Page" %}{% endblock %}</title>
 
     <style type="text/css">
@@ -154,9 +156,9 @@
 
 
     <!-- live chat bot -->
-    
+    <!--
 <script id="TelegramLiveChatLoader" data-bot="81B58C84-8B5C-11EC-A9B8-05FC22E822B5" src="//livechatbot.net/assets/chat/js/loader.js"></script>
-  
+  -->
 
 
 <!-- in page search -->
@@ -184,6 +186,8 @@
   </footer>
     <!-- Bootstrap Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js"></script>
+    <script src="{% static 'js/my_charts.js' %}" crossorigin="anonymous"></script>
     
   </body>
 </html>

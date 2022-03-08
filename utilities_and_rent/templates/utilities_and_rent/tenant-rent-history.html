@@ -3,18 +3,12 @@
 {% load humanize %}
 {% load crispy_forms_tags %}
 
-{% block extra_head %} 
-<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js"></script>
-{% endblock %}
-
 {% block content %}	
 
 <section class="container border border-5" style="margin-top:2%; margin-bottom:4%;">
     <div class="row justify-content-center">
 
         <div class="container">
-
           <!-- overview start -->
           <div class="container card p-0 mb-2">
             <div class="card-header text-center w-100">
@@ -48,7 +42,7 @@
               <div class="col-sm-6">
                 <div class="card border-0">
                   <div class="card-body">
-                    <canvas id="rent-chart" data-url="{% url 'rent_chart' building.slug unit.slug tenant.associated_account.username %}">
+                    <canvas id="tenantRentChart" data-url="{% url 'rent_chart' building.slug unit.slug tenant.associated_account.username %}">
                     </canvas>
                   </div>
                 </div>
@@ -69,6 +63,9 @@
                     </form>
                     <br>
                     <div class="list-group">
+                      <a class="list-group-item list-group-item-action" href="{% url 'add-rent' building.slug tenant.rented_unit.slug %}" role="button">
+                        Add Rent
+                      </a>
                       <a class="list-group-item list-group-item-action" href="{% url 'manager-water-billing' building.slug unit.slug tenant.associated_account.username %}" role="button">
                         Water Billing for {{tenant.associated_account.username}}
                       </a>
@@ -86,7 +83,7 @@
                           <input class="form-control" id="myInput" type="text" placeholder="Search..">
                           <div class="table-responsive">
                         <table class="table table-striped table-hover">
-                            <caption> </caption>
+                            <caption> Added Rent </caption>
                             <thead>
                               <tr>
                                 <th scope="col"> Code </th> 
@@ -97,6 +94,8 @@
                                 <th scope="col"> From </th>
                                 <th scope="col"> To </th>
                                 <th scope="col"> Due Date </th>
+                                <th scope="col"> Status </th>
+                                <th scope="col"></th>
                               </tr>
                             </thead>
                             <tbody id='ourTable'>
@@ -114,13 +113,14 @@
                             {% else %}
                             <td> {{rent.due_date|naturalday}} </td>
                             {% endif %}
-                            {% if rent.amount_paid > 0 %}
-                            <td> Payments made </td>
+                            <td> {{rent.status}}</td>
+                            {% if rent.cleared %}
+                            <td> Cleared </td>
                             {% else %}
-                            <td> No payments approved </td>
+                            <td> Not Cleared </td>
                             {% endif %}
                             <td> <a href="{% url 'view-update-rent' building.slug unit.slug rent.tenant.associated_account.username rent.code %}">
-                                Details </a> </td>
+                                Details|update </a> </td>
                         {% empty %}
                         <tbody>
                             <tr>
@@ -143,53 +143,4 @@
           </div>
         </div>
     </section>
-
-    
-<script>
-  $(function () {
-
-    var $rentChart = $("#rent-chart");
-    $.ajax({
-      url: $rentChart.data("url"),
-      success: function (data) {
-
-        var ctx = $rentChart[0].getContext("2d");
-
-        new Chart(ctx, {
-          type: 'line',
-          data: {
-            labels: data.labels,
-            datasets: [{
-              label: 'Rent',
-              backgroundColor: 'brown',
-              data: data.data
-            }]          
-          },
-          options: {
-            responsive: true,
-            legend: {
-              display: false,
-            },
-            scales: {
-              yAxes: [{
-                ticks: {
-                  display: false,
-                }
-              }]
-            },
-            title: {
-              display: true,
-              text: 'Change in rent'
-            }
-          }
-        });
-
-      }
-    });
-
-  });
-
-</script>
-
-
 {% endblock %}
