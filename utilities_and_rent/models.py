@@ -96,14 +96,14 @@ PAYMENT_STATUS_CHOICES = [
 
 class RentPayment(models.Model):
     rent_details = models.ForeignKey(UnitRentDetails, on_delete=models.CASCADE)
-    tenant = models.ForeignKey(Tenants, on_delete=models.DO_NOTHING)
+    tenant = models.ForeignKey(Tenants, on_delete=models.CASCADE)
     manager = models.ForeignKey(Managers, on_delete=models.CASCADE, null=True, blank=True)
     tracking_code = models.CharField(max_length=15, unique=True, null=True, blank=True)
     payment_code = models.CharField(max_length=50)
     amount = models.DecimalField(max_digits=9, decimal_places=2)
     paid_for_month = MultiSelectField(choices=MONTHS_SELECT)
     paid_on = models.DateField(null=True, blank=True)
-    payment_method = models.ForeignKey(PaymentMethods, on_delete=models.DO_NOTHING)
+    payment_method = models.ForeignKey(PaymentMethods, on_delete=models.CASCADE)
     status = models.CharField(max_length=10, choices=PAYMENT_STATUS_CHOICES, default='pending')
     reason = models.TextField(verbose_name="Reason, if rejected", blank=True, null=True)
     confirmed = models.BooleanField(default=False)
@@ -124,10 +124,10 @@ class RentPayment(models.Model):
 
                
 class WaterBilling(models.Model):
-    rental_unit = models.ForeignKey(RentalUnit, on_delete=models.DO_NOTHING)
-    tenant = models.ForeignKey(Tenants, on_delete=models.DO_NOTHING)
+    rental_unit = models.ForeignKey(RentalUnit, on_delete=models.CASCADE)
+    tenant = models.ForeignKey(Tenants, on_delete=models.CASCADE)
     bill_code = models.CharField(max_length=15, unique=True, null=True, blank=True)
-    meter_number = models.CharField(max_length=10)
+    meter_number = models.ForeignKey('WaterMeter', on_delete=models.CASCADE)
     units = models.DecimalField(decimal_places=2, max_digits=9, default=0, null=True, blank=True)
     unit_price = models.DecimalField(decimal_places=2, max_digits=9, verbose_name='Unit Price (KES)')
     total = models.DecimalField(decimal_places=2, max_digits=9, default=0)
@@ -142,15 +142,21 @@ class WaterBilling(models.Model):
     added = models.DateTimeField(default=datetime.now)
     updated = models.DateTimeField(auto_now_add=True)
     
+    def amount_remaining(self):
+        r_amount = self.total-self.amount_paid
+        return r_amount
+    
     def save(self, *args, **kwargs):
         if not self.bill_code:
             self.bill_code = ''.join(random.choices(string.ascii_lowercase, k=10))
         if self.units:
             self.total = self.units*self.unit_price
-        if self.total < self.amount_paid or self.total == self.amount_paid:
-            self.cleared = True
-        elif self.total > self.amount_paid:
-            self.cleared = False
+        if self.amount_paid != 0:
+            if self.total <= self.amount_paid:
+                self.cleared = True
+            else:
+                self.cleared = False
+            
             super(WaterBilling, self).save(*args, **kwargs)
         super(WaterBilling, self).save(*args, **kwargs)
     
@@ -177,7 +183,7 @@ class WaterConsumption(models.Model):
         return f"{self.reading_added}"
     
 class WaterPayments(models.Model):
-    parent = models.ForeignKey(WaterBilling, on_delete=models.DO_NOTHING)
+    parent = models.ForeignKey(WaterBilling, on_delete=models.CASCADE)
     tracking_code = models.CharField(max_length=15, unique=True, blank=True, null=True)
     payment_code = models.CharField(max_length=30)
     amount = models.DecimalField(decimal_places=2, max_digits=9)
@@ -205,14 +211,14 @@ class WaterPayments(models.Model):
         verbose_name_plural = verbose_name
     
 class ElectricityBilling(models.Model):
-    rental_unit = models.ForeignKey(RentalUnit, on_delete=models.DO_NOTHING)
-    tenant = models.ForeignKey(Tenants, on_delete=models.DO_NOTHING)
+    rental_unit = models.ForeignKey(RentalUnit, on_delete=models.CASCADE)
+    tenant = models.ForeignKey(Tenants, on_delete=models.CASCADE)
     bill_code = models.CharField(max_length=20, unique=True, null=True, blank=True)
-    meter_id = models.CharField(max_length=20)
+    meter_id = models.ForeignKey('ElectricityMeter', on_delete=models.CASCADE)
     measuring_unit = models.CharField(max_length=20, default='KWH')
-    units = models.DecimalField(decimal_places=2, max_digits=9)
+    units = models.DecimalField(decimal_places=2, max_digits=9, default=0)
     unit_price = models.DecimalField(decimal_places=2, max_digits=9)
-    total = models.DecimalField(decimal_places=2, max_digits=9, null=True, blank=True)
+    total = models.DecimalField(decimal_places=2, max_digits=9, default=0, null=True, blank=True)
     amount_paid = models.DecimalField(decimal_places=2, max_digits=9, null=True, blank=True, default=0)
     month = MultiSelectField(choices=MONTHS_SELECT)
     remarks = models.TextField(blank=True)
@@ -225,7 +231,7 @@ class ElectricityBilling(models.Model):
     updated = models.DateTimeField(auto_now=True)
     
     def remaining_amount(self):
-        remaining = (self.total-self.amount_paid)
+        remaining = self.total-self.amount_paid
         return remaining
     
     def save(self, *args, **kwargs):
@@ -233,10 +239,11 @@ class ElectricityBilling(models.Model):
             self.bill_code = ''.join(random.choices(string.ascii_letters+string.digits, k=12))
         if self.units:
             self.total = self.units*self.unit_price
-        if self.total < self.amount_paid or self.total == self.amount_paid:
-            self.cleared = True
-        elif self.total > self.amount_paid:
-            self.cleared = False
+        if self.amount_paid != 0:
+            if self.total <= self.amount_paid:
+                self.cleared = True
+            elif self.total > self.amount_paid:
+                self.cleared = False
             super(ElectricityBilling, self).save(*args, **kwargs)
         super(ElectricityBilling, self).save(*args, **kwargs)
     
@@ -255,7 +262,7 @@ class ElectricityReadings(models.Model):
         
     
 class ElectricityPayments(models.Model):
-    parent = models.ForeignKey(ElectricityBilling, on_delete=models.DO_NOTHING)
+    parent = models.ForeignKey(ElectricityBilling, on_delete=models.CASCADE)
     tracking_code = models.CharField(max_length=15, unique=True, null=True, blank=True)
     payment_code = models.CharField(max_length=30)
     amount = models.DecimalField(decimal_places=2, max_digits=9)
@@ -278,3 +285,25 @@ class ElectricityPayments(models.Model):
     class Meta:
         verbose_name = 'Billing | Electricity Bill Payments'
         verbose_name_plural = verbose_name
+        
+class WaterMeter(models.Model):
+    number = models.CharField(max_length=20,unique=True)
+    ssid = models.CharField(max_length=20,null=True,blank=True)
+    unit = models.OneToOneField(RentalUnit, on_delete=models.CASCADE, related_name='water_meters')
+    created = models.DateTimeField(default=datetime.now)
+    updated = models.DateTimeField(auto_now=True)
+    
+    def __str__(self):
+        return f"{self.number} - {self.unit}"
+    
+
+class ElectricityMeter(models.Model):
+    number = models.CharField(max_length=20,unique=True)
+    ssid = models.CharField(max_length=20, null=True, blank=True)
+    unit = models.OneToOneField(RentalUnit, on_delete=models.CASCADE, related_name='electricity_meters')
+    created = models.DateTimeField(default=datetime.now)
+    updated = models.DateTimeField(auto_now=True)
+    
+    def __str__(self):
+        return f"{self.number} - {self.unit}"
+    

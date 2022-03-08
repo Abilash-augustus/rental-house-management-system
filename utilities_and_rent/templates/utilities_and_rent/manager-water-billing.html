@@ -68,7 +68,11 @@
                       <div class="card card-body">
 
                         <div class="btn-group" role="group" aria-label="Basic mixed styles example">
+                          {% if check_open_billing %}
+                          <button type="button" class="btn btn-outline-success" data-bs-toggle="modal">Start New Billing <em class="fa fa-lock"></em></button>
+                          {% else %}
                             <button type="button" class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#waterBillingBackdrop">Start New Billing</button>
+                            {% endif %}
                           </div>
                           &nbsp;&nbsp;&nbsp;
                           <input class="form-control" id="myInput" type="text" placeholder="Search..">
@@ -84,6 +88,8 @@
                                 <th scope="col"> Due </th>
                                 <th scope="col"> Units </th>
                                 <th scope="col"> EST. Cost </th>
+                                <th scope="col"> Amount Paid </th>
+                                <th scope="col"> Amount Remaining </th>
                                 <th scope="col"> Cleared </th>
                                 <th scope="col"> Status </th>
                               </tr>
@@ -92,14 +98,16 @@
                         {% for bill in water_billing_set.qs %}
                         <tr>
                           <th scope="row"> {{bill.bill_code}} </th>
-                            <td > {{bill.meter_number}} </th>
+                            <td > {{bill.meter_number.number}} </th>
                             <td> {{bill.from_date}}</td>
                             <td> {{bill.to_date}}</td>
                             <td> {{bill.due_date}} </td>
                             <td {% if bill.units == 0 %} title="Not Yet Updated"{% endif %}> {{bill.units}} </td>
                             <td {% if bill.total == 0 %} title="Not Yet Updated"{% endif %}> {{bill.total}} </td>
+                            <td> {{bill.amount_paid}}</td>
+                            <td> {{bill.amount_remaining}}</td>
                             <td> {{bill.cleared}} </td>
-                            <td> {% if bill.lock_cycle == True %} Locked {% else %} Open {% endif %}</td>
+                            <td> {% if bill.lock_cycle %} <em class="fa fa-lock"></em> {% else %} <em class="fa fa-lock-open"></em> {% endif %}</td>
                             <td> <a href="{% url 'water-billing-details' building.slug unit.slug tenant.associated_account.username bill.bill_code %}">
                               View </a>
                         {% empty %}
@@ -126,11 +134,16 @@
 
 
     <!-- start billing modal -->
+    {% if check_open_billing %}
+    <!--hidded -->
+    {% else %}
     <div class="modal fade" id="waterBillingBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="waterBillingBackdropLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
           <div class="modal-content">
             <div class="modal-header">
-              <h5 class="modal-title" id="waterBillingBackdropLabel">Start New Billing</h5>
+              <h5 class="modal-title" id="waterBillingBackdropLabel">Start New Billing {% if water_meter %} Meter: {{water_meter.number}}
+                {% else %} <em class="bg-danger">Warning No Meter Found</em> {% endif %}
+              </h5>
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -149,6 +162,7 @@
           </div>
         </div>
       </div>
+      {% endif %}
       <!-- end billing modal -->
     </section>      
 {% endblock %}

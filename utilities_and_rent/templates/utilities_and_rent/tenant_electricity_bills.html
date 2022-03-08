@@ -70,7 +70,7 @@
                         <div class="btn-group" role="group" aria-label="Start new electric billing cycle ">
                             {% if check_open_billing %}
                             <button type="button" class="btn btn-outline-success"
-                            title="Can't create a new one until the current cycle is locked!">Start New Billing Cycle [Locked] </button>
+                            title="Can't create a new one until the current cycle is locked!">Start New Billing Cycle <em class="fa fa-lock"></em></button>
                             {% else %}
                             <button type="button" class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#electricBillBackdrop">Start New Billing Cycle</button>
                             {% endif %}
@@ -104,7 +104,7 @@
                             <td {% if bill.units == 0 %} title="Not Yet Updated"{% endif %}> {{bill.units}} </td>
                             <td {% if bill.total == None %} title="Not Yet Updated"> Waiting for update {% else %} > {{bill.total}} {% endif %}</td>
                             <td> {{bill.cleared}} </td>
-                            <td> {% if bill.lock_cycle == True %} Locked {% else %} Open {% endif %}</td>
+                            <td> {% if bill.lock_cycle %} <em class="fa fa-lock"></em> {% else %} <em class="fa fa-lock-open"></em>{% endif %}</td>
                             <td> <a href="{% url 'tenant_electric_bill_details' building.slug unit.slug tenant.associated_account.username bill.bill_code %}">
                               View </a>
                         {% empty %}
@@ -136,7 +136,9 @@
         <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
           <div class="modal-content">
             <div class="modal-header">
-              <h5 class="modal-title" id="electricBillBackdropLabel">Start New Billing</h5>
+              <h5 class="modal-title" id="electricBillBackdropLabel">Start New Billing {% if electricity_meter %}
+                On Meter: {{electricity_meter.number}} {% else %} <em class="bg-danger">No Meter Found</em> {% endif %}
+              </h5>
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">

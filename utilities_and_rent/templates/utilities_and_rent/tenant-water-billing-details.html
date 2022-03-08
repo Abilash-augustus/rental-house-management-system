@@ -46,7 +46,7 @@
                       </li>
                     <li class="list-group-item d-flex justify-content-between align-items-start">
                       <div class="ms-2 me-auto">Meter</div>
-                      <span> {{bill_cycle.meter_number}}</span>
+                      <span> {{bill_cycle.meter_number.number}}</span>
                     </li>
                     <li class="list-group-item d-flex justify-content-between align-items-start">
                         <div class="ms-2 me-auto">Units</div>
@@ -63,7 +63,15 @@
                       <li class="list-group-item d-flex justify-content-between align-items-start">
                         <div class="ms-2 me-auto"> Est. Cost </div>
                         <span> KES {{bill_cycle.total|intcomma}}</span>
-                      </li> <!-- TODO: update KES to be dynamic -->
+                      </li>
+                      <li class="list-group-item d-flex justify-content-between align-items-start">
+                        <div class="ms-2 me-auto"> Amount Paid </div>
+                        <span> KES {{bill_cycle.amount_paid|intcomma}}</span>
+                      </li>
+                      <li class="list-group-item d-flex justify-content-between align-items-start">
+                        <div class="ms-2 me-auto"> Remaining </div>
+                        <span> KES {{bill_cycle.amount_remaining|intcomma}}</span>
+                      </li>
                       <li class="list-group-item d-flex justify-content-between align-items-start">
                         <div class="ms-2 me-auto">Cleared </div>
                         <span> {{bill_cycle.cleared}} </span>

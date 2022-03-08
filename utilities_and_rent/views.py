@@ -21,10 +21,10 @@ from utilities_and_rent.forms import (AddRentDetailsForm, BillCycleUpdateForm,
                                       SubmitPaymentsForm, UpdateRentDetails, UpdateWaterPaymentForm,
                                       WaterBillPaymentsForm,
                                       WaterBillUpdateForm, WaterReadingForm)
-from utilities_and_rent.models import (ElectricityBilling, ElectricityPayments, ElectricityReadings,
+from utilities_and_rent.models import (ElectricityBilling, ElectricityMeter, ElectricityPayments, ElectricityReadings,
                                        PaymentMethods, RentPayment,
                                        UnitRentDetails, WaterBilling,
-                                       WaterConsumption, WaterPayments)
+                                       WaterConsumption, WaterMeter, WaterPayments)
 from config.settings import DEFAULT_FROM_EMAIL
 from django.core.mail import EmailMessage
 from django.template.loader import render_to_string
@@ -294,15 +294,17 @@ def manage_tenant_water_billing(request, building_slug, unit_slug, username):
     tenant = Tenants.objects.get(rented_unit=unit,associated_account__username=username)
     water_billing_set = WaterBilling.objects.filter(rental_unit=unit,tenant=tenant)
     billing_queryset = WaterBilingFilter(request.GET, queryset=water_billing_set)
-    
+    check_open_billing = WaterBilling.objects.filter(rental_unit=unit,tenant=tenant,lock_cycle=False)
     oldest_bill = water_billing_set.exclude(added=None).order_by('-added').last()
     newest_bill = water_billing_set.exclude(added=None).order_by('added').first()
+    water_meter = WaterMeter.objects.get(unit=unit)
     
     if request.method == 'POST':
         add_bill_form = StartWaterBillingForm(request.POST)
         if add_bill_form.is_valid():
             add_bill_form.instance.tenant = tenant
             add_bill_form.instance.rental_unit = unit
+            add_bill_form.instance.meter_number = water_meter
             # TODO: Do the math
             add_bill_form.save()
             messages.success(request, 'Billing started, you can add readings now')
@@ -311,9 +313,8 @@ def manage_tenant_water_billing(request, building_slug, unit_slug, username):
         add_bill_form = StartWaterBillingForm()
     
     context = {
-        'building':building,'unit':unit,'tenant':tenant,'water_billing_set':billing_queryset,
-        'oldest_bill':oldest_bill,'newest_bill':newest_bill,'add_bill_form':add_bill_form,
-    }
+        'building':building,'unit':unit,'tenant':tenant,'water_billing_set':billing_queryset,'check_open_billing':check_open_billing,
+        'oldest_bill':oldest_bill,'newest_bill':newest_bill,'add_bill_form':add_bill_form,'water_meter':water_meter}
     return render(request, 'utilities_and_rent/manager-water-billing.html', context)
 
 @login_required
@@ -392,19 +393,20 @@ def manage_tenant_electric_bills(request, building_slug, unit_slug, username):
     bills_qs = ManagerElectricityBillsFilter(request.GET, queryset=related_bills)
     
     check_open_billing = ElectricityBilling.objects.filter(rental_unit=unit,tenant=tenant,lock_cycle=False)
-    
+    electricity_meter = ElectricityMeter.objects.get(unit=unit)
     if request.method == 'POST':
         start_e_bill_cycle_form = StartEBillCycleForm(request.POST)
         if start_e_bill_cycle_form.is_valid():
             start_e_bill_cycle_form.instance.tenant = tenant
             start_e_bill_cycle_form.instance.rental_unit = unit
+            start_e_bill_cycle_form.instance.meter_id = electricity_meter
             start_e_bill_cycle_form.save()
             messages.success(request, "Successfully started new billing")
             return HttpResponseRedirect("")
     else:
         start_e_bill_cycle_form = StartEBillCycleForm()
     
-    context = {'building':building,'unit':unit,'tenant':tenant,'bills':bills_qs,
+    context = {'building':building,'unit':unit,'tenant':tenant,'bills':bills_qs,'electricity_meter':electricity_meter,
                'bill_form':start_e_bill_cycle_form,'check_open_billing':check_open_billing}
     return render(request, 'utilities_and_rent/tenant_electricity_bills.html', context)
 

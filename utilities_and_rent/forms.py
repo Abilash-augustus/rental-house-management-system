@@ -55,10 +55,11 @@ class StartWaterBillingForm(forms.ModelForm):
         self.fields['units'].disabled = True
     class Meta:
         model = WaterBilling
-        fields = ['meter_number','units', 'unit_price', 'total', 'from_date', 'to_date', 'cleared', 'remarks']
+        fields = ['units', 'unit_price', 'total', 'month','from_date', 'to_date','due_date', 'cleared', 'remarks']
         widgets = {
             'from_date': DateInput(),
             'to_date': DateInput(),
+            'due_date': DateInput(),
         }
 
 class WaterReadingForm(forms.ModelForm):
@@ -94,13 +95,16 @@ class UpdateWaterPaymentForm(forms.ModelForm):
 class StartEBillCycleForm(forms.ModelForm):
     class Meta:
         model = ElectricityBilling
-        fields = ['meter_id','measuring_unit','units','unit_price','month','remarks',
-                  'from_date','to_date','due_date']
+        fields = ['unit_price','measuring_unit','month',
+                  'from_date','to_date','due_date','units','remarks']
         widgets = {
             'from_date': DateInput(),
             'to_date': DateInput(),
             'due_date': DateInput(),
         }
+    def __init__(self, *args, **kwargs):
+        super(StartEBillCycleForm, self).__init__(*args, **kwargs)
+        self.fields['units'].disabled = True
         
 class BillCycleUpdateForm(forms.ModelForm):
     class Meta:
