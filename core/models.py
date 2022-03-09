@@ -4,12 +4,11 @@ import string
 
 from accounts.models import Managers, Tenants
 from django.contrib.auth import get_user_model
-from django.core.validators import MinValueValidator
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import IntegrityError, models
 from django.utils.crypto import get_random_string
 from django.utils.text import slugify
 from rental_property.models import RentalUnit
-from accounts.models import Tenants
 
 User = get_user_model()
 
@@ -121,3 +120,18 @@ class EvictionNotice(models.Model):
 
     def __str__(self):
         return f"{self.notice_code} | {self.tenant.associated_account.username}"
+    
+    
+class ServiceRating(models.Model):    
+    tenant = models.ForeignKey(Tenants, on_delete=models.CASCADE)
+    message = models.TextField(max_length=100)
+    score = models.IntegerField(default=0,
+        validators=[
+            MaxValueValidator(10),
+            MinValueValidator(0)
+        ],verbose_name="Rate us on a scale of 1 to 10", null=True, blank=True)
+    created = models.DateTimeField(default=datetime.datetime.now)
+    updated = models.DateTimeField(auto_now=True)
+    
+    def __str__(self):
+        return f"{self.pk}"

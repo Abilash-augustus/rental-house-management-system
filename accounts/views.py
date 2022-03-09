@@ -1,3 +1,6 @@
+from django.http import HttpResponseRedirect
+from core.forms import ServiceRatingForm
+from core.models import EvictionNotice, MoveOutNotice
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -7,7 +10,6 @@ from rental_property.models import Building, RentalUnit
 from accounts.forms import (AddManagerForm, ProfileUpdateForm, TenantsForm,
                             UserUpdateForm)
 from accounts.models import Managers, Profile, Tenants
-from core.models import EvictionNotice,MoveOutNotice
 
 User = get_user_model()
 
@@ -18,10 +20,18 @@ def my_profile(request):
         tenant_instance = Tenants.objects.get(associated_account=user)
     else:
         tenant_instance = False
-
         
+    if request.method == 'POST':
+        rating_form = ServiceRatingForm(request.POST)
+        if rating_form.is_valid():
+            rating_form.instance.tenant = tenant_instance
+            rating_form.save()
+            messages.success(request, 'Rating submitted successfully')
+            return HttpResponseRedirect("")
+    else:
+        rating_form = ServiceRatingForm()                   
         
-    context = {'user': user, 'tenant_instance':tenant_instance}
+    context = {'user': user, 'tenant_instance':tenant_instance, 'rating_form':rating_form}
     return render(request, 'accounts/profile.html', context)
 
 # individual profile & user update

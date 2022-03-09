@@ -15,7 +15,7 @@ from utilities_and_rent.filters import (ManagerElectricityBillsFilter,
                                         TenantElectricityBillsFilter,
                                         UnitTypeFilter, WaterBilingFilter)
 from utilities_and_rent.forms import (AddRentDetailsForm, BillCycleUpdateForm,
-                                      ElectricityReadingForm,ElectricityPaySubmitForm,
+                                      ElectricityReadingForm,ElectricityPaySubmitForm, NewElectricityMeterForm, NewWaterMeterForm,
                                       PaymentUpdateForm, StartEBillCycleForm,
                                       StartWaterBillingForm,UpdateElectricityPayForm,
                                       SubmitPaymentsForm, UpdateRentDetails, UpdateWaterPaymentForm,
@@ -160,7 +160,23 @@ def rent_and_utilities(request, building_slug):
     tenants = Tenants.objects.filter(rented_unit__building=building)
     tenants_filter = UnitTypeFilter(request.GET, queryset=tenants)
     
-    context = {'building':building, 'tenants_filter':tenants_filter,'current_year':current_year}
+    if request.method == 'POST':
+        water_meter_add_form = NewWaterMeterForm(building, request.POST)
+        electricity_meter_add_form = NewElectricityMeterForm(building, request.POST)
+        if water_meter_add_form.is_valid():
+            water_meter_add_form.save()
+            messages.success(request, 'Water meter added')
+            return HttpResponseRedirect("")
+        if electricity_meter_add_form.is_valid():
+            electricity_meter_add_form.save()
+            messages.success(request, 'Electricity meter added')
+            return HttpResponseRedirect("")
+    else:
+        water_meter_add_form = NewWaterMeterForm(building)
+        electricity_meter_add_form = NewElectricityMeterForm(building)
+    
+    context = {'building':building, 'tenants_filter':tenants_filter,'current_year':current_year,
+               'water_meter_add_form':water_meter_add_form,'electricity_meter_add_form':electricity_meter_add_form,}
     return render(request, 'utilities_and_rent/building_utility_and_rent.html', context)
 
 @login_required
@@ -297,25 +313,30 @@ def manage_tenant_water_billing(request, building_slug, unit_slug, username):
     check_open_billing = WaterBilling.objects.filter(rental_unit=unit,tenant=tenant,lock_cycle=False)
     oldest_bill = water_billing_set.exclude(added=None).order_by('-added').last()
     newest_bill = water_billing_set.exclude(added=None).order_by('added').first()
-    water_meter = WaterMeter.objects.get(unit=unit)
     
-    if request.method == 'POST':
-        add_bill_form = StartWaterBillingForm(request.POST)
-        if add_bill_form.is_valid():
-            add_bill_form.instance.tenant = tenant
-            add_bill_form.instance.rental_unit = unit
-            add_bill_form.instance.meter_number = water_meter
-            # TODO: Do the math
-            add_bill_form.save()
-            messages.success(request, 'Billing started, you can add readings now')
-            return HttpResponseRedirect("")
+    check_water_meter = WaterMeter.objects.filter(unit=unit)
+    if check_water_meter:
+        water_meter = WaterMeter.objects.get(unit=unit)
+        if request.method == 'POST':
+            add_bill_form = StartWaterBillingForm(request.POST)
+            if add_bill_form.is_valid():
+                add_bill_form.instance.tenant = tenant
+                add_bill_form.instance.rental_unit = unit
+                add_bill_form.instance.meter_number = water_meter
+                add_bill_form.save()
+                messages.success(request, 'Billing started, you can add readings now')
+                return HttpResponseRedirect("")
+        else:
+            add_bill_form = StartWaterBillingForm()
     else:
-        add_bill_form = StartWaterBillingForm()
+        messages.info(request, 'No available water meter available for the unit, please add one first')
+        return redirect("rent-and-utilities", building_slug=building.slug)
     
     context = {
         'building':building,'unit':unit,'tenant':tenant,'water_billing_set':billing_queryset,'check_open_billing':check_open_billing,
         'oldest_bill':oldest_bill,'newest_bill':newest_bill,'add_bill_form':add_bill_form,'water_meter':water_meter}
     return render(request, 'utilities_and_rent/manager-water-billing.html', context)
+
 
 @login_required
 @user_passes_test(lambda user: user.is_manager==True, login_url='profile')
@@ -391,20 +412,26 @@ def manage_tenant_electric_bills(request, building_slug, unit_slug, username):
     related_bills = ElectricityBilling.objects.filter(rental_unit=unit,tenant=tenant).order_by('added')
     
     bills_qs = ManagerElectricityBillsFilter(request.GET, queryset=related_bills)
-    
+
     check_open_billing = ElectricityBilling.objects.filter(rental_unit=unit,tenant=tenant,lock_cycle=False)
-    electricity_meter = ElectricityMeter.objects.get(unit=unit)
-    if request.method == 'POST':
-        start_e_bill_cycle_form = StartEBillCycleForm(request.POST)
-        if start_e_bill_cycle_form.is_valid():
-            start_e_bill_cycle_form.instance.tenant = tenant
-            start_e_bill_cycle_form.instance.rental_unit = unit
-            start_e_bill_cycle_form.instance.meter_id = electricity_meter
-            start_e_bill_cycle_form.save()
-            messages.success(request, "Successfully started new billing")
-            return HttpResponseRedirect("")
+    
+    check_available_meter = ElectricityMeter.objects.filter(unit=unit)
+    if check_available_meter:
+        electricity_meter = ElectricityMeter.objects.get(unit=unit)
+        if request.method == 'POST':
+            start_e_bill_cycle_form = StartEBillCycleForm(request.POST)
+            if start_e_bill_cycle_form.is_valid():
+                start_e_bill_cycle_form.instance.tenant = tenant
+                start_e_bill_cycle_form.instance.rental_unit = unit
+                start_e_bill_cycle_form.instance.meter_id = electricity_meter
+                start_e_bill_cycle_form.save()
+                messages.success(request, "Successfully started new billing")
+                return HttpResponseRedirect("")
+        else:
+            start_e_bill_cycle_form = StartEBillCycleForm()
     else:
-        start_e_bill_cycle_form = StartEBillCycleForm()
+        messages.info(request, 'Electricity meter not found, please add one for the unit first')
+        return redirect("rent-and-utilities", building_slug=building.slug)
     
     context = {'building':building,'unit':unit,'tenant':tenant,'bills':bills_qs,'electricity_meter':electricity_meter,
                'bill_form':start_e_bill_cycle_form,'check_open_billing':check_open_billing}

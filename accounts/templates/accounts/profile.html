@@ -2,7 +2,7 @@
 {% load i18n %}
 {% block metadescription %} Profile {% endblock %}
 {% block head_title %}{% trans "Profile" %}{% endblock %}
-
+{% load crispy_forms_tags %}
 {% block extra_head %} 
 <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js"></script>
@@ -128,7 +128,9 @@
             <a href="{% url 'core:cancel-notice' tenant_instance.rented_unit.building.slug user.username tenant_instance.vacatenotice.code %}" 
             class="btn btn-outline-secondary" role="button" type="button"> You have an active notice [cancel?] </a>
             {% else %}
-            <a href="{% url 'core:my-notice-to-vacate' tenant_instance.rented_unit.building.slug user.username %}" class="btn btn-outline-danger" title='Put in your move out notice' role="button" type="button"> My Move Out Notice </a>
+            <a href="{% url 'core:my-notice-to-vacate' tenant_instance.rented_unit.building.slug user.username %}" class="btn btn-outline-danger" title='Put in your move out notice' role="button" type="button"> Submit Move Out Notice </a>
+            <a href="#" class="btn btn-outline-info" data-bs-toggle="modal" data-bs-target="#serviceRatingBackdrop"
+            title='service rating' role="button" type="button"> Submit Service Rating </a>
             {% endif %}
           </div>
           {% endif %}
@@ -143,4 +145,40 @@
   </div>
 </div>
 </section>
+{% load  %}
+{% if user.is_tenant %}
+<div class="modal fade" id="serviceRatingBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="waterMeterBackdropLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="serviceRatingBackdropLabel">Service Rating</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form method="POST">
+          {% csrf_token %}
+          {{rating_form|crispy}}  
+          <span id='my_rating'></span> 
+          <br>
+          <div class="text-center">
+          <button type="submit" class="btn btn-outline-success">Submit</button>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">close</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+<script>
+  var slider= document.getElementById('id_score');
+  var output = document.getElementById('my_rating');
+  output.innerHTML = slider.value;
+  slider.oninput = function(){
+    output.innerHTML = this.value;
+  }
+</script>
 {% endblock %}

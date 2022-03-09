@@ -24,4 +24,4 @@ urlpatterns = [
     path('visits_overview/<slug:building_slug>/', views.visits_overview, name="visits_overview"),
     path('evictions_overview/<slug:building_slug>/', views.evictions_overview, name="evictions_overview"),
     path('moveouts_overview/<slug:building_slug>/', views.moveouts_overview, name='moveouts_overview'),
-]
+    ]

@@ -1,9 +1,10 @@
 from django import forms
+from rental_property.models import RentalUnit
 
-from utilities_and_rent.models import (ElectricityBilling, ElectricityPayments,
+from utilities_and_rent.models import (ElectricityBilling, ElectricityMeter, ElectricityPayments,
                                        ElectricityReadings, RentPayment,
                                        UnitRentDetails, WaterBilling,
-                                       WaterConsumption, WaterPayments)
+                                       WaterConsumption, WaterMeter, WaterPayments)
 
 
 class DateInput(forms.DateInput):
@@ -128,3 +129,19 @@ class UpdateElectricityPayForm(forms.ModelForm):
     class Meta:
         model = ElectricityPayments
         exclude = ['created','updated']
+        
+class NewWaterMeterForm(forms.ModelForm):
+    def __init__(self, building, *args, **kwargs):
+        super(NewWaterMeterForm,self).__init__(*args, **kwargs)
+        self.fields['unit'].queryset = RentalUnit.objects.filter(building=building,water_meters=None)
+    class Meta:
+        model = WaterMeter
+        fields = ['number', 'ssid', 'unit']
+        
+class NewElectricityMeterForm(forms.ModelForm):
+    def __init__(self, building, *args, **kwargs):
+        super(NewElectricityMeterForm,self).__init__(*args, **kwargs)
+        self.fields['unit'].queryset = RentalUnit.objects.filter(building=building,electricity_meters=None)
+    class Meta:
+        model = ElectricityMeter
+        fields = ['number', 'ssid', 'unit']

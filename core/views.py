@@ -289,7 +289,6 @@ def move_out_notices(request, building_slug):
     context = {'move_out_notices':move_out_notices_filter, 'building':building}
     return render(request, 'core/move-out-notices.html', context)
 
-
 def building_dashboard(request,building_slug):
     building = Building.objects.get(slug=building_slug)
     

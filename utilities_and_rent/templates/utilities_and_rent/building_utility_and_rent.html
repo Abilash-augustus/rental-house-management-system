@@ -29,7 +29,8 @@
         <div class="row">
             <div class="col-sm-3">
               <div class="list-group mb-2">
-                    <a href="#" type="button" class="list-group-item list-group-item-action" role="button">Notify Tenants #todo</a>
+                    <a role="button" type="button" class="list-group-item list-group-item-action" data-bs-toggle="modal" data-bs-target="#electricityMeterBackdrop">Add Electricity Meter</a>
+                    <a role="button" type="button" class="list-group-item list-group-item-action" data-bs-toggle="modal" data-bs-target="#waterMeterBackdrop">Add Water Meter</a>
                 </div>
                 <div class="card card-body mb-2">
                   <h5 class="card-header text-center">Search Area</h5>
@@ -90,4 +91,55 @@
           </div>
         </div>
     </section>
+<!-- water meter modal start -->
+    <div class="modal fade" id="waterMeterBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="waterMeterBackdropLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="waterMeterBackdropLabel"> Add Water Meter  </h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form action="" method="post" class="no-padding">
+                {% csrf_token %}
+                {{water_meter_add_form|crispy }}
+                <br>
+                <div class="form-group text-center">
+                  <button class="btn btn-outline-secondary" type="submit">Add</button>
+                </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- water meter modal end -->
+
+    <!-- electricity meter modal start -->
+    <div class="modal fade" id="electricityMeterBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="waterMeterBackdropLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="electricityMeterBackdropLabel">Add Electricity Meter</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form action="" method="post" class="no-padding">
+                {% csrf_token %}
+                {{electricity_meter_add_form|crispy }}
+                <br>
+                <div class="form-group text-center">
+                  <button class="btn btn-outline-secondary" type="submit">Add</button>
+                </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- electricity meter modal end -->
 {% endblock %}
