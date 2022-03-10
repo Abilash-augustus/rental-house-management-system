@@ -14,7 +14,7 @@ from utilities_and_rent.filters import (ManagerElectricityBillsFilter,
                                         PaymentsFilter, RentDetailsFilter,
                                         TenantElectricityBillsFilter,
                                         UnitTypeFilter, WaterBilingFilter)
-from utilities_and_rent.forms import (AddRentDetailsForm, BillCycleUpdateForm,
+from utilities_and_rent.forms import (AddRentDetailsForm, ElectricityBillCycleUpdateForm,
                                       ElectricityReadingForm,ElectricityPaySubmitForm, NewElectricityMeterForm, NewWaterMeterForm,
                                       PaymentUpdateForm, StartEBillCycleForm,
                                       StartWaterBillingForm,UpdateElectricityPayForm,
@@ -262,7 +262,7 @@ def update_tenant_rent(request, building_slug, unit_slug, username, rent_code):
     
     context = {'update_form':update_form,'building':building,'unit':unit,'tenant':tenant,'rent_details':rent_details,
                'payments':payment_filter,}
-    return render(request, 'utilities_and_rent/manager-update-view-payments.html', context)
+    return render(request, 'utilities_and_rent/tenant_rent_update_view_payments.html', context)
 
 @login_required
 @user_passes_test(lambda user: user.is_manager==True, login_url='profile')
@@ -300,7 +300,7 @@ def update_tenant_rent_payment(request, building_slug, unit_slug, username, rent
     
     context = {'building': building,'unit':unit,'tenant':tenant,'pay_update_form':pay_update_form,
                'parent_rent':parent_rent,'payment':payment}
-    return render(request, 'utilities_and_rent/rent-payment-update.html', context)
+    return render(request, 'utilities_and_rent/tenant_rent_payment_update.html', context)
 
 @login_required
 @user_passes_test(lambda user: user.is_manager==True, login_url='profile')
@@ -308,7 +308,7 @@ def manage_tenant_water_billing(request, building_slug, unit_slug, username):
     building = Building.objects.get(slug=building_slug)
     unit = RentalUnit.objects.get(building=building,slug=unit_slug)
     tenant = Tenants.objects.get(rented_unit=unit,associated_account__username=username)
-    water_billing_set = WaterBilling.objects.filter(rental_unit=unit,tenant=tenant)
+    water_billing_set = WaterBilling.objects.filter(rental_unit=unit,tenant=tenant).order_by('-added')
     billing_queryset = WaterBilingFilter(request.GET, queryset=water_billing_set)
     check_open_billing = WaterBilling.objects.filter(rental_unit=unit,tenant=tenant,lock_cycle=False)
     oldest_bill = water_billing_set.exclude(added=None).order_by('-added').last()
@@ -335,7 +335,7 @@ def manage_tenant_water_billing(request, building_slug, unit_slug, username):
     context = {
         'building':building,'unit':unit,'tenant':tenant,'water_billing_set':billing_queryset,'check_open_billing':check_open_billing,
         'oldest_bill':oldest_bill,'newest_bill':newest_bill,'add_bill_form':add_bill_form,'water_meter':water_meter}
-    return render(request, 'utilities_and_rent/manager-water-billing.html', context)
+    return render(request, 'utilities_and_rent/tenant-water-billing.html', context)
 
 
 @login_required
@@ -382,7 +382,7 @@ def update_water_payments(request,building_slug,unit_slug,username,bill_code,tra
     
     if pay_to_update.lock:
         messages.error(request, 'This instance is locked, updates not allowed')
-        return redirect('update_tenant_water_billing_details', building_slug=building.slug,unit_slug=unit.slug,
+        return redirect('water-billing-details', building_slug=building.slug,unit_slug=unit.slug,
                             username=tenant.associated_account.username,bill_code=water_bill.bill_code)
     else:
         if request.method == 'POST':
@@ -395,12 +395,12 @@ def update_water_payments(request,building_slug,unit_slug,username,bill_code,tra
                     bill = water_bill
                     bill.amount_paid += updater.amount
                     bill.save()
-                    messages.success(request, 'Water bill updated')
-                return redirect('update_tenant_water_billing_details', building_slug=building.slug,unit_slug=unit.slug,
+                    messages.success(request, 'updated')
+                return redirect('water-billing-details', building_slug=building.slug,unit_slug=unit.slug,
                             username=tenant.associated_account.username,bill_code=water_bill.bill_code)
         else:
             update_form = UpdateWaterPaymentForm(instance=pay_to_update)
-    context = {'form': update_form}
+    context = {'form': update_form,'water_bill': water_bill,'building':building,'unit':unit,'tenant':tenant}
     return render(request, 'utilities_and_rent/update_waterbill_pay.html', context)
 
 @login_required
@@ -409,7 +409,7 @@ def manage_tenant_electric_bills(request, building_slug, unit_slug, username):
     building = Building.objects.get(slug=building_slug)
     unit = RentalUnit.objects.get(building=building,slug=unit_slug)
     tenant = Tenants.objects.get(rented_unit=unit,associated_account__username=username)
-    related_bills = ElectricityBilling.objects.filter(rental_unit=unit,tenant=tenant).order_by('added')
+    related_bills = ElectricityBilling.objects.filter(rental_unit=unit,tenant=tenant).order_by('-added')
     
     bills_qs = ManagerElectricityBillsFilter(request.GET, queryset=related_bills)
 
@@ -448,7 +448,7 @@ def update_tenant_electric_bill_details(request,building_slug,unit_slug,username
     electricity_payments = ElectricityPayments.objects.filter(parent=e_bill)
     
     if request.method == 'POST':
-        update_bill_form = BillCycleUpdateForm(request.POST, instance=e_bill)
+        update_bill_form = ElectricityBillCycleUpdateForm(request.POST, instance=e_bill)
         reading_form = ElectricityReadingForm(request.POST)
         if update_bill_form.is_valid():
             update_bill_form.save()
@@ -465,7 +465,7 @@ def update_tenant_electric_bill_details(request,building_slug,unit_slug,username
             return HttpResponseRedirect("")
     else:
         reading_form = ElectricityReadingForm()
-        update_bill_form = BillCycleUpdateForm(instance=e_bill)
+        update_bill_form = ElectricityBillCycleUpdateForm(instance=e_bill)
     
     context = {'building':building, 'unit':unit,'tenant':tenant,'e_bill':e_bill,'added_readings':added_readings,
                'update_bill_form':update_bill_form,'reading_form':reading_form,'electricity_payments':electricity_payments,}
@@ -501,7 +501,7 @@ def update_electricity_payments(request,building_slug,unit_slug,username,bill_co
         else:
             update_form = UpdateElectricityPayForm(instance=pay_to_update)
             
-    context = {'form': update_form}
+    context = {'form': update_form,'building':building,'unit':unit,'tenant':tenant,'e_bill':e_bill}
     return render(request, 'utilities_and_rent/update_electricity_pay.html', context)
     
 ########## Graphs #############

@@ -148,7 +148,7 @@ def add_rental_unit(request, building_slug):
     else:
         unit_form = AddRentalUnitForm()
         formset = image_form_set(queryset=UnitAlbum.objects.none())
-    context = {'unit_form':unit_form, 'formset':formset}
+    context = {'unit_form':unit_form, 'formset':formset,'building':building}
     return render(request, 'rental_property/add-rental-unit.html', context)
 
 @login_required

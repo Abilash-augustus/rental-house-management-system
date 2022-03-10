@@ -1,4 +1,5 @@
 from django import forms
+from accounts.models import Tenants
 from django_summernote.widgets import SummernoteWidget
 from crispy_forms.layout import Layout,HTML,Row,Column,Field
 from crispy_forms.helper import FormHelper
@@ -42,9 +43,24 @@ class VisitUpdateForm(forms.ModelForm):
         }
 
 class EvictionNoticeForm(forms.ModelForm):
+    def __init__(self, building, *args, **kwargs):
+        super(EvictionNoticeForm,self).__init__(*args, **kwargs)
+        self.fields['tenant'].queryset = Tenants.objects.filter(rented_unit__building=building)
     class Meta:
         model = EvictionNotice
-        fields = ['notice_detail','help_contact_phone', 'help_contact_email', 'eviction_status','eviction_due']
+        fields = ['tenant','notice_detail','help_contact_phone', 'help_contact_email', 'eviction_status','eviction_due','send_email',]
+        widgets = {
+            'notice_detail': SummernoteWidget(attrs={'summernote': {'width': '100%', 'height': '400px'}}),
+            'eviction_due': DateInput(),
+        }
+        
+class UpdateEvictionNotice(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(UpdateEvictionNotice, self).__init__(*args, **kwargs)
+        self.fields['created'].disabled = True
+    class Meta:
+        model = EvictionNotice
+        exclude = ['updated',]
         widgets = {
             'notice_detail': SummernoteWidget(attrs={'summernote': {'width': '100%', 'height': '400px'}}),
             'eviction_due': DateInput(),

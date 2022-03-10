@@ -8,7 +8,7 @@ load_dotenv()
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = str(os.getenv('DJANGO_SECRET_KEY'))
-DEBUG = True
+DEBUG = False
 
 # Authentication handler for django/allauth
 AUTHENTICATION_BACKENDS = [
@@ -109,7 +109,6 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
-
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.0/topics/i18n/

@@ -1,6 +1,14 @@
 {% extends 'base.html' %}
 {% block content %}
 
+<nav class="container mt-3">
+  <ol class="breadcrumb bg-light p-2 rounded-2">
+      <li class="breadcrumb-item "><a href="{% url 'building-dashboard' building.slug %}">Dashboard</a></li>
+      <li class="breadcrumb-item active"> {{building.name}} </li>
+      <li class="breadcrumb-item active">Move Out Notices</li>
+  </ol>
+</nav>
+
 <section class="container" style="margin-top:2%; margin-bottom:4%;">
     <div class="row justify-content-center">
         

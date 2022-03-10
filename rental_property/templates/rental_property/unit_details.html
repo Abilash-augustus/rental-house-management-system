@@ -1,9 +1,16 @@
 {% extends 'base.html' %}
 {% block content %}
-<br>
-<section class="container border border-5" style="margin-top:2%; margin-bottom:4%;">
-    <div class="row justify-content-center" style="background-color: white;">
-        <div class="col-md-8 col-sm-12" style="margin-top:2%;">
+<nav class="container mt-3">
+  <ol class="breadcrumb bg-light p-2 rounded-2">
+      <li class="breadcrumb-item "><a href="{% url 'operational-buildings' %}">Home</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'building-units' building.slug %}"> {{building.name}} </a></li>
+      <li class="breadcrumb-item active"> {{unit.unit_number}}</li>
+  </ol>
+</nav>
+
+<section class="container mt-3 mb-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-sm-12">
             <div id="hrmscarousel" class="carousel slide" data-bs-ride="carousel">
                 <!--Indicators-->
                 <ol class="carousel-indicators">
@@ -32,7 +39,7 @@
               </div>
         </div>
 
-        <div class="container  mt-5 ">
+        <div class="container mt-2">
             <div class="row d-flex justify-content-center">
               <div class="col-md-8">
                       <div class="card mb-4">

@@ -36,6 +36,7 @@ class UpdateRentalUnit(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(UpdateRentalUnit, self).__init__(*args, **kwargs)
         self.fields['building'].disabled = True
+        self.fields['added'].disabled = True
     class Meta:
         model = RentalUnit
         exclude = ['slug','updated',]

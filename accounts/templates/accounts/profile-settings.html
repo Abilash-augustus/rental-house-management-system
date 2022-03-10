@@ -3,10 +3,18 @@
 {% block metadescription %}page meta description here... {% endblock %}
 
 {% block content %}	
-<section style="background-color: #dfe8da;">
-    <div class="container py-5 h-100">
+<nav class="container mt-3">
+  <ol class="breadcrumb bg-light p-2 rounded-2">
+      <li class="breadcrumb-item "><a href="{% url 'operational-buildings' %}">Home</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'profile' %}"> Profile </a></li>
+      <li class="breadcrumb-item active"> My Profile Settings </li>
+  </ol>
+</nav>
+
+<section class="mt-4 mb-5">
+    <div class="container h-100">
       <div class="row d-flex justify-content-center align-items-center h-100">
-        <div class="col-12 col-md-8 col-lg-6 col-xl-5">
+        <div class="col-12 col-md-8 col-lg-8 col-xl-7">
           <div class="card shadow-2-strong" style="border-radius: 1rem;">
             <div class="card-body p-5 text-center">
                 <h3> Update profile info. </h3>
@@ -17,6 +25,7 @@
                         {{ user_form|crispy }}
                         {{ profile_form|crispy }}
                     </fieldset>
+                    <br/>
                     <div class="form-group">
                         <button class="btn btn-outline-primary" type="submit">Update</button>
                     </div>

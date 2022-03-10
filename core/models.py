@@ -109,6 +109,7 @@ class EvictionNotice(models.Model):
     eviction_status = models.CharField(max_length=10, default='initiated', choices=NOTICE_STATUS_CHOICES)
     created = models.DateTimeField(default=datetime.datetime.now)
     updated = models.DateTimeField(auto_now=True)
+    send_email = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs):
         if not self.notice_code:

@@ -90,7 +90,7 @@ def add_tenant(request, building_slug):
             return redirect('building-dashboard', building_slug=building.slug)
     else:
         new_tenant_form = TenantsForm(building)
-    context = {'new_tenant_form': new_tenant_form}
+    context = {'new_tenant_form': new_tenant_form,'building': building}
     return render(request, 'accounts/new-tenant.html', context)
 
 

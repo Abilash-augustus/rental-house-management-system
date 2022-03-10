@@ -1,9 +1,19 @@
 {% extends 'base.html' %}
 {% load crispy_forms_tags %}
-{% block metadescription %} Submit Rent Payments  {% endblock %}
+{% block metadescription %} Tenant Water Billing  {% endblock %}
 {% load humanize %}
 
 {% block content %}	
+<nav class="container mt-3">
+  <ol class="breadcrumb bg-light p-2 rounded-2">
+      <li class="breadcrumb-item "><a href="{% url 'building-dashboard' building.slug %}">Dashboard</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'rent-and-utilities' building.slug %}">Rent & Utilities </a></li>
+      <li class="breadcrumb-item"><a href="{% url 'rent-history' building.slug unit.slug tenant.associated_account.username %}">Rent</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'manager-water-billing' building.slug unit.slug tenant.associated_account.username %}">Water Billing</a></li>
+      <li class="breadcrumb-item active">Bill Details ({{bill_cycle.bill_code}})</li>
+  </ol>
+</nav>
+
 <section class="mb-5 mt-5" style="background-color: #dfe8da;">
     <div class="container">
       <div class="row d-flex justify-content-center align-items-center h-100">
@@ -89,7 +99,7 @@
                       <li class="list-group-item d-flex justify-content-between align-items-start">
                         <div class="ms-2 me-auto">
                             <a type="button" class="underline" data-bs-toggle="modal" data-bs-target="#waterbillingUpdatebackdrop"> Last Updated </a> </div>
-                        <span> {{bill_cycle.updated|naturaltime}} </span>
+                        <span> {{bill_cycle.updated|timesince}} </span>
                       </li>
 
                   </ul>
@@ -134,7 +144,7 @@
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="waterbillingUpdatebackdropLabel">Start New Billing</h5>
+          <h5 class="modal-title" id="waterbillingUpdatebackdropLabel">Update Billing</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">

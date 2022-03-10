@@ -3,17 +3,30 @@
 {% load crispy_forms_tags %}
 
 {% block content %} 
+<nav class="container mt-3">
+  <ol class="breadcrumb bg-light p-2 rounded-2">
+      <li class="breadcrumb-item "><a href="{% url 'building-dashboard' building.slug %}">Dashboard</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'rent-and-utilities' building.slug %}">Rent & Utilities </a></li>
+      <li class="breadcrumb-item"><a href="{% url 'rent-history' building.slug unit.slug tenant.associated_account.username %}">Rent</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'manager-water-billing' building.slug unit.slug tenant.associated_account.username %}">Electricity Billing</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'water-billing-details' building.slug unit.slug tenant.associated_account.username e_bill.bill_code %}">Bill Details ({{e_bill.bill_code}})</a></li>
+      <li class="breadcrumb-item active">Update Electricity Bill Payments</li>
+  </ol>
+</nav>
+
 <section style="background-color: #dfe8da;">
     <div class="container py-5 h-100">
       <div class="row d-flex justify-content-center align-items-center h-100">
-        <div class="col-12 col-md-8 col-lg-6 col-xl-9">
+        <div class="col-12 col-md-8 col-lg-9 col-xl-9">
           <div class="card shadow-2-strong" style="border-radius: 1rem;">
             <div class="card-body p-5">
                 <form method="post" enctype="multipart/form-data">
                     {% csrf_token %}
                     {{ form|crispy }}                    
                     <br/>
-                    <input class="btn btn-primary" type="submit" name="submit" value="submit" />
+                    <div class="text-center">
+                      <input class="btn btn-outline-success" type="submit" name="submit" value="submit" />
+                    </div>
                 </form>
             </div>
         </div>

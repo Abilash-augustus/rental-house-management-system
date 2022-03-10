@@ -4,6 +4,16 @@
 {% load humanize %}
 
 {% block content %}	
+<nav class="container mt-3">
+  <ol class="breadcrumb bg-light p-2 rounded-2">
+      <li class="breadcrumb-item "><a href="{% url 'building-dashboard' building.slug %}">Dashboard</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'rent-and-utilities' building.slug %}">Rent & Utilities </a></li>
+      <li class="breadcrumb-item"><a href="{% url 'rent-history' building.slug unit.slug tenant.associated_account.username %}">Rent</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'manage_tenant_electric_bills' building.slug unit.slug tenant.associated_account.username %}">Electricity Billing</a></li>
+      <li class="breadcrumb-item active">Bill Details ({{e_bill.bill_code}})</li>
+  </ol>
+</nav>
+
 <section class="mb-5 mt-5" style="background-color: #dfe8da;">
     <div class="container">
       <div class="row d-flex justify-content-center align-items-center h-100">
@@ -137,7 +147,7 @@
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="waterbillingUpdatebackdropLabel">Start New Billing</h5>
+          <h5 class="modal-title" id="waterbillingUpdatebackdropLabel">Update Billing</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
@@ -191,7 +201,7 @@
               {% if p.lock %}
               <td> <em class="fa fa-lock"></em> Locked </td>
               {% else %}
-              <td> <a href=" {% url 'update_electricity_payments' building.slug unit.slug tenant.associated_account.username water_bill.bill_code p.tracking_code %} "> update </a> </td>
+              <td> <a href=" {% url 'update_electricity_payments' building.slug unit.slug tenant.associated_account.username e_bill.bill_code p.tracking_code %} "> update </a> </td>
               {% endif %}
             </tr>
             {% empty %}

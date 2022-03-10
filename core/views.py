@@ -1,36 +1,34 @@
 import datetime
-from django.template.loader import get_template
+
 from accounts.models import Managers, Tenants
 from complaints.models import Complaints, UnitReport
 from config.settings import DEFAULT_FROM_EMAIL
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.models import User
 from django.contrib.messages.views import SuccessMessageMixin
-from django.core import serializers
 from django.core.mail import EmailMessage
 from django.db.models import Count, Sum
-from django.http import JsonResponse
-from django.shortcuts import HttpResponse, get_object_or_404, redirect, render
-from django.template.loader import render_to_string
+from django.http import HttpResponseRedirect, JsonResponse
+from django.http.response import HttpResponse, JsonResponse
+from django.shortcuts import HttpResponse, redirect, render
+from django.template.loader import get_template, render_to_string
 from django.urls import reverse_lazy
 from django.views.generic import CreateView
 from rental_property.models import Building, MaintananceNotice, RentalUnit
-from utilities_and_rent.models import (ElectricityBilling, RentPayment,
-                                       WaterBilling)
+from utilities_and_rent.models import ElectricityBilling, WaterBilling
 
-from core.filters import EvictionNoticeFilter, MoveOutNoticeFilter, VisitFilter, MyNoticeFilter
+from core.filters import (EvictionNoticeFilter, MoveOutNoticeFilter,
+                          MyNoticeFilter, VisitFilter)
 from core.forms import (CancelMoveOutForm, ContactForm, EvictionNoticeForm,
                         NewMoveOutNoticeForm, UnitTourForm,
-                        UpdateMoveOutNotice, VisitUpdateForm)
+                        UpdateEvictionNotice, UpdateMoveOutNotice,
+                        VisitUpdateForm)
 from core.models import Contact, EvictionNotice, MoveOutNotice, UnitTour
 from core.utils import render_to_pdf
 
 User = get_user_model()
-
-
-def home(request):
-    return render(request, 'core/home.html')
 
 class CreateContact(SuccessMessageMixin, CreateView):
     model = Contact
@@ -51,7 +49,7 @@ def schedule_unit_tour(request, unit_slug):
     else:
         tour_form = UnitTourForm()
     context = {'unit': unit, 'tour_form': tour_form}
-    return render(request, 'core/tour-unit.html', context)
+    return render(request, 'core/visit_unit.html', context)
 
 @login_required
 @user_passes_test(lambda user: user.is_manager==True, login_url='profile')
@@ -67,7 +65,7 @@ def scheduled_visits(request, building_slug):
 
     context = {'building':building, 'visits':visits_filter,
                'visited':visited,'waiting':waiting,'cancelled':cancelled}
-    return render(request, 'core/manager-vists.html', context)
+    return render(request, 'core/vists_manager.html', context)
 
 @login_required
 @user_passes_test(lambda user: user.is_manager==True, login_url='profile')
@@ -97,32 +95,30 @@ def update_view_visits(request, building_slug, visit_code):
             return redirect('core:visits', building_slug=building.slug)
     else:
         update_visit_form = VisitUpdateForm(instance=visit)
-    context = {'visit':visit, 'update_visit_form': update_visit_form}
+    context = {'visit':visit, 'update_visit_form': update_visit_form, 'building':building}
     return render(request, 'core/visits-update.html', context)
 
 
 @login_required
 @user_passes_test(lambda user: user.is_manager==True, login_url='profile')
-def create_eviction_notice(request, building_slug, unit_slug, username):
+def create_eviction_notice(request, building_slug):
     building = Building.objects.get(slug=building_slug)
-    unit = RentalUnit.objects.get(building=building, slug=unit_slug)
     manager = Managers.objects.get(associated_account__username=request.user.username)
-    tenant = Tenants.objects.get(rented_unit=unit, associated_account__username=username)
 
     if request.method == 'POST':
-        eviction_form = EvictionNoticeForm(request.POST)
+        eviction_form = EvictionNoticeForm(building,request.POST)
         if eviction_form.is_valid():
             eviction_form.instance.sent_by = manager
-            eviction_form.instance.tenant = tenant
-            eviction_form.instance.unit = unit
+            get_tenant = eviction_form.instance.tenant
+            eviction_form.instance.unit = RentalUnit.objects.get(pk=get_tenant.rented_unit.id)         
             eviction_form.save()
             # TODO: add email notification
             messages.success(request, 'Eviction notice has been sent!')
-            return redirect('view-tenant', building_slug=building.slug, username=tenant.associated_account.username)
+            return redirect('core:evictions', building_slug=building.slug)
     else:
-        eviction_form = EvictionNoticeForm()
+        eviction_form = EvictionNoticeForm(building)
     
-    context = {'eviction_form':eviction_form, 'tenant':tenant, 'unit': unit}
+    context = {'eviction_form':eviction_form,'building':building}
     return render(request, 'core/create-eviction-notice.html', context)
 
 
@@ -142,7 +138,16 @@ def view_eviction_notices(request,building_slug):
 def eviction_notice_display(request,building_slug, notice_code):
     building = Building.objects.get(slug=building_slug)
     notice = EvictionNotice.objects.get(unit__building=building, notice_code=notice_code)
-    context = {'building':building, 'notice':notice}
+    if request.method == 'POST':
+        update_form = UpdateEvictionNotice(request.POST, instance=notice)
+        if update_form.is_valid():
+            update_form.save()
+            messages.success(request, 'Notice Updated')
+            return HttpResponseRedirect("")
+    else:
+        update_form = UpdateEvictionNotice(instance=notice)
+        
+    context = {'building':building, 'notice':notice,'update_form':update_form}
     return render(request, 'core/e-notice-display.html', context)
     
 @login_required
@@ -181,6 +186,7 @@ def my_notices_(request,building_slug,unit_slug,username):
     maintanance_notices = MaintananceNotice.objects.filter(building=building).order_by('-created')[:12]
     eviction_notices = EvictionNotice.objects.filter(tenant=tenant,unit=unit)
     notices_filter = MyNoticeFilter(request.GET, queryset=notices)
+    
     
     context = {'building':building,'notices':notices_filter,
                'eviction_notices':eviction_notices,'maintanance_notices':maintanance_notices}
@@ -254,8 +260,8 @@ def move_out_notice_update(request, building_slug, notice_code):
             return redirect('core:move-out-notices', building_slug=building.slug)
     else:
         v_update_form = UpdateMoveOutNotice(instance=notice)
-    context = {'v_update_form':v_update_form,'notice':notice}
-    return render(request, 'core/vacate-notice-update.html', context)
+    context = {'v_update_form':v_update_form,'notice':notice,'building':building,}
+    return render(request, 'core/move_out_notice_update.html', context)
 
 @login_required
 @user_passes_test(lambda user: user.is_tenant==True, login_url='profile')

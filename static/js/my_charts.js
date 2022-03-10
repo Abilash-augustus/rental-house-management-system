@@ -66,7 +66,18 @@ $(function () { var $moveOutNotices = $("#moveoutChart");
             legend: {display: false,},scales: {yAxes: [{ticks: {display: false,},
                 gridLines: {display:false}}],xAxes: [{ticks: {display: false,},
                  gridLines: {display:false}}]},title: {display: true,text: 'Move Out Notices'}}});}}); });
-        
+
+$(function () {        
+    var $unitsChart = $("#unitsOverview");
+    $.ajax({url: $unitsChart.data("url"),success: function (data) {
+        var ctx = $unitsChart[0].getContext("2d");        
+        new Chart(ctx, {type: 'pie', data: {labels: data.labels, 
+            datasets: [{label: 'Rent',data: data.data,backgroundColor: [
+                    '#1daba8', '#3d5454', '#1e3152','#47410b', '#557310', '#277310', '#107331', '#2792b0', '#d47a6a',
+                    ],}]},options: {responsive: true,legend: {display: false,},
+                  scales: {yAxes: [{ticks: {display: false, }, gridLines: {display:false}}],
+                    xAxes: [{ticks: {display: false,},gridLines: {display:false}}]},
+                  title: {display: true,text: 'Units Overview'}}});}});});
 
 //tnants charts
 $(function () {var $tenantWaterChart = $("#tenantWaterUsageChart");

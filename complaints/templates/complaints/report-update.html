@@ -1,10 +1,20 @@
 {% extends 'base.html' %}
-{% block content %}
 {% load crispy_forms_tags %}
-<br>
-<section class="container" style="margin-top:2%; margin-bottom:4%; background-color: white;">
-    <div class="row justify-content-center">
-        <div class="col-md-8 col-sm-12" style="margin-top:2%;">
+{% block content %}
+
+<nav class="container mt-3">
+  <ol class="breadcrumb bg-light p-2 rounded-2">
+      <li class="breadcrumb-item "><a href="{% url 'building-dashboard' building.slug %}">Dashboard</a></li>
+      <li class="breadcrumb-item active"> {{building.name}} </li>
+      <li class="breadcrumb-item"><a href="{% url 'reports' building.slug %}">Reports</a></li>
+      <li class="breadcrumb-item active">Reports</li>
+  </ol>
+</nav>
+
+<section class="container">
+    <div class="row justify-content-center mt-3">
+        <div class="col-md-8 col-sm-8">
+          <h5 class="text-center card card-header mb-1">Submitted Report Attached Images <span class="fa fa-paperclip"></span> </h5>
             <div id="hrmscarousel" class="carousel slide" data-bs-ride="carousel">
                 <!--Indicators-->
                 <ol class="carousel-indicators">
@@ -32,9 +42,9 @@
               </div>
         </div>
 
-        <div class="container  mt-5 ">
+        <div class="container  mt-3 ">
             <div class="row d-flex justify-content-center">
-              <div class="col-md-8">
+              <div class="col-sm-8">
                       <div class="card mb-4">
                         <div class="card-body">
 
@@ -117,6 +127,8 @@
                         </div>
                       </div>
 
+                      <h4 class="text-center card-header">Update Report status</h4>
+
                     <form class="no-padding" method="POST" enctype="multipart/form-data">
                         {% csrf_token %}
                         <fieldset class="form-group">
@@ -124,7 +136,7 @@
                             {{ update_form|crispy }}
                         </fieldset>
                         <br>
-                        <div class="form-group">
+                        <div class="form-group text-center">
                             <button class="btn btn-outline-primary" type="submit">Update</button>
                         </div>
                     </form>

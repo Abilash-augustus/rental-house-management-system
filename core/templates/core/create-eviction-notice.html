@@ -3,17 +3,24 @@
 {% block metadescription %} Eviction Notice {% endblock %}
 
 {% block content %}	
-<section style="background-color: #dfe8da;">
-    <div class="container py-5 h-100">
+<nav class="container mt-3">
+  <ol class="breadcrumb bg-light p-2 rounded-2">
+      <li class="breadcrumb-item "><a href="{% url 'building-dashboard' building.slug %}">Dashboard</a></li>
+      <li class="breadcrumb-item active"> {{building.name}} </li>
+      <li class="breadcrumb-item"><a href="{% url 'core:evictions' building.slug %}">Evictions</a> </li>
+      <li class="breadcrumb-item active">New Notice</li>
+  </ol>
+</nav>
+
+<section class="mt-4 mb-5">
+    <div class="container h-100">
       <div class="row d-flex justify-content-center align-items-center h-100">
-        <div class="col-12 col-md-8 col-lg-6 col-xl-9">
+        <div class="col-12 col-md-8 col-lg-8 col-xl-9">
           <div class="card shadow-2-strong" style="border-radius: 1rem;">
             <div class="card-body p-5 text-center">
                 <h3>
                   <span style="background-color: red;"> Eviction Notice </span> </h3>
-                  <h3> To: {{tenant.associated_account.first_name}} {{tenant.associated_account.first_name}} </h3>
-                  <h3> Unit: {{tenant.rented_unit.unit_number}} </h3>
-                  <h3> Building: {{tenant.rented_unit.building.name}} </h3>
+                  <h3> Building: {{building.name}} </h3>
                 <form class="no-padding" method="POST" enctype="multipart/form-data">
                     {% csrf_token %}
                     <fieldset class="form-group">
@@ -24,7 +31,6 @@
                     <div class="form-group">
                         <button class="btn btn-outline-primary" type="submit">send</button>
                         <br>
-                        <small> By clicking send, an email notification will be sent to your tenant </small>
                     </div>
                 </form>
             </div>
