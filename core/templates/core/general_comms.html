@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block metadescription %} Work Orders {% endblock %}
+{% load humanize %}
+
+{% block content %} 
+<nav class="container mt-3">
+  <ol class="breadcrumb bg-light p-2 rounded-2">
+      <li class="breadcrumb-item "><a href="{% url 'building-dashboard' building.slug %}">Dashboard</a></li>
+      <li class="breadcrumb-item active"> {{building.name}} </li>
+      <li class="breadcrumb-item active"> General Communications </li>
+  </ol>
+</nav>
+
+<div class="container">
+<section class="row justify-content-center p-4">
+    <div class="container">
+      <!-- overview start -->
+      <div class="container card p-0 mb-3">
+        <div class="card-header text-center w-100">
+          General Communications
+        </div>
+      </div>
+      <!-- Overview end-->
+
+      <div class="row">
+        <div class="col-sm-3">
+            <div class="mb-3 list-group">
+                <a href="{% url 'core:new_email' building.slug %}" type="button" class="btn btn-outline-primary"> New Email </a>
+            </div>
+
+            <h4 class="card-header text-center"> Filter </h4>
+          <form method='get'>
+              {{comms.form|crispy }}
+              <br>
+                  <div class="form-group text-center">
+                      <button class="btn btn-outline-secondary" type="submit">Search</button>
+                  </div>
+          </form>
+        </div>
+
+        <div class="col-sm-9">
+          <div class="row">
+            <div class="col-sm-12">
+              <div class="card card-body">
+                  &nbsp; &nbsp;
+                <input class="form-control" id="myInput" type="text" placeholder="Search..">
+                <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                  <caption> Work Oders </caption>
+                    <thead>
+                      <tr>
+                        <th scope="col">Ref.</th>
+                        <th scope="col">Subject</th>
+                        <th scope="col">Sent To</th>
+                        <th scope="col"> Due Date </th>
+                        <th scope="col"> created </th>
+                        <th scope="col">Updated</th>
+                      </tr>
+                    </thead>
+                    <tbody id='ourTable'>
+                        {% for c in comms.qs %}
+                      <tr>
+                        <th scope="row"> {{c.ref_number}} </th>
+                        <td>{{ c.subject }}</td>
+                        {% if c.send_to_all %}
+                        <td>All Tenants</td>
+                        {% else %}
+                        <td>
+                          {{c.receiver_names|slice:":25"}}
+                        </td>
+                        {% endif %}
+                        <td> {{c.due_date|naturalday}} </td>
+                        <td>{{ c.created|naturalday }}</td>
+                        <td>{{ c.updated|naturalday }}</td>
+                        <td><a href="{% url 'core:email_archive_view' building.slug c.ref_number %}">view archive</a> </td>
+                      </tr>
+                      {% empty %}
+                      <tbody>
+                        <tr>
+                          <td>
+                      <p> Nothing to display! </p>
+                          </td>
+                        </tr>
+                      </tbody>
+                      {% endfor %}
+                    </tbody>
+                </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

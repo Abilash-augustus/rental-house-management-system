@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block metadescription %} Tenant Water Billing  {% endblock %}
+{% load humanize %}
+
+{% block content %}	
+<nav class="container mt-3">
+  <ol class="breadcrumb bg-light p-2 rounded-2">
+      <li class="breadcrumb-item "><a href="{% url 'building-dashboard' building.slug %}">Dashboard</a></li>
+      <li class="breadcrumb-item active"> {{building.name}} </li>
+      <li class="breadcrumb-item"><a href="{% url 'core:general_communications' building.slug %}"> Communications </a></li>
+      <li class="breadcrumb-item active"> View Archive </li>
+  </ol>
+</nav>
+
+<section class="mb-5 mt-5" style="background-color: #dfe8da;">
+    <div class="container">
+      <div class="row d-flex justify-content-center align-items-center h-100">
+
+
+        <div class="col-sm-9">
+          <div class="card shadow-2-strong" style="border-radius: 1rem;">
+            <div class="card-body p-5">
+                <h3 class="text-uppercase text-center"> Email Archive </h3>
+            
+                <ul class="list-group">
+                    <li class="list-group-item d-flex justify-content-between align-items-start">
+                        <div class="ms-2 me-auto">Ref Number </div>
+                        <span>{{archive.ref_number}}</span>
+                      </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-start">
+                        <div class="ms-2 me-auto">Sent To</div>
+                        <span>{{archive.receiver_names}}</span>
+                      </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-start">
+                      <div class="ms-2 me-auto">Sent By</div>
+                      <span> {{archive.sent_by}}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-start">
+                        <div class="ms-2 me-auto">Subject</div>
+                        <span> {{archive.subject}}</span>
+                      </li>
+                      <li class="list-group-item d-flex justify-content-between align-items-start">
+                        <div class="ms-2 me-auto"> Content </div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        <blockquote class="bg-dark text-white"> {{archive.body|safe}}</blockquote>
+                      </li>
+                      <li class="list-group-item d-flex justify-content-between align-items-start">
+                        <div class="ms-2 me-auto"> Sent On </div>
+                        <span>  {{archive.created|naturaltime}}</span>
+                      </li>
+                  </ul>
+
+            </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+  {% endblock %}

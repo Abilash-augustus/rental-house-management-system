@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block metadescription %} Hired Personnel Details {{personnel.full_name}}  {% endblock %}
+{% load humanize %}
+
+{% block content %}	
+<nav class="container mt-3">
+  <ol class="breadcrumb bg-light p-2 rounded-2">
+      <li class="breadcrumb-item "><a href="{% url 'building-dashboard' building.slug %}">Dashboard</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'hired_personnel' building.slug %}"> Hired Personnel </a></li>
+      <li class="breadcrumb-item active"> Personnel Details </li>
+  </ol>
+</nav>
+
+<section class="mb-5 mt-5" style="background-color: #dfe8da;">
+    <div class="container">
+      <div class="row d-flex justify-content-center align-items-center h-100">
+
+        <div class="row">
+            <div class="col-sm-3">
+              <div class="mt-5 mb-2 d-grid gap-2">
+                <a data-bs-toggle="modal" data-bs-target="#contactBackdrop" class="btn btn-outline-success" type="button">Contact</a>
+              </div>
+            </div>
+
+        <div class="col-sm-9">
+          <div class="card shadow-2-strong" style="border-radius: 1rem;">
+            <div class="card-body p-5">
+                <h3 class="text-uppercase text-center"> Personnel Details </h3>
+            
+                <ul class="list-group">
+                    <li class="list-group-item d-flex justify-content-between align-items-start">
+                        <div class="ms-2 me-auto">Personnel Code</div>
+                        <span>{{personnel.personnel_code}}</span>
+                      </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-start">
+                      <div class="ms-2 me-auto">
+                        Full Name
+                      </div>
+                      <span> {{personnel.full_name}} </span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-start">
+                      <div class="ms-2 me-auto">Supervised By</div>
+                      <span>{{personnel.personnel_manager}}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-start">
+                        <div class="ms-2 me-auto">Job Title</div>
+                        <span>{{personnel.job_title}}</span>
+                      </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-start">
+                      <div class="ms-2 me-auto">Email</div>
+                      <span> {{personnel.personnel_email}}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-start">
+                        <div class="ms-2 me-auto">Phone</div>
+                        <span> {{personnel.phone_number}}</span>
+                      </li>
+                      <li class="list-group-item d-flex justify-content-between align-items-start">
+                        <div class="ms-2 me-auto"> Gender </div>
+                        <span> {{personnel.get_gender_display}}</span>
+                      </li>
+                      <li class="list-group-item d-flex justify-content-between align-items-start">
+                        <div class="ms-2 me-auto"> Hired Date </div>
+                        <span>  {{personnel.hired_date}}</span>
+                      </li>
+                      <li class="list-group-item d-flex justify-content-between align-items-start">
+                        <div class="ms-2 me-auto"> Created </div>
+                        <span>  {{personnel.created}}</span>
+                      </li>
+                      <li class="list-group-item d-flex justify-content-between align-items-start">
+                        <div class="ms-2 me-auto"><a href="{% url 'update_hired_personnel' building.slug personnel.personnel_code %}" title='click to udate'> Updated </a></div>
+                        <span>  {{personnel.updated|naturaltime}}</span>
+                      </li>
+                  </ul>
+
+            </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- start billing modal -->
+  <div class="modal fade" id="contactBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="contactBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="contactBackdropLabel">Contact {{personnel.full_name}} </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form action="" method="post" class="no-padding">
+              {% csrf_token %}
+              {{p_contact|crispy }}
+              <br>
+              <div class="form-group text-center">
+                <button class="btn btn-outline-secondary" type="submit">Send</button>
+              </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- end billing modal -->
+</section>
+
+  {% endblock %}

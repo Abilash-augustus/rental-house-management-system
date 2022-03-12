@@ -84,7 +84,9 @@
                     <div class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton">
     
                       <a href="{% url 'profile' %}" class="dropdown-item"> Profile</a>
-                      <a href="#" class="dropdown-item"> My History</a>
+                      {% if user.is_tenant %}
+                      <a href="#" class="dropdown-item"><em class="fa fa-bullhorn"></em> Communications </a>
+                      {% endif %}
                       <a href="{% url 'account_logout' %}" class="dropdown-item" type="button">Logout</a>
                     </div>
                   </div>

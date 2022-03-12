@@ -3,11 +3,12 @@ import string
 from datetime import datetime
 
 from accounts.models import Managers, Tenants
+from django.contrib.auth import get_user_model
 from django.db import models
-from multiselectfield import MultiSelectField
-from rental_property.models import RentalUnit
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from multiselectfield import MultiSelectField
+from rental_property.models import RentalUnit
 
 MONTHS_SELECT = [
     ('jan', 'January'),
@@ -133,6 +134,7 @@ class WaterBilling(models.Model):
     total = models.DecimalField(decimal_places=2, max_digits=9, default=0)
     amount_paid = models.DecimalField(decimal_places=2, max_digits=9, default=0)
     month = MultiSelectField(choices=MONTHS_SELECT, null=True, blank=True)
+    meter_rent = models.DecimalField(decimal_places=2, max_digits=9, default=50)
     remarks = models.TextField(blank=True,null=True)
     cleared = models.BooleanField(default=False)    
     lock_cycle = models.BooleanField(default=False)
@@ -150,7 +152,7 @@ class WaterBilling(models.Model):
         if not self.bill_code:
             self.bill_code = ''.join(random.choices(string.ascii_lowercase, k=10))
         if self.units:
-            self.total = self.units*self.unit_price
+            self.total = (self.units*self.unit_price)+self.meter_rent
         if self.amount_paid != 0:
             if self.total <= self.amount_paid:
                 self.cleared = True
@@ -306,4 +308,3 @@ class ElectricityMeter(models.Model):
     
     def __str__(self):
         return f"{self.number} - {self.unit}"
-    

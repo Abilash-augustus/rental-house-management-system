@@ -74,8 +74,8 @@ def view_tenant_profile(request, building_slug, username):
     building = Building.objects.get(slug=building_slug)
     user_instance = User.objects.get(username=username)
     tenant_instance = Tenants.objects.get(associated_account_id=user_instance, rented_unit__building=building)
-    has_eviction_notice = EvictionNotice.objects.filter(tenant=tenant_instance) # check if eiction notice already exists
-    context = {'tenant_instance': tenant_instance, 'user_instance':user_instance, 'has_eviction_notice':has_eviction_notice}
+    has_active_eviction_notice = EvictionNotice.objects.filter(tenant=tenant_instance,eviction_status='initiated') # check if eiction notice already exists
+    context = {'tenant_instance': tenant_instance, 'user_instance':user_instance, 'has_eviction_notice':has_active_eviction_notice}
     return render(request, 'accounts/view-tenant.html', context)
 
 @login_required
@@ -110,5 +110,5 @@ def update_tenant(request, building_slug, username):
             return redirect('building-dashboard', building_slug=building.slug)
     else:
         tenant_form = TenantsForm(building, instance=tenant)
-    context = {'tenant_user':tenant_user,'tenant_form': tenant_form}
+    context = {'tenant_user':tenant_user,'tenant_form': tenant_form,'building':building,'tenant':tenant}
     return render(request, 'accounts/update-tenant.html', context)

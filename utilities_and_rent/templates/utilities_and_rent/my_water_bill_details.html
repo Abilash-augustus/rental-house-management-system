@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% load crispy_forms_tags %}
-{% block metadescription %} Submit Rent Payments  {% endblock %}
+{% block metadescription %} My water Bills  {% endblock %}
 {% load humanize %}
 
 {% block content %}	
@@ -9,7 +9,7 @@
       <li class="breadcrumb-item "><a href="{% url 'operational-buildings' %}">Home</a></li>
       <li class="breadcrumb-item"><a href="{% url 'profile' %}"> Profile </a></li>
       <li class="breadcrumb-item"><a href="{% url 'my-rent' building.slug unit.slug tenant.associated_account.username %}"> Rent Charges</a></li>
-      <li class="breadcrumb-item"><a href="{% url 'my_electric_bills' building.slug unit.slug tenant.associated_account.username %}">Water Bills </a></li>
+      <li class="breadcrumb-item"><a href="{% url 'my_water_billing' building.slug unit.slug tenant.associated_account.username %}">Water Bills </a></li>
       <li class="breadcrumb-item active">Water Bill Details</li>
   </ol>
 </nav>
@@ -62,9 +62,21 @@
                         <span> KES {{water_bill.unit_price|intcomma}}</span>
                       </li>
                       <li class="list-group-item d-flex justify-content-between align-items-start">
-                        <div class="ms-2 me-auto"> Est. Cost </div>
+                        <div class="ms-2 me-auto"> Meter Rent </div>
+                        <span> KES {{water_bill.meter_rent|intcomma}}</span>
+                      </li>
+                      <li class="list-group-item d-flex justify-content-between align-items-start">
+                        <div class="ms-2 me-auto"> Total Cost </div>
                         <span> KES {{water_bill.total|intcomma}}</span>
-                      </li> <!-- TODO: update KES to be dynamic -->
+                      </li> 
+                      <li class="list-group-item d-flex justify-content-between align-items-start">
+                        <div class="ms-2 me-auto"> Paid </div>
+                        <span> KES {{water_bill.amount_paid|intcomma}}</span>
+                      </li> 
+                      <li class="list-group-item d-flex justify-content-between align-items-start">
+                        <div class="ms-2 me-auto"> Remaining </div>
+                        <span> KES {{water_bill.amount_remaining|intcomma}}</span>
+                      </li> 
                       <li class="list-group-item d-flex justify-content-between align-items-start">
                         <div class="ms-2 me-auto">Cleared </div>
                         <span> {{water_bill.cleared}} </span>

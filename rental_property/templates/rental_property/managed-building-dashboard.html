@@ -1,38 +1,76 @@
 {% extends 'base.html' %}
-{% block metadescription %} All tenants {% endblock %}
+{% block metadescription %} Building Dashboard {% endblock %}
 {% load crispy_forms_tags %}
 {% block content %} 
-<br/>
+<nav class="container mt-3">
+  <ol class="breadcrumb bg-light p-2 rounded-2">
+      <li class="breadcrumb-item active">Dashboard</li>
+  </ol>
+</nav>
 
 
-<div class="container-fluid">
+<div class="container mb-3">
   <div class="row">
 
       <div class="row">
           <div class="d-flex align-items-center">
-              <main class="text-center p-4 w-100">
+              <main class="text-center w-100">
 
-                <div class="col">
-                  <div class="card h-100">
-                      <div class="card-body">
-                          <span class="p-2">Name: {% if building %} {{building.name }} {% endif %}</span> <br>
-                          <span class="p-2">Estate: {% if building.estate %} {{building.estate }} {% else %} Not Listed{% endif %}</span> <br>
-                          <span class="p-2">Registered owner: {{building.registered_owner }}</span> <br>
-                          <span class="p-2"> Address Line: {{building.address_line}} </span> <br>
-                          <span class="p-2"> County: {{building.county}} </span> <br>
-                          <span class="p-2"> Country: {{building.country}} </span> <br>
-                          <span class="p-2"> Occupied Units: {{oc_units_count}} </span> <span class="p-2"> Unoccupied Units: {{em_units_count}} </span> <br>
-                          <p class="card-text"></p>
-                    </div>
-                      <div class="card-footer">
-                          <small class="text-muted">Status: {{building.get_building_status_display}}</small>
-                          &nbsp;&nbsp;&nbsp;&nbsp; <small> <a href="{% url 'update-building-status' building.slug %}"> update </a> </small> &nbsp;&nbsp;
-                          <small> <a href="{% url 'core:building_stats' building.slug %}"> stats </a> </small> &nbsp;&nbsp;
-                          <small> <a href="{% url 'property_maintanance_notice' building.slug %}"> Maintanance Notice </a> </small>
-                      </div>
+                <div class="container card p-0 mb-2">
+                  <div class="card-header text-center w-100 text-uppercase">
+                    {{building.name}}
                   </div>
-              </div>
-              <br> 
+                  <div class="row">
+                    <div class="col-sm-6">
+                      <div class="card border-0">
+                        <div class="card-body">
+                          <ul class="list-group">
+                            <li class="list-group-item d-flex justify-content-between border-0 align-items-center">
+                              <strong> Estate </strong>
+                              <span> {% if building.estate %} {{building.estate }} {% else %} Not Listed{% endif %} </span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between border-0 align-items-center">
+                                <strong> Registered owner </strong>
+                                <span>  {{building.registered_owner }}</span>
+                              </li>
+                            <li class="list-group-item d-flex justify-content-between border-0 align-items-center">
+                                <strong> Address Line: </strong>
+                                <span>{{building.address_line}}, {{building.county}}</span>
+                              </li>
+                          <li class="list-group-item d-flex justify-content-between border-0 align-items-center">
+                            <strong> Registered Country </strong>
+                            <span> {{building.country}}</span>                                  
+                          </li>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-sm-6">
+                      <div class="card border-0">
+                        <div class="card-body">
+                          <ul class="list-group">
+                            <li class="list-group-item d-flex justify-content-between border-0 align-items-center">
+                              <strong> Current Status </strong>
+                              <span> {{building.get_building_status_display}}</span>                                  
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between border-0 align-items-center">
+                              <strong> Occupied Units </strong>
+                              <span> {{oc_units_count}}</span>                                  
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between border-0 align-items-center">
+                              <strong> Unoccupied Units </strong>
+                              <span> {{em_units_count}}</span>                                  
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between border-0 align-items-center">
+                              <span> <a class="btn btn-outline-primary" title="click to update status" href="{% url 'update-building-status' building.slug %}"> update </a> </span>
+                              <span><a class="btn btn-outline-info" title="click to view stats" href="{% url 'core:building_stats' building.slug %}"> stats </a></span>       
+                            </li>
+                          </ul>
+                          </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
 
               <div class="container">
                 <div class="row">
@@ -43,7 +81,11 @@
                       <a href="{% url 'managed-building-units' building.slug %}" type="button" class="list-group-item list-group-item-action" role="button">All Units</a>
                       <a href="{% url 'add-rental-unit' building.slug %}" type="button" class="list-group-item list-group-item-action" role="button">Add rental unit</a>
                       <a href="{% url 'add-new-tenant' building.slug %}" type="button" class="list-group-item list-group-item-action" role="button">Add Tenants</a>
+                      <a href="{% url 'core:general_communications' building.slug %}" type="button" class="list-group-item list-group-item-action" role="button">General Communications</a>
+                      <a href="{% url 'hired_personnel' building.slug %}" type="button" class="list-group-item list-group-item-action" role="button">Hired Personnel</a>
+                      <a href="{% url 'work_orders' building.slug %}" type="button" class="list-group-item list-group-item-action" role="button">Work Orders</a>
                       <a href="{% url 'rent-and-utilities' building.slug %}" type="button" class="list-group-item list-group-item-action" role="button"> Rent and Utilities </a>
+                      <a href="{% url 'maintanance_notices' building.slug %}" type="button" class="list-group-item list-group-item-action" role="button"> Maintanance Notices </a>
                       <a href="{% url 'core:visits' building.slug %}" type="button" class="list-group-item list-group-item-action" role="button">Visits</a>
                       <a href="{% url 'reports' building.slug %}" type="button" class="list-group-item list-group-item-action" role="button">Reports 
                         <small class="position-absolute top-1 start-100 translate-middle badge rounded-pill bg-secondary">({{building_reports_count}})</small></a>
@@ -57,7 +99,7 @@
                     <div class="row">
                       <div class="col-8 col-sm-12">
                         <div class="card card-body mb-2">
-                          <h4 class="card-header text-center"> Query Tenants</h4>
+                          <h4 class="card-header text-center"> Search Tenants</h4>
                           <form class="no-padding" method="get">
                               {{tenants.form|crispy}}
                               <br>

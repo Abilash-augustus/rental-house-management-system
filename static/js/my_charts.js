@@ -19,7 +19,7 @@ $(function () {
     datasets: [{label: 'Rent',data: data.data,backgroundColor: [
                 '#1e3152','#47410b', '#557310', '#277310', '#107331', '#2792b0', '#d47a6a',
     ],}]},
-    options: {responsive: true,legend: {display: false,},
+    options: {responsive: true,legend: {display: true,},
     scales: {yAxes: [{ticks: {display: false,},gridLines: {display:false}}],
     xAxes: [{ticks: {display: false,},gridLines: {display:false}}]},
     title: {display: true,text: 'Visits Overview'}}});}});});
@@ -74,7 +74,7 @@ $(function () {
         new Chart(ctx, {type: 'pie', data: {labels: data.labels, 
             datasets: [{label: 'Rent',data: data.data,backgroundColor: [
                     '#1daba8', '#3d5454', '#1e3152','#47410b', '#557310', '#277310', '#107331', '#2792b0', '#d47a6a',
-                    ],}]},options: {responsive: true,legend: {display: false,},
+                    ],}]},options: {responsive: true,legend: {display: true,},
                   scales: {yAxes: [{ticks: {display: false, }, gridLines: {display:false}}],
                     xAxes: [{ticks: {display: false,},gridLines: {display:false}}]},
                   title: {display: true,text: 'Units Overview'}}});}});});
@@ -88,8 +88,9 @@ $.ajax({url: $tenantWaterChart.data("url"),success: function (data) {
           data: data.data}]},
           options: {responsive: true,legend: {display: false,},
           scales: {xAxes: [{ticks: {display: false,}}],yAxes: [{
-            scaleLabel: {display: true,labelString: 'units'}}]},
-          title: {display: true,text: "Tenants' Usage Overview"}}});}});});
+              ticks: {display: true,beginAtZero: true},
+            scaleLabel: {display: true,labelString: 'm³'}}]},
+          title: {display: true,text: "Water Consumption"}}});}});});
 
 $(function () {var $tenantsElectricityChart = $("#tenantsElectricityUsage");
      $.ajax({url: $tenantsElectricityChart.data("url"),success: function (data) {
@@ -99,8 +100,9 @@ $(function () {var $tenantsElectricityChart = $("#tenantsElectricityUsage");
         data: data.data}]},
         options: {responsive: true,legend: {display: false,},
         scales: {xAxes: [{ticks: {display: false,}}],yAxes: [{
-        scaleLabel: {display: true,labelString: 'units(KwH)'}}]},
-        title: {display: true,text: 'Electricity (KwH) Usage Overview'}}});}});});
+            ticks: {display: true,beginAtZero: true},
+        scaleLabel: {display: true,labelString: '(KwH)'}}]},
+        title: {display: true,text: 'Electricity Usage'}}});}});});
 
 $(function () {var $rentChart = $("#tenantRentChart");
     $.ajax({url: $rentChart.data("url"),success: function (data) {
@@ -108,6 +110,6 @@ $(function () {var $rentChart = $("#tenantRentChart");
     new Chart(ctx, {type: 'line',data: {labels: data.labels,
         datasets: [{label: 'amount',backgroundColor: 'brown',data: data.data}]},
         options: {responsive: true,legend: {display: false,},scales: {
-        yAxes: [{ticks: {display: false,}}]},
+        yAxes: [{ticks: {display: false,beginAtZero: true}}]},
         title: {display: true,text: 'Rent Overview'}}});}});});
 

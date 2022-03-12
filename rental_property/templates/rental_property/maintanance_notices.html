@@ -3,40 +3,32 @@
 {% block metadescription %} notices {% endblock %}
 {% load humanize %}
 
-{% block extra_head %} 
-<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js"></script>
-{% endblock %}
-
 {% block content %} 
+<nav class="container mt-3">
+  <ol class="breadcrumb bg-light p-2 rounded-2">
+    <li class="breadcrumb-item"><a href="{% url 'building-dashboard' building.slug %}">Dashboard</a></li>
+    <li class="breadcrumb-item active">Maintanance Notices</li>
+  </ol>
+</nav>
+
 <div class="container">
-<section class="row justify-content-center p-4">
+<section class="row justify-content-center">
     <div class="container">
 
       <!-- overview start -->
       <div class="container card p-0 mb-4">
         <div class="card-header text-center w-100">
-          Notices
-        </div>
-        <div class="row">
-          <div class="col-sm-6 text-center">
-            <div class="card border-0">
-              <div class="card-body text-center">
-                <ul class="list-group">
-                  <li class="list-group-item d-flex justify-content-between border-0 align-items-center">
-                    <strong> Building Name </strong>
-                    <span> {{building.name}} {{tenant.associated_account.last_name}} </span>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </div>
+          Maintanance Notices
         </div>
       </div>
       <!-- Overview end-->
 
       <div class="row">
         <div class="col-sm-3">
+          <div class="mb-2 d-grid gap-2">
+            <a class="btn btn-outline-danger" title="click to add maintanance notice" href="{% url 'property_maintanance_notice' building.slug %}"> new maintanance Notice </a>
+          </div>
+
             <h5 class="text-center card-header"> Search </h5>
           <form method='get'>
               {{notices.form|crispy }}
@@ -70,7 +62,8 @@
                     <tbody id='ourTable'>
                         {% for notice in notices.qs %}
                       <tr>
-                        <th scope="row">{{ notice.ref_number }}</th>
+                        <th scope="row"><a title="view in pdf" href="{% url 'view_maintanance_notice_pdf' building.slug notice.ref_number %}">
+                          {{ notice.ref_number }}</a></th>
                         <td>{{ notice.title }}</td>
                         <td>{{ notice.from_date|naturalday}} </td>
                         <td> {{notice.to_date|naturalday}}</td>

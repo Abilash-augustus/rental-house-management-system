@@ -18,6 +18,9 @@ urlpatterns = [
     path('view-notice/<slug:building_slug>/<slug:unit_slug>/<slug:username>/<slug:notice_code>/', views.move_out_pdf, name="view-moveout-notice"),
     path('eviction_view_pdf/<slug:building_slug>/<slug:unit_slug>/<slug:username>/<slug:code>/', views.eviction_view_pdf, name='eviction_view_pdf'),
     path('vacate-notice-update/<slug:building_slug>/<slug:notice_code>/', views.move_out_notice_update, name='vacate-notice-update'),
+    path('general_communications/<slug:building_slug>/', views.general_communications, name='general_communications'),
+    path('new_email/<slug:building_slug>/', views.new_email, name='new_email'),
+    path('email_archive_view/<slug:building_slug>/<slug:ref_number>/', views.email_archive_view, name='email_archive_view'),
     
     path('building/<slug:building_slug>/stats/', views.building_dashboard, name="building_stats"),
     path('visits_overview/<slug:building_slug>/', views.visits_overview, name="visits_overview"),

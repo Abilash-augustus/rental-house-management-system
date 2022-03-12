@@ -208,14 +208,14 @@ def property_maintanance_notice(request,building_slug):
             return redirect('maintanance_notices', building_slug=building.slug)#change to go to notices
     else:
         new_m_form = NewMaintananceNoticeForm()
-    context = {'form': new_m_form}
+    context = {'form': new_m_form, 'building':building,}
     return render(request, 'rental_property/new_maintanance_notice.html', context)
 
 @login_required
 @user_passes_test(lambda user: user.is_manager==True, login_url='profile')
 def maintanance_notices(request, building_slug):
     building = Building.objects.get(slug=building_slug)
-    m_notices = MaintananceNotice.objects.filter(building=building)
+    m_notices = MaintananceNotice.objects.filter(building=building).order_by('-created')
     m_notices_filters = MaintananceNoticeFilter(request.GET, queryset=m_notices)
     context = {'building':building,'notices': m_notices_filters,}
     return render(request, 'rental_property/maintanance_notices.html', context)
@@ -234,7 +234,7 @@ def update_maintanance_notice(request, building_slug, ref_number):
             return redirect('maintanance_notices', building_slug=building.slug)
     else:
         update_form = UpdateMaintainanceNotice(instance=notice)
-    context = {'form': update_form}
+    context = {'form': update_form, 'building':building,}
     return render(request, 'rental_property/update_maintanance_notice.html', context)
 
 @login_required

@@ -80,7 +80,7 @@ def my_water_billing(request,building_slug,unit_slug,username):
     building = Building.objects.get(slug=building_slug)
     unit = RentalUnit.objects.get(building=building,slug=unit_slug)
     tenant = Tenants.objects.get(rented_unit=unit, associated_account__username=username)
-    my_water_bills = WaterBilling.objects.filter(rental_unit=unit, tenant=tenant)
+    my_water_bills = WaterBilling.objects.filter(rental_unit=unit, tenant=tenant).order_by('-added')
     oldest_bill = my_water_bills.exclude(added=None).order_by('-added').last()
     newest_bill = my_water_bills.exclude(added=None).order_by('added').first()
     
@@ -96,8 +96,8 @@ def my_water_billing_details(request,building_slug,unit_slug,username,bill_code)
     unit = RentalUnit.objects.get(building=building,slug=unit_slug)
     tenant = Tenants.objects.get(rented_unit=unit, associated_account__username=username)
     water_bill = WaterBilling.objects.get(rental_unit=unit,tenant=tenant,bill_code=bill_code)
-    child_readings = WaterConsumption.objects.filter(parent=water_bill)
-    payments_made = WaterPayments.objects.filter(parent=water_bill)
+    child_readings = WaterConsumption.objects.filter(parent=water_bill).order_by('-reading_added')
+    payments_made = WaterPayments.objects.filter(parent=water_bill).order_by('-created')
     
     if request.method == 'POST':
         bill_pay_form = WaterBillPaymentsForm(request.POST)
@@ -117,7 +117,7 @@ def my_electric_bills(request, building_slug, unit_slug, username):
     building = Building.objects.get(slug=building_slug)
     unit = RentalUnit.objects.get(building=building,slug=unit_slug)
     tenant = Tenants.objects.get(rented_unit=unit,associated_account__username=username)
-    e_bills = ElectricityBilling.objects.filter(rental_unit=unit,tenant=tenant).order_by('added')
+    e_bills = ElectricityBilling.objects.filter(rental_unit=unit,tenant=tenant).order_by('-added')
     
     e_bills_qs = TenantElectricityBillsFilter(request.GET, queryset=e_bills)
     oldest_bill = e_bills.exclude(added=None).order_by('-added').last()
@@ -133,8 +133,8 @@ def my_electricity_billing_details(request,building_slug,unit_slug,username,bill
     unit = RentalUnit.objects.get(building=building,slug=unit_slug)
     tenant = Tenants.objects.get(rented_unit=unit, associated_account__username=username)
     e_bill = ElectricityBilling.objects.get(rental_unit=unit,tenant=tenant,bill_code=bill_code)
-    readings = ElectricityReadings.objects.filter(parent=e_bill)
-    payments_made = ElectricityPayments.objects.filter(parent=e_bill)
+    readings = ElectricityReadings.objects.filter(parent=e_bill).order_by('-reading_date')
+    payments_made = ElectricityPayments.objects.filter(parent=e_bill).order_by('-created')
     
     if request.method == 'POST':
         pay_submit_form = ElectricityPaySubmitForm(request.POST)
@@ -257,7 +257,7 @@ def update_tenant_rent(request, building_slug, unit_slug, username, rent_code):
     else:
         update_form = UpdateRentDetails(instance=rent_details)
     
-    payments = RentPayment.objects.filter(rent_details=rent_details)
+    payments = RentPayment.objects.filter(rent_details=rent_details).order_by('-added_on')
     payment_filter = PaymentsFilter(request.GET, queryset=payments)
     
     context = {'update_form':update_form,'building':building,'unit':unit,'tenant':tenant,'rent_details':rent_details,
@@ -345,8 +345,8 @@ def update_tenant_water_billing_details(request, building_slug, unit_slug, usern
     unit = RentalUnit.objects.get(building=building,slug=unit_slug)
     tenant = Tenants.objects.get(rented_unit=unit,associated_account__username=username)
     bill_cycle = WaterBilling.objects.get(rental_unit=unit,tenant=tenant,bill_code=bill_code)
-    readings = WaterConsumption.objects.filter(parent=bill_cycle)
-    water_bill_payments = WaterPayments.objects.filter(parent=bill_cycle)
+    readings = WaterConsumption.objects.filter(parent=bill_cycle).order_by('-reading_added')
+    water_bill_payments = WaterPayments.objects.filter(parent=bill_cycle).order_by('-created')
     
     if request.method == 'POST':
         update_bill_form = WaterBillUpdateForm(request.POST, instance=bill_cycle)
@@ -395,7 +395,7 @@ def update_water_payments(request,building_slug,unit_slug,username,bill_code,tra
                     bill = water_bill
                     bill.amount_paid += updater.amount
                     bill.save()
-                    messages.success(request, 'updated')
+                    messages.success(request, 'Record locked')
                 return redirect('water-billing-details', building_slug=building.slug,unit_slug=unit.slug,
                             username=tenant.associated_account.username,bill_code=water_bill.bill_code)
         else:

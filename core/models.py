@@ -8,7 +8,7 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import IntegrityError, models
 from django.utils.crypto import get_random_string
 from django.utils.text import slugify
-from rental_property.models import RentalUnit
+from rental_property.models import Building, RentalUnit
 
 User = get_user_model()
 
@@ -136,3 +136,27 @@ class ServiceRating(models.Model):
     
     def __str__(self):
         return f"{self.pk}"
+
+class ManagerTenantCommunication(models.Model):
+    ref_number = models.CharField(max_length=12, unique=True, null=True, blank=True)
+    sent_to = models.ManyToManyField(Tenants,blank=True)
+    send_to_all = models.BooleanField(default=False)
+    sent_by = models.ForeignKey(Managers, on_delete=models.CASCADE)
+    building = models.ForeignKey(Building, on_delete=models.CASCADE)
+    subject = models.CharField(max_length=100)
+    body = models.TextField()
+    created = models.DateTimeField(default=datetime.datetime.now)
+    updated = models.DateTimeField(auto_now=True)
+    
+    def receiver_names(self):
+        return ', '.join([str(t.associated_account.username) for t in self.sent_to.all()])
+    
+    def save(self, *args, **kwargs):
+        if not self.ref_number:
+            self.ref_number = ''.join(random.choices(string.digits, k=10))
+            super(ManagerTenantCommunication, self).save(*args, **kwargs)
+        super(ManagerTenantCommunication, self).save(*args, **kwargs)
+    
+    def __Str__(self):
+        return f"{self.sent_to}"
+    

@@ -6,12 +6,22 @@
 
   {% endblock %}
 
-{% block content %}	
-<section style="background-color: #dfe8da;">
-    <div class="container-fluid py-5 h-100">
+{% block content %}
+<nav class="container mt-3">
+  <ol class="breadcrumb bg-light p-2 rounded-2">
+      <li class="breadcrumb-item"> <a href="{% url 'building-dashboard' tenant_instance.rented_unit.building.slug %}">Dashboard</a></li>
+      <li class="breadcrumb-item active"> Tenants </li>
+      <li class="breadcrumb-item active"> View Tenant </li>
+      <li class="breadcrumb-item active"> {{tenant_instance.associated_account.username}}</li>
+
+  </ol>
+</nav>
+
+<section>
+    <div class="container mt-5 mb-5 h-100">
 
       <div class="row d-flex justify-content-center align-items-center h-100">
-        <div class="col-12 col-md-8 col-lg-6 col-xl-7">
+        <div class="col-12 col-md-8 col-lg-8 col-xl-7">
           <div class="card shadow-2-strong" style="border-radius: 1rem;">
             <div class="card-body p-5 text-center">
                 <br>
@@ -22,6 +32,9 @@
                         <div class="d-flex justify-content-center mb-2">
                             {% if tenant_instance.moved_in %}
                             <span class="badge bg-success"> Current Tenant</span>
+                            {% if has_eviction_notice %}
+                            <span class="badge bg-danger">Has Eviction Notice</span>
+                            {% endif %}
                             {% endif %}
                         </div>
                     </div>
@@ -84,12 +97,7 @@
                     </div>
                     <div class="d-grid gap-2 d-md-block">
                       <a href="{% url 'update-tenant' tenant_instance.rented_unit.building.slug tenant_instance.associated_account.username %}" type="button" class="btn btn-outline-info" role="button">Update</a>
-                      {% if has_eviction_notice %}
-                      <button type="button" class="btn btn-danger" > Eviction notice already issued </button>
-                      {% else %}
-                      <a href="{% url 'core:create-eviction-notice' tenant_instance.rented_unit.building.slug tenant_instance.rented_unit.slug tenant_instance.associated_account.username %}" type="button" class="btn btn-outline-danger" role="button">
-                        Eviction Notice</a>
-                      {% endif %}
+                      <a href="#" type="button" class="btn btn-outline-primary" role="button">Send Email</a>
                     </div>
                 </div>
             </div>

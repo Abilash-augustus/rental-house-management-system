@@ -4,7 +4,7 @@ from django_summernote.widgets import SummernoteWidget
 from crispy_forms.layout import Layout,HTML,Row,Column,Field
 from crispy_forms.helper import FormHelper
 
-from core.models import Contact, EvictionNotice, ServiceRating, UnitTour, MoveOutNotice
+from core.models import Contact, EvictionNotice, ManagerTenantCommunication, ServiceRating, UnitTour, MoveOutNotice
 
 
 class DateInput(forms.DateInput):
@@ -100,3 +100,16 @@ class ServiceRatingForm(forms.ModelForm):
             'score': forms.NumberInput(attrs={
                 'type': 'range','step': '1', 'min': '0', 'max': '10','id':'id_score'}),
             }
+        
+class NewTenantEmailForm(forms.ModelForm):
+    class Meta:
+        model = ManagerTenantCommunication
+        fields = ['send_to_all','sent_to','subject','body']
+        widgets = {
+            'sent_to': forms.CheckboxSelectMultiple,
+            'body': SummernoteWidget(attrs={'summernote': {'width': '100%', 'height': '400px'}}),
+        }
+    def __init__(self, building, *args, **kwargs):
+        super(NewTenantEmailForm, self).__init__(*args, **kwargs)
+        self.fields['sent_to'].label = 'Receiers'
+        self.fields['sent_to'].queryset = Tenants.objects.filter(rented_unit__building=building)

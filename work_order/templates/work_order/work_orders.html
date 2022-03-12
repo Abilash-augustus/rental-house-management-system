@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block metadescription %} Work Orders {% endblock %}
+{% load humanize %}
+
+{% block content %} 
+<nav class="container mt-3">
+  <ol class="breadcrumb bg-light p-2 rounded-2">
+      <li class="breadcrumb-item "><a href="{% url 'building-dashboard' building.slug %}">Dashboard</a></li>
+      <li class="breadcrumb-item active"> {{building.name}} </li>
+      <li class="breadcrumb-item active"> Work Orders </li>
+  </ol>
+</nav>
+
+<div class="container">
+<section class="row justify-content-center p-4">
+    <div class="container">
+      <!-- overview start -->
+      <div class="container card p-0 mb-3">
+        <div class="card-header text-center w-100">
+          Work Orders
+        </div>
+      </div>
+      <!-- Overview end-->
+
+      <div class="row">
+        <div class="col-sm-3">
+            <div class="mb-3 list-group">
+                <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addWorkOrderBackdrop">Add New Work Order </button>
+            </div>
+
+            <h4 class="card-header text-center"> Search </h4>
+          <form method='get'>
+              {{work_orders.form|crispy }}
+              <br>
+                  <div class="form-group text-center">
+                      <button class="btn btn-outline-secondary" type="submit">Search</button>
+                  </div>
+          </form>
+        </div>
+
+        <div class="col-sm-9">
+          <div class="row">
+            <div class="col-sm-12">
+              <div class="card card-body">
+                  &nbsp; &nbsp;
+                <input class="form-control" id="myInput" type="text" placeholder="Search..">
+                <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                  <caption> Work Oders </caption>
+                    <thead>
+                      <tr>
+                        <th scope="col">Code</th>
+                        <th scope="col">Title</th>
+                        <th scope="col">Assigned To</th>
+                        <th scope="col"> Due Date </th>
+                        <th scope="col"> created </th>
+                        <th scope="col">Updated</th>
+                      </tr>
+                    </thead>
+                    <tbody id='ourTable'>
+                        {% for o in work_orders.qs %}
+                      <tr>
+                        <th scope="row"> {{o.work_order_code}} </th>
+                        <td>{{ o.title }}</td>
+                        <td>{{ o.assigned_to.full_name }}</td>
+                        <td> {{o.due_date|naturalday}} </td>
+                        <td>{{ o.created|naturalday }}</td>
+                        <td>{{ o.updated|naturalday }}</td>
+                        <td> <a href=" {% url 'work_order_details' building.slug o.work_order_code %} "> view </a> </td>
+                      </tr>
+                      {% empty %}
+                      <tbody>
+                        <tr>
+                          <td>
+                      <p> Nothing to display! </p>
+                          </td>
+                        </tr>
+                      </tbody>
+                      {% endfor %}
+                    </tbody>
+                </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="modal fade" id="addWorkOrderBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="addWorkOrderBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="addWorkOrderBackdropLabel"> Add Work Order Form</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form action="" method="post" class="no-padding">
+              {% csrf_token %}
+              {{add_order_form|crispy }}
+              <br>
+              <div class="form-group text-center">
+                <button class="btn btn-outline-secondary" type="submit">Add</button>
+              </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

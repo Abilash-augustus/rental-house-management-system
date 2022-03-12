@@ -1,0 +1,114 @@
+{% load humanize %}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Work Order</title>
+        <style type="text/css">
+            body {
+                font-weight: 200;
+                font-size: 14px;
+            }
+            .header {
+                font-size: 20px;
+                font-weight: 100;
+                text-align: center;
+                color: #007cae;
+            }
+            .title {
+                font-size: 22px;
+                font-weight: 100;
+               /* text-align: right;*/
+               padding: 10px 20px 0px 20px;  
+            }
+            .subject {
+                font-size: 18px;
+                font-weight: 100;
+               /* text-align: right;*/
+               padding: 10px 20px 0px 20px;  
+               text-align: center;
+            }
+            .title span {
+                color: #007cae;
+            }
+            .details {
+                padding: 10px 20px 0px 20px;
+                text-align: left !important;
+                /*margin-left: 40%;*/
+            }
+            .hrItem {
+                border: none;
+                height: 1px;
+                /* Set the hr color */
+                color: #333; /* old IE */
+                background-color: #fff; /* Modern Browsers */
+            }
+            #footer {
+                position: relative;
+                bottom: 0;
+                width: 100%;
+                height: 2.5rem;            /* Footer height */
+              }
+        </style>
+    </head>
+    <body>
+        <div class='wrapper'>
+            <div class='header'>
+                <p class='title'> WORK ORDER </p>
+            </div>
+        <div>
+        <div class='details'>
+            Ref: {{order.work_order_code}} <br/>
+            Assigned To: {{order.assigned_to.full_name}} <br/>
+            Due Date: {{order.due_date|naturalday}} <br/> 
+            Status: {{order.get_status_display}} <br/>
+            Priority: 
+            {% if order.priority == 'high' %}
+              <span style="background-color:red;">{{order.get_priority_display}}</span>
+              {% elif order.priority == 'medium' %}
+              <span style="background-color:yellow;">{{order.get_priority_display}}</span>
+              {% else %}
+              <span style="background-color:blue;">{{order.get_priority_display}}</span> 
+              {% endif %}
+             </br>
+             Etimated Duration: {{oerder.est_duration}}<br/>
+             <div>
+                <p class='subject'> Subject: {{order.title}} </p>
+            </div>
+            <hr class='hrItem' />
+
+            <div>
+                &nbsp;&nbsp;&nbsp;{{order.description|safe}}
+            </div>
+            {% if order.additional_workers %}
+            <table>
+                <thead>
+                <tr>
+                <caption>Your Team </caption>
+                <th scope="col"> Name </th>
+                <th scope="col"> Contact </th>
+                </tr>
+            </thead>
+                <tbody>
+                    {% for worker in order.additional_workers.all %}
+                    <tr>
+                    <th scope="row"> {{worker.full_name}} </th>
+                    <td> {{worker.phone_number}} | {{worker.personnel_email}} </td>
+                    {% endfor %}
+                    </tr>
+                </tbody>
+                </table>
+                {% endif %}
+        </div>
+    </div>
+    <hr/>
+    <div id="footer">
+        <small>{{building.name}} - {{building.address_line}}</small> <br/>
+        Created: {{order.created}} <br/>
+        Last Updated: {{order.updated|naturaltime}} <br/>
+<br>
+        <em>help contact: {{order.building.manager}} | {{order.building.manager.active_phone_number}} | 
+            {{order.building.manager.associated_account.email}}
+        </em>
+    </div>
+    </body>
+</html>

@@ -19,13 +19,13 @@ from django.views.generic import CreateView
 from rental_property.models import Building, MaintananceNotice, RentalUnit
 from utilities_and_rent.models import ElectricityBilling, WaterBilling
 
-from core.filters import (EvictionNoticeFilter, MoveOutNoticeFilter,
+from core.filters import (CommsFilter, EvictionNoticeFilter, MoveOutNoticeFilter,
                           MyNoticeFilter, VisitFilter)
 from core.forms import (CancelMoveOutForm, ContactForm, EvictionNoticeForm,
-                        NewMoveOutNoticeForm, UnitTourForm,
+                        NewMoveOutNoticeForm, NewTenantEmailForm, UnitTourForm,
                         UpdateEvictionNotice, UpdateMoveOutNotice,
                         VisitUpdateForm)
-from core.models import Contact, EvictionNotice, MoveOutNotice, UnitTour
+from core.models import Contact, EvictionNotice, ManagerTenantCommunication, MoveOutNotice, UnitTour
 from core.utils import render_to_pdf
 
 User = get_user_model()
@@ -284,6 +284,71 @@ def cancel_move_out_notice(request, building_slug, notice_code, username):
     context = {'cancel_form':cancel_form, 'building':building, 'tenant':tenant,
                'notice_instance':notice_instance}
     return render(request, 'core/cancel-notice.html', context)
+
+@login_required
+def general_communications(request,building_slug):
+    building = Building.objects.get(slug=building_slug)
+    communications = ManagerTenantCommunication.objects.filter(building=building).order_by('-created')
+    comm_filter = CommsFilter(request.GET, queryset=communications)
+
+    context = {
+        'comms': comm_filter,'building': building,
+    }
+    return render(request, 'core/general_comms.html', context)
+
+@login_required
+def new_email(request,building_slug):
+    building = Building.objects.get(slug=building_slug)
+    manager = Managers.objects.get(associated_account=request.user)
+    
+    tenants = Tenants.objects.filter(rented_unit__building=building)
+    recipients = []
+    for tenant in tenants:
+        recipients.append(tenant.associated_account.email)
+    
+    if request.method == 'POST':
+        new_email =NewTenantEmailForm(building,request.POST)
+        if new_email.is_valid():
+            new_email.instance.sent_by = manager
+            new_email.instance.building = building
+            new_email.save()
+            data = new_email.instance
+            
+            if data.send_to_all:
+                send_to_emails = recipients
+            else:
+                get_recipients = data.sent_to.all()
+                select_recipients = []
+                for t in get_recipients:
+                    select_recipients.append(t.associated_account.email)
+                send_to_emails = select_recipients
+            
+            subject = data.subject
+            template = 'core/mail/tenant_email.html'
+            html_message = render_to_string(template,{'data':data,'manager':manager})
+            from_email = DEFAULT_FROM_EMAIL
+            to_email = send_to_emails
+            message = EmailMessage(subject, html_message, from_email, to_email)
+            message.content_subtype = 'html'
+            message.send()
+            messages.success(request, 'Email sent successfully')
+            return redirect('core:general_communications', building_slug=building.slug)
+    else:
+        new_email = NewTenantEmailForm(building)
+    context = {
+        'building':building,'new_email':new_email,
+    }
+    return render(request, 'core/new_email.html', context)
+
+@login_required
+def email_archive_view(request,building_slug,ref_number):
+    building = Building.objects.get(slug=building_slug)
+    archive = ManagerTenantCommunication.objects.get(building=building,ref_number=ref_number)
+    
+    context = {
+        'building': building,'archive':archive,
+    }
+    return render(request, 'core/email_archive.html', context)
 
 @login_required
 @user_passes_test(lambda user: user.is_manager==True, login_url='profile')

@@ -12,6 +12,7 @@ urlpatterns = [
     path('rent-and-utility/', include('utilities_and_rent.urls')),
     path('core/', include('core.urls')),
     path('crm/', include('complaints.urls')),
+    path('work_order/', include('work_order.urls')),
 ]
 if settings.DEBUG == True:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

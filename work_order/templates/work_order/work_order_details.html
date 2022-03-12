@@ -1,0 +1,181 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block metadescription %} Tenant Water Billing  {% endblock %}
+{% load humanize %}
+
+{% block content %}	
+<nav class="container mt-3">
+  <ol class="breadcrumb bg-light p-2 rounded-2">
+      <li class="breadcrumb-item "><a href="{% url 'building-dashboard' building.slug %}">Dashboard</a></li>
+      <li class="breadcrumb-item active"> {{building.name}} </li>
+      <li class="breadcrumb-item"><a href="{% url 'work_orders' building.slug %}">Work Orders</a></li>
+      <li class="breadcrumb-item active">Work Order Details</li>
+  </ol>
+</nav>
+
+<section class="mb-5 mt-5">
+    <div class="container">
+      <div class="row">
+        <div class="col-sm-3">
+          <a class="btn btn-outline-primary" type="button" href="#associatedPayments"> Associated Payments <em class="fas fa-arrow-down"></em> </a>
+        </div>
+
+        <div class="col-sm-9">
+          <div class="card shadow-2-strong" style="border-radius: 1rem;">
+            <div class="card-body p-5">
+                <h3 class="text-uppercase text-center"> Work Order Details </h3>
+                <div class="text-center mb-2">
+                  <a class="btn btn-outline-primary" href="{% url 'work_order_pdf' building.slug order.work_order_code %}"> Get PDF </a>
+                </div>
+            
+                <ul class="list-group">
+                    <li class="list-group-item d-flex justify-content-between align-items-start">
+                      <div class="ms-2 me-auto">
+                        Order Code
+                      </div>
+                      <span> {{order.work_order_code}} </span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-start">
+                      <div class="ms-2 me-auto">Title</div>
+                      <span>{{order.title}}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-start">
+                        <div class="ms-2 me-auto"><abbr title="Estimated">Est.</abbr> Duration</div>
+                        <span>{{order.est_duration}}</span>
+                      </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-start">
+                      <div class="ms-2 me-auto">Priority</div>
+                      <span> {{order.get_priority_display}}</span>
+                    </li>
+                      <li class="list-group-item d-flex justify-content-between align-items-start">
+                        <div class="ms-2 me-auto"> Assigned To </div>
+                        <span> {{order.assigned_to.full_name}}</span>
+                      </li>
+                      <li class="list-group-item d-flex justify-content-between align-items-start">
+                        <div class="ms-2 me-auto"> Team </div>
+                        <span> {{order.additional_workers.all|join:","}}</span>
+                      </li>
+                      <li class="list-group-item d-flex justify-content-between align-items-start">
+                        <div class="ms-2 me-auto"> Status </div>
+                        <span> {{order.get_status_display}}</span>
+                      </li>
+                      <li class="list-group-item d-flex justify-content-between align-items-start">
+                        <div class="ms-2 me-auto"> Due Date </div>
+                        <span> {{order.due_date|naturalday}}</span>
+                      </li>
+                      <li class="list-group-item d-flex justify-content-between align-items-start">
+                        <div class="ms-2 me-auto">Created</div>
+                        <span> {{order.created|naturalday}}</span>
+                      </li>
+
+                      <li class="list-group-item ">
+                        <div class="ms-2 me-auto">Description</div>
+                        &nbsp; &nbsp;
+                        <span> <blockquote> {{order.description}} </blockquote> </span>
+                      </li>
+                      <li class="list-group-item d-flex justify-content-between align-items-start">
+                        <div class="ms-2 me-auto">
+                            <a type="button" class="underline" data-bs-toggle="modal" data-bs-target="#updateWorkOrderBackdrop"> Last Updated </a> </div>
+                        <span> {{order.updated|timesince}} </span>
+                      </li>
+                  </ul>
+            </div>
+        </div>
+
+        <div class="mt-3 card shadow-2-strong" id="associatedPayments" style="border-radius: 1rem;">
+          <div class="text-center mt-3">
+            <a type="button" class="btn btn-outline-info" data-bs-toggle="modal" data-bs-target="#addPaymentBackdrop"> Add Payment </a> 
+          </div>
+            <div class="table-responsive">
+              <table class="table caption-top">
+                <caption> Associated Payments </caption>
+                <thead>
+                  <tr>
+                    <th scope="col">Payment Code</th>
+                    <th scope="col">Paid To</th>
+                    <th scope="col">Amount</th>
+                    <th scope="col"> Payent Method </th>
+                    <th scope="col"> Date </th>
+                    <th scope="col"> Created </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for p in associated_payments %}
+                  <tr>
+                    <td>{{p.payment_code}}</td>
+                    <td>{{p.paid_to}}</td>
+                    <td> KES {{p.amount}}</td>
+                    <td> {{p.payment_method}} </td>
+                    <td> {{p.payment_date|naturalday}}</td>
+                    <td> {{p.created|naturaltime}}</td>
+                    <td> <a href="{% url 'update_work_order_payment' building.slug order.work_order_code p.tracking_code %}">
+                      update
+                    </a></td>
+                  </tr>
+                  {% empty %}
+                  <tr> 
+                    <td> No payments added. </td>
+                  </tr>
+                  {% endfor %} 
+                </tbody>
+              </table>
+            </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+<!-- start update modal -->
+  <div class="modal fade" id="updateWorkOrderBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="updateWorkOrderBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="updateWorkOrderBackdropLabel">Update Work Order</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form action="" method="post" class="no-padding">
+              {% csrf_token %}
+              {{update_form|crispy }}
+              <br>
+              <div class="form-group text-center">
+                <button class="btn btn-outline-secondary" type="submit">Update</button>
+              </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- end update model -->
+
+  <!-- add pyment modal -->
+  <div class="modal fade" id="addPaymentBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="updateWorkOrderBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="updateWorkOrderBackdropLabel">Add Payment Modal</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form action="" method="post" class="no-padding">
+              {% csrf_token %}
+              {{add_payment_form|crispy }}
+              <br>
+              <div class="form-group text-center">
+                <button class="btn btn-outline-secondary" type="submit">Add</button>
+              </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- end payment modal -->
+
+</section>
+{% endblock %}
