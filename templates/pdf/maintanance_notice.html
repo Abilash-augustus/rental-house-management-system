@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <title>ove Out Notice</title>
+        <title>Maintenance Notice</title>
         <style type="text/css">
             body {
                 font-weight: 200;
@@ -46,12 +46,12 @@
     <body>
         <div class='wrapper'>
             <div class='header'>
-                <p class='title'>Maintanance Notice </p>
+                <p class='title'>Maintenance Notice </p>
             </div>
         <div>
             <div class="underline"> {{notify.title}}</div>
         <div class='details'>
-            Ref Number {{notice.ref_number}} <br/>
+            Ref Number: {{notice.ref_number}} <br/>
             Building Name: {{notice.building.name}} <br/>
             From: {{notice.notice_by.associated_account}} <br/> 
             TO: All Tenants <br/>
@@ -65,9 +65,13 @@
             </div>
         </div>
     </div>
-    <hr/>
+    <br/>
+    <br/>
     <div id="footer">Created {{notice.created|naturalday}} <br/>
         Last Updated {{notice.updated|naturaltime}}
     </div>
+    <br>
+        <em>Contact Phone: {{notice.notice_by.active_phone_number}} <br/>
+            Contact E-mail: {{notice.notice_by.associated_account.email}}</em>
     </body>
 </html>

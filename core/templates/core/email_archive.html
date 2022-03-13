@@ -30,7 +30,11 @@
                       </li>
                     <li class="list-group-item d-flex justify-content-between align-items-start">
                         <div class="ms-2 me-auto">Sent To</div>
+                        {% if archive.send_to_all %}
+                        <span> All Tenants </span>
+                        {% else %}
                         <span>{{archive.receiver_names}}</span>
+                        {% endif %}
                       </li>
                     <li class="list-group-item d-flex justify-content-between align-items-start">
                       <div class="ms-2 me-auto">Sent By</div>
@@ -42,7 +46,7 @@
                       </li>
                       <li class="list-group-item d-flex justify-content-between align-items-start">
                         <div class="ms-2 me-auto"> Content </div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                        <blockquote class="bg-dark text-white"> {{archive.body|safe}}</blockquote>
+                        <blockquote>"{{archive.body|safe}}"</blockquote>
                       </li>
                       <li class="list-group-item d-flex justify-content-between align-items-start">
                         <div class="ms-2 me-auto"> Sent On </div>

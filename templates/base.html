@@ -58,19 +58,6 @@
                     {% if user.is_manager %}
                     <li class="nav-item"> <a class="nav-link" data-bs-toggle="offcanvas" href="#hrmsCanvas" role="button" aria-controls="hrmsCanvas">Manager Menu</a> </li>
                     {% endif %}
-                    <li class="nav-item">
-                      <div class="dropdown">
-                        <button class="btn dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                          List by county
-                        </button>
-                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                          {% for county in county_links %}
-                          <a class="dropdown-item nav-link" href="{{county.get_url}}"> {{county.name}} </a>
-                          {% endfor %}
-                        </div>
-                      </div>
-                    </li>
-
                 </ul>
 
                 </div>
@@ -85,7 +72,7 @@
     
                       <a href="{% url 'profile' %}" class="dropdown-item"> Profile</a>
                       {% if user.is_tenant %}
-                      <a href="#" class="dropdown-item"><em class="fa fa-bullhorn"></em> Communications </a>
+                      <a href="{% url 'core:my_mails' user.tenants.rented_unit.building.slug user.username %}" class="dropdown-item"><em class="fa fa-envelope"></em> Inbox </a>
                       {% endif %}
                       <a href="{% url 'account_logout' %}" class="dropdown-item" type="button">Logout</a>
                     </div>

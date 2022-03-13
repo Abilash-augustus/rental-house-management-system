@@ -14,42 +14,26 @@ from rental_property.forms import (AddRentalUnitForm, BuildingUpdateForm, NewMai
                                    UnitAlbumForm, UpdateMaintainanceNotice, UpdateRentalUnit)
 from rental_property.models import (Building, Counties, Estate, RentalUnit,
                                     UnitAlbum, UnitType,MaintananceNotice)
-from rental_property.filters import MaintananceNoticeFilter, UnitsFilter,TenantsFilter
+from rental_property.filters import BuildingUpdateFilter, MaintananceNoticeFilter, UnitsFilter,TenantsFilter, UserUnitsFilter
 from core.utils import render_to_pdf
 from config.settings import DEFAULT_FROM_EMAIL
 from django.core.mail import EmailMessage
 from django.template.loader import render_to_string
 
-def property_by_county(request, county_slug):
-    if county_slug != None:
-        county_page = get_object_or_404(Counties, slug=county_slug)
-        building_list = Building.objects.filter(county=county_page, building_status='op')
-    else:
-        building_list = Building.objects.filter(building_status='op')
-
-    paginator = Paginator(list(chain(building_list)), 2)
-    try:
-        page = int(request.GET.get('page', '1'))
-    except PageNotAnInteger:
-        page = 1
-    try:
-        buildings = paginator.page(page)
-    except InvalidPage:
-        buildings = paginator.page(paginator.num_pages)
-    
-    context = {'county': county_page, 'buildings':buildings,}
-    return render(request, 'rental_property/list-by-county.html', context)
 
 def buildings(request):
     operational_buildings = Building.objects.filter(building_status='op')
-    context = {'operational_buildings':operational_buildings,}
+    buildings_filter = BuildingUpdateFilter(request.GET, queryset=operational_buildings)
+    
+    context = {'operational_buildings':buildings_filter,}
     return render(request, 'rental_property/available_buildings.html', context)
 
-def open_building_units(request, building_slug):
+def vacant_building_units(request, building_slug):
     building = get_object_or_404(Building, slug=building_slug)
-    rental_units = RentalUnit.objects.filter(building=building, status='ready')
+    rental_units = RentalUnit.objects.filter(building=building, status='ready').order_by('-added')
+    rental_units_filter = UserUnitsFilter(request.GET,queryset=rental_units)
     unit_count = rental_units.count()
-    context = {'unit_count': unit_count, 'rental_units':rental_units, 'building': building}
+    context = {'unit_count': unit_count, 'rental_units':rental_units_filter, 'building': building}
     return render(request, 'rental_property/building-units.html', context)
 
 

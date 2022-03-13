@@ -10,7 +10,7 @@
   </ol>
 </nav>
 
-<section class="container border border-5" style="margin-top:2%; margin-bottom:4%;">
+<section class="container border border-5">
     <div class="row justify-content-center">
 
       <!-- overview start -->
@@ -18,19 +18,7 @@
         <div class="card-header text-center w-100">
           Evictions Overview
         </div>
-        <div class="row">
-          <div class="col-sm-6">
-            <div class="card border-0">
-              <div class="card-body">
-                <ul class="list-group">
-                  <li class="list-group-item d-flex justify-content-between border-0 align-items-center">
-                    <strong> Building Name </strong>
-                    <span> {{building.name}} {{tenant.associated_account.last_name}} </span>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </div>
+        <div class="row d-flex justify-content-center">
           <div class="col-sm-6">
             <div class="card border-0">
               <div class="card-body">
@@ -82,6 +70,7 @@
                             <td> {{notice.tenant.associated_account.username}} </td>
                             <td> {{notice.unit.unit_number}} </td>
                             <td> {{notice.get_eviction_status_display}} </td>
+                            <td><a href="{% url 'core:eviction_view_pdf' building.slug notice.tenant.rented_unit.slug notice.tenant.associated_account.username notice.notice_code %}">pdf</a></td>
                         {% empty %}
                         <tbody>
                             <tr>

@@ -1,7 +1,16 @@
 import django_filters
-from rental_property.models import MaintananceNotice, RentalUnit
+from rental_property.models import MaintananceNotice, RentalUnit, Building
 from accounts.models import Tenants
 from django.forms.widgets import DateInput
+
+class BuildingUpdateFilter(django_filters.FilterSet):
+    address_line = django_filters.CharFilter(lookup_expr='icontains')
+    class Meta:
+        model = Building
+        fields = ['county','address_line']
+    def __init__(self, *args, **kwargs):
+       super(BuildingUpdateFilter, self).__init__(*args, **kwargs)
+       self.filters['address_line'].label="Location"
 
 class UnitsFilter(django_filters.FilterSet):
     class Meta:
@@ -23,3 +32,8 @@ class MaintananceNoticeFilter(django_filters.FilterSet):
     def __init__(self, *args, **kwargs):
        super(MaintananceNoticeFilter, self).__init__(*args, **kwargs)
        self.filters['send_email'].label="Email Sent ?"
+       
+class UserUnitsFilter(django_filters.FilterSet):
+    class Meta:
+        model = RentalUnit
+        fields = ['unit_type','bathrooms','bedrooms']

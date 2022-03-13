@@ -24,7 +24,9 @@
                                   <p class="mb-0">Notice Code</p>
                                 </div>
                                 <div class="col-sm-9">
-                                  <p class="text-muted mb-0">{{notice.notice_code}}</p> <!-- TODO: print button -->
+                                  <p class="text-muted mb-0">{{notice.notice_code}} &nbsp;&nbsp;
+                                    <span><a href="{% url 'core:eviction_view_pdf' building.slug notice.tenant.rented_unit.slug notice.tenant.associated_account.username notice.notice_code %}">GET PGF</a></span>
+                                  </p> 
                                 </div>
                               </div>
                               <hr>

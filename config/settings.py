@@ -79,7 +79,6 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'rental_property.context_processors.my_managed_buildings',
-                'rental_property.context_processors.counties_links',
             ],
         },
     },

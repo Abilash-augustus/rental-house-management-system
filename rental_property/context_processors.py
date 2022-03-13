@@ -3,11 +3,6 @@ from accounts.models import Managers
 from rental_property.models import Building, Counties
 
 
-def counties_links(request):
-    county_links = Counties.objects.all()
-    return dict(county_links=county_links)
-
-
 def my_managed_buildings(request):
     user_instance = request.user
     

@@ -51,23 +51,25 @@
         <div>
         <div class='details'>
             Ref: {{notice.notice_code}} <br/>
-             {{tenant.full_name}} &nbsp;&nbsp;&nbsp;&nbsp; Unit {{notice.unit.unit_number}} <br/>
+             {{tenant.full_name}} &nbsp;&nbsp;&nbsp;&nbsp; House Number {{notice.unit.unit_number}} <br/>
              Date: {{notice.eviction_due|naturalday}} <br/> 
             Status: {{notice.get_eviction_status_display}} <br/>
             <hr class='hrItem' />
 
             <div>
-                {{notice.notice_detail|safe}}
+                &nbsp;&nbsp;&nbsp;&nbsp;{{notice.notice_detail|safe}}
             </div>
         </div>
     </div>
-    <hr/>
+    <br/>
+    <br/>
     <div id="footer">
         <small>{{building.name}} - {{building.address_line}}</small> <br/>
         Created {{notice.created}} <br/>
         Last Updated {{notice.updated|naturaltime}} <br/>
 <br>
-        <em>help contact: {{notice.help_contact_phone}} | {{notice.help_contact_email}}</em>
+        <em>Contact Phone: {{notice.sent_by.active_phone_number}} <br/>
+            Contact E-mail: {{notice.sent_by.associated_account.email}}</em>
     </div>
     </body>
 </html>

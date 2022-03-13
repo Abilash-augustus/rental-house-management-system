@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 from core.models import (Contact, EvictionNotice, MoveOutNotice, ServiceRating,
-                         UnitTour,ManagerTenantCommunication)
+                         UnitTour,ManagerTenantCommunication,TenantEmails)
 
 
 @admin.register(Contact)
@@ -29,4 +29,11 @@ class ServiceRatingAdmin(admin.ModelAdmin):
 
 @admin.register(ManagerTenantCommunication)
 class ManagerTenantCommunicationAdmin(admin.ModelAdmin):
-    pass
+    list_display = ['subject','send_to_all','retract','created','updated']
+    list_filter = ['building','send_to_all','created']
+
+@admin.register(TenantEmails)
+class TenantEmailsAdmin(admin.ModelAdmin):
+    list_display = ['ref_number','subject','sent_by','created', 'updated']
+    list_filter = ['building','created']
+    search_fields = ['ref_number','subject',]

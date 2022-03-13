@@ -17,7 +17,7 @@ from complaints.models import (Complaints, UnitReport, UnitReportAlbum,
 
 User = get_user_model()
 
-
+#interacting with tenant reports
 @login_required
 def create_a_report(request, unit_slug, username):
     unit = RentalUnit.objects.get(slug=unit_slug)

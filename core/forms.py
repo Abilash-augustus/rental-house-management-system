@@ -4,7 +4,7 @@ from django_summernote.widgets import SummernoteWidget
 from crispy_forms.layout import Layout,HTML,Row,Column,Field
 from crispy_forms.helper import FormHelper
 
-from core.models import Contact, EvictionNotice, ManagerTenantCommunication, ServiceRating, UnitTour, MoveOutNotice
+from core.models import Contact, EvictionNotice, ManagerTenantCommunication, ServiceRating, TenantEmails, UnitTour, MoveOutNotice
 
 
 class DateInput(forms.DateInput):
@@ -15,9 +15,7 @@ class ContactForm(forms.ModelForm):
         model = Contact
         fields = ['full_name', 'email', 'subject', 'message']
         widgets = {
-            "message": forms.Textarea(
-                attrs={"placeholder": "Put your message here..."}
-            ),
+            "message": SummernoteWidget(attrs={'summernote': {'width': '100%', 'height': '400px'}}),
         }
 
 
@@ -48,7 +46,7 @@ class EvictionNoticeForm(forms.ModelForm):
         self.fields['tenant'].queryset = Tenants.objects.filter(rented_unit__building=building)
     class Meta:
         model = EvictionNotice
-        fields = ['tenant','notice_detail','help_contact_phone', 'help_contact_email', 'eviction_status','eviction_due','send_email',]
+        fields = ['tenant','notice_detail','eviction_status','eviction_due','send_email',]
         widgets = {
             'notice_detail': SummernoteWidget(attrs={'summernote': {'width': '100%', 'height': '400px'}}),
             'eviction_due': DateInput(),
@@ -62,7 +60,6 @@ class UpdateEvictionNotice(forms.ModelForm):
         model = EvictionNotice
         exclude = ['updated',]
         widgets = {
-            'notice_detail': SummernoteWidget(attrs={'summernote': {'width': '100%', 'height': '400px'}}),
             'eviction_due': DateInput(),
         }
 
@@ -113,3 +110,11 @@ class NewTenantEmailForm(forms.ModelForm):
         super(NewTenantEmailForm, self).__init__(*args, **kwargs)
         self.fields['sent_to'].label = 'Receiers'
         self.fields['sent_to'].queryset = Tenants.objects.filter(rented_unit__building=building)
+        
+class FromTenantForm(forms.ModelForm):
+    class Meta:
+        model = TenantEmails
+        fields = ['subject','content']
+        widgets = {
+            'content': SummernoteWidget(attrs={'summernote': {'width': '100%', 'height': '400px'}}),
+        }

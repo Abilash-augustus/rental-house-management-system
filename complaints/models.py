@@ -72,8 +72,6 @@ class UnitReportAlbum(models.Model):
     def __str__(self):
         return f"Report on {self.unit_report.unit.unit_number} by {self.unit_report.reported_by}"
 
-# TODO: Create notices, evacution notice e.t.c
-
 
 class Complaints(models.Model):
     STATUS_CHOICES = [

@@ -17,18 +17,25 @@ def get_pic_path(instance, filename):
 
 
 class Contact(models.Model):
+    ref_code = models.CharField(max_length=15, unique=True, blank=True, null=True)
     full_name = models.CharField(max_length=50)
     email = models.EmailField(max_length=50)
     subject = models.CharField(max_length=100)
     message = models.TextField()
     created = models.DateTimeField(default=datetime.datetime.now)
     updated = models.DateTimeField(auto_now=True)
+    
+    def save(self, *args, **kwargs):
+        if not self.ref_code:
+            self.ref_code = ''.join(random.choices(string.digits, k=10))
+            super(Contact, self).save(*args, **kwargs)
+        super(Contact, self).save(*args, **kwargs)
 
     def __str__(self):
         return f"Name: {self.full_name} | Email: {self.email}"
 
     class Meta:
-        verbose_name_plural = 'Recieved Contacts'
+        verbose_name_plural = 'Visitor Contact'
         
 
 
@@ -71,9 +78,9 @@ class MoveOutNotice(models.Model):
         ('checking', 'Checking'),
     ]
     code = models.CharField(max_length=15, blank=True, null=True)
-    tenant = models.OneToOneField(Tenants, on_delete=models.DO_NOTHING) #TODO: should i use foreignkey?
+    tenant = models.ForeignKey(Tenants, on_delete=models.DO_NOTHING)
     move_out_date = models.DateField()
-    reason = models.TextField(max_length=2000)
+    reason = models.TextField()
     notice_status = models.CharField(max_length=10, choices=NOTICE_CHOICES, default='received')
     drop = models.BooleanField(default=False, verbose_name='I would like to drop this notice')
     created = models.DateTimeField(default=datetime.datetime.now)
@@ -86,7 +93,7 @@ class MoveOutNotice(models.Model):
         super(MoveOutNotice, self).save()
     
     class Meta:
-        verbose_name = "Tenant's Notices To Move Out"
+        verbose_name = "Tenant's To Move Out Notice"
         verbose_name_plural = verbose_name
 
     def __str__(self):
@@ -101,11 +108,9 @@ class EvictionNotice(models.Model):
     notice_code = models.CharField(max_length=10, blank=True, null=True, unique=True)
     tenant = models.OneToOneField(Tenants, on_delete=models.DO_NOTHING)
     unit = models.ForeignKey(RentalUnit, on_delete=models.DO_NOTHING)
-    notice_detail = models.TextField(max_length=2000)
+    notice_detail = models.TextField()
     eviction_due = models.DateTimeField()
     sent_by = models.ForeignKey(Managers, on_delete=models.DO_NOTHING)
-    help_contact_phone = models.CharField(max_length=14)
-    help_contact_email = models.EmailField(max_length=50)
     eviction_status = models.CharField(max_length=10, default='initiated', choices=NOTICE_STATUS_CHOICES)
     created = models.DateTimeField(default=datetime.datetime.now)
     updated = models.DateTimeField(auto_now=True)
@@ -147,6 +152,7 @@ class ManagerTenantCommunication(models.Model):
     body = models.TextField()
     created = models.DateTimeField(default=datetime.datetime.now)
     updated = models.DateTimeField(auto_now=True)
+    retract = models.BooleanField(default=False)
     
     def receiver_names(self):
         return ', '.join([str(t.associated_account.username) for t in self.sent_to.all()])
@@ -156,7 +162,28 @@ class ManagerTenantCommunication(models.Model):
             self.ref_number = ''.join(random.choices(string.digits, k=10))
             super(ManagerTenantCommunication, self).save(*args, **kwargs)
         super(ManagerTenantCommunication, self).save(*args, **kwargs)
-    
+    class Meta:
+        verbose_name_plural = 'Archives | Manager E-Mails'
     def __Str__(self):
         return f"{self.sent_to}"
     
+class TenantEmails(models.Model):
+    ref_number = models.CharField(max_length=12, unique=True, null=True, blank=True)
+    sent_to = models.ForeignKey(Managers, on_delete=models.CASCADE)
+    sent_by = models.ForeignKey(Tenants, on_delete=models.CASCADE)
+    building = models.ForeignKey(Building, on_delete=models.CASCADE)
+    subject = models.CharField(max_length=100)
+    content = models.TextField()
+    created = models.DateTimeField(default=datetime.datetime.now)
+    updated = models.DateTimeField(auto_now=True)
+    
+    def save(self, *args, **kwargs):
+        if not self.ref_number:
+            self.ref_number = ''.join(random.choices(string.digits, k=10))
+            super(TenantEmails, self).save(*args, **kwargs)
+        super(TenantEmails, self).save(*args, **kwargs)
+    
+    class Meta:
+        verbose_name_plural = 'Archives | E-mails From Tenants'
+    def __str__(self):
+        return f"{self.ref_number}"

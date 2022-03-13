@@ -1,7 +1,8 @@
-from accounts.models import Tenants
+from accounts.models import Managers, Tenants
 import django_filters
 from django.forms.widgets import DateInput
 from django import forms
+from rental_property.models import Building
 
 from core.models import ManagerTenantCommunication, UnitTour,EvictionNotice, MoveOutNotice
 
@@ -32,7 +33,7 @@ class MyNoticeFilter(django_filters.FilterSet):
     def __init__(self, *args, **kwargs):
        super(MyNoticeFilter, self).__init__(*args, **kwargs)
        self.filters['drop'].label="Dropped?"
-        
+    
 class CommsFilter(django_filters.FilterSet):
     created = django_filters.DateFilter(widget=DateInput(attrs={'type': 'date'}))
 
@@ -42,3 +43,8 @@ class CommsFilter(django_filters.FilterSet):
     def __init__(self, *args, **kwargs):
        super(CommsFilter, self).__init__(*args, **kwargs)
        self.filters['created'].label="Sent On"
+       
+class TenantsMailFilter(django_filters.FilterSet):
+    class Meta:
+        model = ManagerTenantCommunication
+        fields = ['ref_number','subject']

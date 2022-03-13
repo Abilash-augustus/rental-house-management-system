@@ -67,7 +67,7 @@ class Managers(models.Model):
 from rental_property.models import RentalUnit
 
 class Tenants(models.Model):
-    associated_account = models.OneToOneField(User, on_delete=models.CASCADE, verbose_name='Associated account')
+    associated_account = models.OneToOneField(User, on_delete=models.CASCADE, verbose_name='tenant')
     full_name = models.CharField(max_length=100)
     id_number = models.CharField(max_length=10)
     id_front = models.ImageField(upload_to=get_user_docs_path, blank=True)

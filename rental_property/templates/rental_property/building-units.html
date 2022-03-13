@@ -1,16 +1,30 @@
 {% extends 'base.html' %}
 {% block metadescription %} Units in {{building.name}} {% endblock %}
 {% block head_title %} {{building.name}} {% endblock %}
+{% load crispy_forms_tags %}
 {% block content %} 
 
 <section class="container p-5">
 
     <div class="d-grid gap-2 mb-3 text-center">
-        <span class="btn-outline-secondary" ><h3> ({{unit_count}})  Available Rental Units in [{{building.name}}] </h3></span>
+        <span class="btn-outline-secondary mb-3" ><h3> ({{unit_count}})  Available Rental Units in [{{building.name}}] </h3></span>
       </div>
+      <form method='get'>
+      <div class="row d-flex justify-content-center g-3">
+        <div class="col-7">
+            {{rental_units.form.unit_type|as_crispy_field}}
+        </div>
+        <div class="col-7 text-center">
+            <button type="submit" class="form-group btn btn-outline-secondary ">
+                <span class="fa fa-search"></span> Search
+              </button>
+        </div>
+    </div>
+</form>
+<hr/>
     <!-- Houses -->
     <div class="row row-cols-1 row-cols-md-3 g-4">
-        {% for unit in rental_units %}
+        {% for unit in rental_units.qs %}
         <div class="col-md-4">
             <div class="card p-3 mb-2">
                 <div class="d-flex justify-content-between">
@@ -45,7 +59,7 @@
         {% empty %}
         <div class="col-md-4">
             <div class="card p-3 mb-2">
-                <p> There are no empty units at the moment, Please try again later! </p>
+                <p> Oops! not found, Please check back later. </p>
             </div>
         </div>
             

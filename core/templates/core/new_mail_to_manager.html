@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block metadescription %} Update scheduled visit {% endblock %}
+
+{% block content %}	
+<nav class="container mt-3">
+  <ol class="breadcrumb bg-light p-2 rounded-2">
+      <li class="breadcrumb-item "><a href="{% url 'operational-buildings' %}">Home</a></li>
+      <li class="breadcrumb-item active">Communications</li>
+      <li class="breadcrumb-item"><a href="{% url 'core:my_mails' building.slug tenant.associated_account.username%}">My Archives</a> </li>
+      <li class="breadcrumb-item active">New Email</li>
+  </ol>
+</nav>
+<section class="mt-4 mb-5">
+    <div class="container h-100">
+      <div class="row d-flex justify-content-center align-items-center h-100">
+        <div class="col-12 col-md-8 col-lg-8 col-xl-7">
+          <div class="card shadow-2-strong" style="border-radius: 1rem;">
+            <div class="card-body p-5 text-center">
+                <h3 class="text-center card-header"></h3>
+                <form class="no-padding" method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <fieldset class="form-group">
+                        <legend></legend>
+                        {{ new_mail|crispy }}
+                    </fieldset>
+                    <br>
+                    <div class="form-group">
+                        <button class="btn btn-outline-primary" type="submit">Send</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</section>
+{% endblock %}

@@ -12,15 +12,15 @@
 </nav>
 
 <section class="container border border-5 mb-3 mt-3">
-    <div class="row justify-content-center">
+    <div class="row">
 
       <!-- overview start -->
       <div class="container card p-0 mb-2">
         <div class="card-header text-center w-100">
           Rent Overview - {{building.name}} "{{current_year}}"
         </div>
-        <div class="row">
-          <div class="col-sm-12">
+        <div class="row d-flex justify-content-center">
+          <div class="col-sm-6">
             <div class="card border-0">
               <div class="card-body">
                 <canvas id="building-rent-chart" data-url="{% url 'building_rent_overview' building.slug %}">

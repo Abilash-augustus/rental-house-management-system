@@ -53,7 +53,7 @@ $(function () {
     new Chart(ctx, {type: 'pie',data: {labels: data.labels,
         datasets: [{label: 'Evictions', data: data.data,backgroundColor: [
                           '#2792b0', '#d47a6a',],}]},options: {responsive: true,
-        legend: {display: false,},scales: {yAxes: [{ticks: {display: false,},gridLines: {
+        legend: {display: true,},scales: {yAxes: [{ticks: {display: false,},gridLines: {
           display:false}}],xAxes: [{ticks: {display: false,},gridLines: {display:false }}]},
         title: {display: true,text: 'Evictions Overview'}}});}});});
        
