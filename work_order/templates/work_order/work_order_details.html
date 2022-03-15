@@ -93,6 +93,7 @@
                   <tr>
                     <th scope="col">Payment Code</th>
                     <th scope="col">Paid To</th>
+                    <th scope="col">Account</th>
                     <th scope="col">Amount</th>
                     <th scope="col"> Payent Method </th>
                     <th scope="col"> Date </th>
@@ -103,8 +104,9 @@
                   {% for p in associated_payments %}
                   <tr>
                     <td>{{p.payment_code}}</td>
-                    <td>{{p.paid_to}}</td>
-                    <td> KES {{p.amount}}</td>
+                    <td>{{p.paid_to_name}}</td>
+                    <td>{{p.paid_to_account}}</td>
+                    <td> KES {{p.amount|intcomma}}</td>
                     <td> {{p.payment_method}} </td>
                     <td> {{p.payment_date|naturalday}}</td>
                     <td> {{p.created|naturaltime}}</td>

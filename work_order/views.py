@@ -27,7 +27,7 @@ def hired_personnel(request, building_slug):
     else:
         return redirect('profile')
     
-    personnels = HiredPersonnel.objects.filter(building=building)
+    personnels = HiredPersonnel.objects.filter(building=building).order_by('-created')
     personnels_filter = HiredPersonnelFilter(request.GET, queryset=personnels)
     
     if request.method == 'POST':

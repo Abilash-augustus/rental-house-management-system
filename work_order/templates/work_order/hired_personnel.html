@@ -18,22 +18,10 @@
       <!-- overview start -->
       <div class="container card p-0 mb-3">
         <div class="card-header text-center w-100">
-          Hired Personnel Overview
+          Hired Personnel
         </div>
         <div class="row">
-          <div class="col-sm-6 text-center">
-            <div class="card border-0">
-              <div class="card-body text-center">
-                <ul class="list-group">
-                  <li class="list-group-item d-flex justify-content-between border-0 align-items-center">
-                    <strong> Building Name </strong>
-                    <span> {{building.name}} {{tenant.associated_account.last_name}} </span>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </div>
-          <div class="col-sm-4">
+          <div class="col-sm-12">
             <div class="list-group">
                 <button type="button" class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#addPersonnelBackdrop">Add New Personnel </button>
             </div>
@@ -120,7 +108,7 @@
               {{add_form|crispy }}
               <br>
               <div class="form-group text-center">
-                <button class="btn btn-outline-secondary" type="submit">Start</button>
+                <button class="btn btn-outline-secondary" type="submit">Add</button>
               </div>
           </form>
         </div>

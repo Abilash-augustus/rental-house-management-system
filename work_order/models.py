@@ -25,6 +25,7 @@ class HiredPersonnel(models.Model):
     gender = models.CharField(max_length=10, choices=GENDER_CHOICES)
     building = models.ForeignKey(Building, on_delete=models.CASCADE)
     hired_date = models.DateField()
+    is_active = models.BooleanField(default=True)
     created = models.DateTimeField(default=datetime.now)
     updated = models.DateTimeField(auto_now=True)
     
@@ -35,7 +36,7 @@ class HiredPersonnel(models.Model):
         super(HiredPersonnel, self).save(*args, **kwargs)
     
     def __str__(self):
-        return f"{self.full_name}"
+        return f"{self.full_name} --> {self.job_title}"
     
 class PersonnelContact(models.Model):
     personnel = models.ForeignKey(HiredPersonnel, on_delete=models.CASCADE)
@@ -94,7 +95,8 @@ class WorkOrderPayments(models.Model):
     parent_order = models.ForeignKey(WorkOrder, on_delete=models.CASCADE)
     tracking_code = models.CharField(max_length=12, unique=True, null=True, blank=True)
     payment_code = models.CharField(max_length=30)
-    paid_to = models.CharField(max_length=55)
+    paid_to_name = models.CharField(max_length=55)
+    paid_to_account = models.CharField(max_length=55,null=True, blank=True)
     payment_method = models.CharField(max_length=30,help_text="e.g Mpesa")
     amount = models.DecimalField(max_digits=9, decimal_places=2)
     payment_date = models.CharField(max_length=30)

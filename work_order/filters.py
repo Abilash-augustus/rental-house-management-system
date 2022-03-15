@@ -7,7 +7,7 @@ class HiredPersonnelFilter(django_filters.FilterSet):
     hired_date = django_filters.DateFilter(widget=DateInput(attrs={'type': 'date'}))
     class Meta:
         model = HiredPersonnel
-        fields = ['full_name','personnel_email','id_number','hired_date']
+        fields = ['full_name','personnel_email','id_number','is_active','hired_date']
         
 class WorkOrderFilter(django_filters.FilterSet):
     due_date = django_filters.DateFilter(widget=DateInput(attrs={'type': 'date'}))

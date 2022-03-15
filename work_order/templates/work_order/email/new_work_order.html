@@ -331,7 +331,7 @@
                         <p>Hi {{new_order.assigned_to.full_name}},</p>
                         <p> &nbsp;&nbsp;&nbsp; {{new_order.description}} </p>
                         <br/>
-                        {% if new_order.additional_workers %}
+                        {% if new_order.additional_workers.all %}
                         <p> Your assigned team:</p>
                         <table>
                             <caption></caption>
@@ -353,7 +353,7 @@
                         {% endif %}
 
                         <span> Thank You, <br/>
-                            @bravin </span>
+                            @ {{new_order.building.manager.fullname}} </span>
                       </td>
                     </tr>
                   </table>
@@ -369,7 +369,7 @@
               <table role="presentation" border="0" cellpadding="0" cellspacing="0">
                 <tr>
                   <td class="content-block">
-                    <span class="apple-link">House Rental Management System </span> <br/>
+                    <span class="apple-link"><a href="https://{{request.get_url}}/accounts/login/"> House Rental Management System</a> </span> <br/>
                     <small> Generated email </small>
                   </td>
                 </tr>

@@ -11,7 +11,7 @@ class DateInput(forms.DateInput):
 class NewHiredPersonnelForm(forms.ModelForm):
     class Meta:
         model = HiredPersonnel
-        fields = ['associated_account','personnel_manager','full_name','id_number','job_title',
+        fields = ['associated_account','full_name','id_number','job_title',
                   'personnel_email','phone_number','gender','hired_date']
         widgets = {
             'hired_date': DateInput(),
@@ -55,7 +55,7 @@ class WorkOrderUpdateForm(forms.ModelForm):
 class WorkOrderPaymentsForm(forms.ModelForm):
     class Meta:
         model = WorkOrderPayments
-        fields = ['payment_code','paid_to','payment_method','amount','payment_date']
+        fields = ['payment_code','paid_to_name','paid_to_account','payment_method','amount','payment_date']
         widgets = {
             'payment_date': DateInput(),
         }
