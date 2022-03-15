@@ -2,17 +2,26 @@
 {% block content %}
 {% load crispy_forms_tags %}
 <br>
-<section class="container" style="margin-top:2%; margin-bottom:4%;">
+<nav class="container mt-3">
+  <ol class="breadcrumb bg-light p-2 rounded-2">
+      <li class="breadcrumb-item "><a href="{% url 'operational-buildings' %}">Home</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'profile' %}"> Profile </a></li>
+      <li class="breadcrumb-item"><a href="{% url 'core:my_move_out_notices' building.slug tenant.rented_unit.slug tenant.associated_account.username %}">My Notices</a></li>
+      <li class="breadcrumb-item active">Cancel Notices</li>
+  </ol>
+</nav>
+
+<section class="container ">
     <div class="row justify-content-center">
         
             <div class="row d-flex justify-content-center">
-              <div class="col-md-8">
+              <div class="col-sm-12 col-md-9 col-lg-9">
                       <div class="card mb-4">
                         <div class="card-body">
 
                             <div class="row">
                                 <div class="col-sm-3">
-                                  <p class="mb-0">Code</p>
+                                  <p class="mb-0">Ref. Code</p>
                                 </div>
                                 <div class="col-sm-9">
                                   <p class="text-muted mb-0">{{notice_instance.code}}</p> <!-- TODO: print button -->
@@ -60,6 +69,15 @@
                           <hr>
                           <div class="row">
                             <div class="col-sm-3">
+                              <p class="mb-0">Notice Detail</p>
+                            </div>
+                            <div class="col-sm-9">
+                              <p class="text-muted mb-0">{{notice_instance.reason|safe}}</p>
+                            </div>
+                          </div>
+                          <hr>
+                          <div class="row">
+                            <div class="col-sm-3">
                               <p class="mb-0">Created</p>
                             </div>
                             <div class="col-sm-9">
@@ -87,6 +105,7 @@
                                         <legend></legend>
                                         {{ cancel_form|crispy }}
                                     </fieldset>
+                                    <br/>
                                     <div class="form-group">
                                         <button class="btn btn-outline-primary" type="submit">Drop</button>
                                     </div>

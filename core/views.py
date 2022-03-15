@@ -229,7 +229,8 @@ def cancel_move_out_notice(request, building_slug, notice_code, username):
             cancel_form.save()
             MoveOutNotice.objects.filter(tenant=tenant).update(notice_status='dropped')
             messages.success(request, 'Your notice has been updated')
-            return redirect('profile')
+            return redirect('core:my_move_out_notices', building_slug=building.slug,
+                            unit_slug=tenant.rented_unit.slug, username=tenant.associated_account.username)
     else:
         cancel_form = CancelMoveOutForm(instance=notice_instance)
         

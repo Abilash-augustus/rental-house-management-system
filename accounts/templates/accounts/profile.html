@@ -28,17 +28,27 @@
               <h5 class="my-3">{{user.username}}</h5>
               <div class="d-flex justify-content-center mb-2">
                 {% if user.is_manager and user.is_tenant %}
-                <button href="#" class="btn btn-outline-primary" title='Manager|Tenant Account' > Manager|Tenant </button>
+                <span title="Manager & Tenant">
+                  <em class="fa fa-star"></em><em class="fa fa-star rating-color"></em><em class="fa fa-star"></em><em class="fa fa-star rating-color"></em>
+                </span>
                 {% elif user.is_tenant %}
-                <button href="#" class="btn btn-outline-primary" title='Tenant Account' > Tenant </button> &nbsp;
+                <span title="Tenant">
+                  <em class="fa fa-star"></em><em class="fa fa-star rating-color"></em>
+                  </span>
                 {% elif user.is_manager %}
-                <button href="#" class="btn btn-outline-primary" title='Manager Account' > Manager </button>
+                <span title="Manager">
+                  <em class="fa fa-star"></em><em class="fa fa-star rating-color"></em><em class="fa fa-star"></em>
+                  </span>
                 {% else %}
-                <button href="#" class="btn" title='Explorer Account'> Explorer </button>
+                <span title="Explorer">
+                  <em class="fa fa-star rating-color"></em>
+                  </span>
                 {% endif %}
                 &nbsp; &nbsp;
-                <a href="{% url 'profile-settings' %}" class="btn btn-outline-primary" >Update Profile</a>
               </div>
+              <div>
+                <a href="{% url 'profile-settings' %}" class="btn btn-outline-primary" >Update Profile</a>
+                </div>
               </div>
               </div>   
 
@@ -49,7 +59,7 @@
                   <h5 class="mb-3 card-header mb-0"> Tenant Menu </h5>
                   <a href="{% url 'create-report' user.username tenant_instance.rented_unit.slug %}" type="button" class="list-group-item list-group-item-action" role="button">Make a Report</a>
                   <a href="{% url 'create-complaint' tenant_instance.rented_unit.building.slug %}" type="button" class="list-group-item list-group-item-action" role="button">Make a complaint</a>
-                  <a href="{% url 'core:my_move_out_notices' tenant_instance.rented_unit.building.slug tenant_instance.rented_unit.slug user.username %}" type="button"
+                  <a href="{% url 'core:my_move_out_notices' tenant_instance.rented_unit.building.slug tenant_instance.rented_unit.slug tenant_instance.associated_account.username %}" type="button"
                   class="mb-3 list-group-item list-group-item-action" role="button">View My Notices</a>
                   {% endif %}
               </ul>
