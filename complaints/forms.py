@@ -5,7 +5,7 @@ from django_summernote.widgets import SummernoteWidget
 class UnitReportForm(forms.ModelForm):
     class Meta:
         model = UnitReport
-        fields = ['report_type', 'desc']
+        fields = ['report_type', 'other', 'desc']
         widgets = {
             'desc': SummernoteWidget(attrs={'summernote': {'width': '100%', 'height': '550px'}}),
         }

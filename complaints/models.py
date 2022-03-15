@@ -41,8 +41,9 @@ class UnitReport(models.Model):
     reported_by = models.ForeignKey(Tenants, on_delete=models.DO_NOTHING)
     unit = models.ForeignKey(RentalUnit, on_delete=models.DO_NOTHING)
     report_type = models.ForeignKey(UnitReportType, on_delete=models.DO_NOTHING)
+    other = models.CharField(max_length=100,null=True, blank=True, help_text="other type of isses...")
     status = models.CharField(max_length=5, default='rr', choices=STATUS_CHOICES)
-    desc = models.TextField(verbose_name="Describe the situation", max_length=255)
+    desc = models.TextField(verbose_name="Describe the situation")
     created = models.DateTimeField(default=datetime.now)
     updated = models.DateTimeField(auto_now=True)
 

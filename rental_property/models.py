@@ -129,6 +129,7 @@ class RentalUnit(models.Model):
 
     class Meta:
         unique_together = ('building', 'unit_number')
+        verbose_name_plural = 'Rental Houses'
 
     def get_url(self):
         return reverse('unit-details', args=(self.building.slug, self.slug))
