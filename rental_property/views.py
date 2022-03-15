@@ -126,7 +126,7 @@ def add_rental_unit(request, building_slug):
                     photo = UnitAlbum(unit=unitform, image=image)
                     photo.save()
             messages.success(request, 'Rental unit was added successfuly!')
-            return redirect('building-units', building_slug=building.slug)
+            return redirect('managed_building_units', building_slug=building.slug)
         else:
             print(unit_form.errors, formset.errors)
     else:

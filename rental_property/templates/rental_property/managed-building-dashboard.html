@@ -78,8 +78,7 @@
                     <div class="list-group">
                       <h5 class='list-group-item list-group-item-action'>Building Menu</h5>
                       {% if user.is_manager %}
-                      <a href="{% url 'managed-building-units' building.slug %}" type="button" class="list-group-item list-group-item-action" role="button">All Units</a>
-                      <a href="{% url 'add-rental-unit' building.slug %}" type="button" class="list-group-item list-group-item-action" role="button">Add rental unit</a>
+                      <a href="{% url 'managed-building-units' building.slug %}" type="button" class="list-group-item list-group-item-action" role="button">Rental Houses</a>
                       <a href="{% url 'add-new-tenant' building.slug %}" type="button" class="list-group-item list-group-item-action" role="button">Add Tenants</a>
                       <a href="{% url 'core:general_communications' building.slug %}" type="button" class="list-group-item list-group-item-action" role="button">General Communications</a>
                       <a href="{% url 'hired_personnel' building.slug %}" type="button" class="list-group-item list-group-item-action" role="button">Hired Personnel</a>

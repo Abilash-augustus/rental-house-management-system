@@ -19,7 +19,7 @@ class UserUpdateForm(forms.ModelForm):
 class ProfileUpdateForm(forms.ModelForm):
     class Meta:
         model = Profile
-        fields = ['street_address', 'county', 'country']
+        fields = ['phone','street_address', 'county', 'country']
 
 
 class AddManagerForm(forms.ModelForm):
@@ -30,7 +30,7 @@ class AddManagerForm(forms.ModelForm):
 class TenantsForm(forms.ModelForm):
     def __init__(self, building, *args, **kwargs):
         super(TenantsForm,self).__init__(*args, **kwargs)
-        self.fields['rented_unit'].queryset = RentalUnit.objects.filter(building=building)
+        self.fields['rented_unit'].queryset = RentalUnit.objects.filter(building=building,status='ready')
     class Meta:
         model = Tenants
         fields = ['associated_account', 'full_name', 'id_number', 'id_front', 'id_back', 'active_phone_number', 

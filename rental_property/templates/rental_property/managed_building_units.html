@@ -73,6 +73,7 @@
         <div class="container">
             <div class="row">
               <div class="col-sm-3 mb-3">
+                <a href="{% url 'add-rental-unit' building.slug %}" type="button" class="mb-2 list-group-item list-group-item-action" role="button">Add rental unit</a>
                   <h4 class="card-header text-center"> Filter Units </h4>
                 <form class="no-padding" method="get">
                     {{units.form|crispy}}

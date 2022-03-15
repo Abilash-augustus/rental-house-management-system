@@ -113,7 +113,7 @@ class RentalUnit(models.Model):
     bedrooms = models.PositiveIntegerField()
     dimension = models.CharField(max_length=50)
     kitchen = models.BooleanField(default=True)
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES,default='ready')
     maintanance_status = models.CharField(max_length=6, choices=MAINTANANCE_STATUS_CHOICES, default='op')
     total_occupants = models.PositiveIntegerField(help_text="Number of people in the unit", null=True, blank=True)
     water_available = models.BooleanField(default=True)

@@ -123,8 +123,12 @@
             class="btn btn-outline-secondary" role="button" type="button"> You have an active notice [cancel?] </a>
             {% else %}
             <a href="{% url 'core:my-notice-to-vacate' tenant_instance.rented_unit.building.slug user.username %}" class="btn btn-outline-danger" title='Put in your move out notice' role="button" type="button"> Submit Move Out Notice </a>
+            {% if not check_ins %}
             <a href="#" class="btn btn-outline-info" data-bs-toggle="modal" data-bs-target="#serviceRatingBackdrop"
             title='service rating' role="button" type="button"> Submit Service Rating </a>
+            {% else %}
+            <a title="Rating will open after 30 days" class="btn btn-outline-info">Rating Locked <em class="fa fa-lock"></em> </a>
+            {% endif %}
             {% endif %}
           </div>
           {% endif %}
@@ -139,7 +143,7 @@
   </div>
 </div>
 </section>
-{% load  %}
+{% if not check_ins %}
 {% if user.is_tenant %}
 <div class="modal fade" id="serviceRatingBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="waterMeterBackdropLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
@@ -165,6 +169,7 @@
     </div>
   </div>
 </div>
+{% endif %}
 {% endif %}
 
 <script>
