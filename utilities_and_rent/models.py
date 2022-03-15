@@ -8,7 +8,7 @@ from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from multiselectfield import MultiSelectField
-from rental_property.models import RentalUnit
+from rental_property.models import RentalUnit,Building
 
 MONTHS_SELECT = [
     ('jan', 'January'),
@@ -85,7 +85,7 @@ class UnitRentDetails(models.Model):
         return f"{self.tenant} - {self.pay_for_month} "
         
     class Meta:
-        verbose_name_plural = 'Rent Details'
+        verbose_name_plural = 'Billing 1 | Rent Details'
         verbose_name = 'Rent For Unit'
         
 
@@ -122,6 +122,9 @@ class RentPayment(models.Model):
         
     def __str__(self):
         return f"{self.tenant}"
+    
+    class Meta:
+        verbose_name_plural = "Billing 1 | Rent Payments"
 
                
 class WaterBilling(models.Model):
@@ -166,7 +169,7 @@ class WaterBilling(models.Model):
         return f'{self.rental_unit} - {self.tenant}'
     
     class Meta:
-        verbose_name_plural = 'Billing | Water Billing Cycles'
+        verbose_name_plural = 'Billing 2 | Water Billing Cycles'
     
 class WaterConsumption(models.Model):
     parent = models.ForeignKey(WaterBilling, on_delete=models.CASCADE)
@@ -209,7 +212,7 @@ class WaterPayments(models.Model):
         return f"{self.payment_code}"
     
     class Meta:
-        verbose_name = 'Billing | Water Bills Payments'
+        verbose_name = 'Billing 2 | Water Billing Payments'
         verbose_name_plural = verbose_name
     
 class ElectricityBilling(models.Model):
@@ -253,7 +256,7 @@ class ElectricityBilling(models.Model):
         return f'{self.rental_unit} - {self.tenant}'
     
     class Meta:
-        verbose_name_plural = "Billing | Electricity Billing Cycles"
+        verbose_name_plural = "Billing 3 | Electricity Billing Cycles"
         
 class ElectricityReadings(models.Model):
     parent = models.ForeignKey(ElectricityBilling, on_delete=models.CASCADE)
@@ -285,7 +288,7 @@ class ElectricityPayments(models.Model):
         super(ElectricityPayments, self).save(*args, **kwargs)
     
     class Meta:
-        verbose_name = 'Billing | Electricity Bill Payments'
+        verbose_name = 'Billing 3 | Electricity Bill Payments'
         verbose_name_plural = verbose_name
         
 class WaterMeter(models.Model):

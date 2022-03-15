@@ -156,6 +156,14 @@ class NewWaterMeterForm(forms.ModelForm):
         model = WaterMeter
         fields = ['number', 'ssid', 'unit']
         
+class WaterMeterUpdateForm(forms.ModelForm):
+    def __init__(self, building, *args, **kwargs):
+        super(WaterMeterUpdateForm,self).__init__(*args, **kwargs)
+        self.fields['unit'].queryset = RentalUnit.objects.filter(building=building)
+    class Meta:
+        model = WaterMeter
+        exclude = ['updated','created']
+        
 class NewElectricityMeterForm(forms.ModelForm):
     def __init__(self, building, *args, **kwargs):
         super(NewElectricityMeterForm,self).__init__(*args, **kwargs)
@@ -163,3 +171,11 @@ class NewElectricityMeterForm(forms.ModelForm):
     class Meta:
         model = ElectricityMeter
         fields = ['number', 'ssid', 'unit']
+        
+class ElectricityMeterUpdateForm(forms.ModelForm):
+    def __init__(self, building, *args, **kwargs):
+        super(WaterMeterUpdateForm,self).__init__(*args, **kwargs)
+        self.fields['unit'].queryset = RentalUnit.objects.filter(building=building)
+    class Meta:
+        model = ElectricityMeter
+        exclude = ['created', 'updated']

@@ -14,18 +14,18 @@
   </ol>
 </nav>
 
-<section class="mb-5 mt-5">
+<section class="mb-5 mt-3">
     <div class="container">
       <div class="row d-flex justify-content-center align-items-center h-100">
 
         <div class="row">
-          <div class="col-sm-3">
-            <div class="mt-5 mb-2 d-grid gap-2">
+          <div class="mb-4 col-sm-12 col-md-3 col-xl-3">
+            <div class="d-grid gap-2">
               <a href="#payments-direct" class="btn btn-outline-success" type="button">Go to payments <em class="fas fa-arrow-down"></em></a>
             </div>
           </div>
 
-        <div class="col-sm-9">
+        <div class="col-sm-12 col-md-9 col-xl-9">
           <div class="card shadow-2-strong" style="border-radius: 1rem;">
             <div class="card-body p-5">
                 <h3 class="text-uppercase text-center"> Electricity Billing Cycle For "{{e_bill.from_date|naturalday}} - {{e_bill.to_date|naturalday}}" </h3> </h3>
@@ -133,43 +133,15 @@
     </div>
   </div>
 
-  <!-- start billing modal -->
-  <div class="modal fade" id="electricityPaymentBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="electricityPaymentBackdropLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="electricityPaymentBackdropLabel">Add Water Bill Payments</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <form action="" method="post" class="no-padding">
-              {% csrf_token %}
-              {{pay_submit_form|crispy }}
-              <br>
-              <div class="form-group text-center">
-                <button class="btn btn-outline-secondary" type="submit">Submit</button>
-              </div>
-          </form>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        </div>
-      </div>
-    </div>
-  </div>
-  <!-- end billing modal -->
-</section>
 
-<section class="mb-4 mt-2">
+<section class="mb-4 mt-2" >
   <div class="container">
     <div class="row d-flex justify-content-center align-items-center h-100">
-
       <div class="row">
       <div class="col-sm-3">
         <span id="payments-direct"> </span>
       </div>
-
-      <div class="col-sm-9 card table-responsive shadow-lg p-3 mb-5 bg-body rounded">
+      <div class="col-sm-12 col-md-9 col-xl-9 card table-responsive shadow-lg p-3 mb-5" style="border-radius: 1rem;">
         <table class="table caption-top">
           <caption> Payments submitted for this cycle </caption>
           <thead>
@@ -208,4 +180,31 @@
     </div>
   </div>
 </section> 
+
+  <!-- start billing modal -->
+  <div class="modal fade" id="electricityPaymentBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="electricityPaymentBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="electricityPaymentBackdropLabel">Add Water Bill Payments</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form action="" method="post" class="no-padding">
+              {% csrf_token %}
+              {{pay_submit_form|crispy }}
+              <br>
+              <div class="form-group text-center">
+                <button class="btn btn-outline-secondary" type="submit">Submit</button>
+              </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- end billing modal -->
+</section>
 {% endblock %}

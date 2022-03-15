@@ -22,6 +22,7 @@ class Contact(models.Model):
     email = models.EmailField(max_length=50)
     subject = models.CharField(max_length=100)
     message = models.TextField()
+    status = models.CharField(choices=[('open','Open'),('closed','Closed')],max_length=10,default='open')
     created = models.DateTimeField(default=datetime.datetime.now)
     updated = models.DateTimeField(auto_now=True)
     
@@ -35,7 +36,14 @@ class Contact(models.Model):
         return f"Name: {self.full_name} | Email: {self.email}"
 
     class Meta:
-        verbose_name_plural = 'Visitor Contact'
+        verbose_name_plural = 'Received Contact'
+        
+class ContactReply(models.Model):
+    parent = models.ForeignKey(Contact, on_delete=models.CASCADE)
+    message = models.TextField()
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+    
         
 
 
@@ -133,9 +141,9 @@ class ServiceRating(models.Model):
     message = models.TextField(max_length=100)
     score = models.IntegerField(default=0,
         validators=[
-            MaxValueValidator(10),
+            MaxValueValidator(5),
             MinValueValidator(0)
-        ],verbose_name="Rate us on a scale of 1 to 10", null=True, blank=True)
+        ],verbose_name="Rate us", null=True, blank=True)
     created = models.DateTimeField(default=datetime.datetime.now)
     updated = models.DateTimeField(auto_now=True)
     

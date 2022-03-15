@@ -1,4 +1,29 @@
 //building charts
+$(function () {var $buildingWaterChart = $("#buildingWaterChart");
+$.ajax({url: $buildingWaterChart.data("url"),success: function (data) {
+    var ctx = $buildingWaterChart[0].getContext("2d");
+    new Chart(ctx, {type: 'line',data: {labels: data.labels,
+        datasets: [{label: 'units',backgroundColor: '#d4f1f9',
+          data: data.data}]},
+          options: {responsive: true,legend: {display: false,},
+          scales: {xAxes: [{ticks: {display: false,}}],yAxes: [{
+              ticks: {display: true,beginAtZero: true},
+            scaleLabel: {display: true,labelString: 'm³'}}]},
+          title: {display: true,text: "Tenants Water Consumption"}}});}});});
+
+$(function () {var $buildingElectricityChart = $("#buildingElectricityChart");
+     $.ajax({url: $buildingElectricityChart.data("url"),success: function (data) {
+        var ctx = $buildingElectricityChart[0].getContext("2d");
+        new Chart(ctx, {type: 'line',data: {labels: data.labels,
+        datasets: [{label: 'units',backgroundColor: '#00FFFF',
+        data: data.data}]},
+        options: {responsive: true,legend: {display: false,},
+        scales: {xAxes: [{ticks: {display: false,}}],yAxes: [{
+            ticks: {display: true,beginAtZero: true},
+        scaleLabel: {display: true,labelString: '(KwH)'}}]},
+        title: {display: true,text: 'Tenants Electricity Consumption'}}});}});});
+
+
 $(function () {        
     var $buildingRentChart = $("#building-rent-chart");
     $.ajax({url: $buildingRentChart.data("url"),success: function (data) {        
@@ -7,7 +32,7 @@ $(function () {
               backgroundColor: [
               '#fcba03', '#88fc03', '#A9A9A9', '#1daba8', '#3d5454', '#1e3152',
               '#47410b', '#557310', '#277310', '#107331', '#2792b0', '#d47a6a',
-              ],}]},options: {responsive: true,legend: {display: false, },
+              ],}]},options: {responsive: true,legend: {display: true, },
             scales: {yAxes: [{ticks: { display: false,}}]},
             title: {display: true,text: 'Rent Overview'}}});}});});
 
@@ -32,7 +57,7 @@ $(function () {
     datasets: [{label: 'Reports',data: data.data,backgroundColor: [
                   '#fcba03', '#88fc03', '#A9A9A9', '#1daba8', '#3d5454', '#1e3152',
                   '#47410b', '#557310', '#277310', '#107331', '#2792b0', '#d47a6a',],}]},
-    options: {responsive: true,legend: {display: false,},scales: {yAxes: [{
+    options: {responsive: true,legend: {display: true,},scales: {yAxes: [{
                 ticks: {display: false,}}]},title: {display: true,text: 'Reports Overview'}}});}});});
 
 $(function () {        
@@ -43,7 +68,7 @@ $(function () {
     new Chart(ctx, {type: 'pie',data: {labels: data.labels,
         datasets: [{label: 'Complaints',data: data.data,backgroundColor: [
             '#2792b0', '#277310', '#d47a6a',],}]},
-        options: {responsive: true,legend: {display: false,},scales: {yAxes: [{
+        options: {responsive: true,legend: {display: true,},scales: {yAxes: [{
             ticks: {display: false,}}]},title: {display: true,text: 'Complaints Overview'}}});}});});
 
 $(function () {        
@@ -63,8 +88,8 @@ $(function () { var $moveOutNotices = $("#moveoutChart");
         new Chart(ctx, {type: 'pie',data: {labels: data.labels,
             datasets: [{label: 'Notices',data: data.data,backgroundColor: [
                       '#d47a6a', '#fc4103', '#b53c14',],}]},options: {responsive: true,
-            legend: {display: false,},scales: {yAxes: [{ticks: {display: false,},
-                gridLines: {display:false}}],xAxes: [{ticks: {display: false,},
+            legend: {display: true,},scales: {yAxes: [{ticks: {display: false,},
+                gridLines: {display:true}}],xAxes: [{ticks: {display: false,},
                  gridLines: {display:false}}]},title: {display: true,text: 'Move Out Notices'}}});}}); });
 
 $(function () {        
@@ -90,7 +115,7 @@ $.ajax({url: $tenantWaterChart.data("url"),success: function (data) {
           scales: {xAxes: [{ticks: {display: false,}}],yAxes: [{
               ticks: {display: true,beginAtZero: true},
             scaleLabel: {display: true,labelString: 'm³'}}]},
-          title: {display: true,text: "Water Consumption"}}});}});});
+          title: {display: true,text: "My Water Consumption"}}});}});});
 
 $(function () {var $tenantsElectricityChart = $("#tenantsElectricityUsage");
      $.ajax({url: $tenantsElectricityChart.data("url"),success: function (data) {
@@ -102,7 +127,7 @@ $(function () {var $tenantsElectricityChart = $("#tenantsElectricityUsage");
         scales: {xAxes: [{ticks: {display: false,}}],yAxes: [{
             ticks: {display: true,beginAtZero: true},
         scaleLabel: {display: true,labelString: '(KwH)'}}]},
-        title: {display: true,text: 'Electricity Usage'}}});}});});
+        title: {display: true,text: 'My Electricity Usage'}}});}});});
 
 $(function () {var $rentChart = $("#tenantRentChart");
     $.ajax({url: $rentChart.data("url"),success: function (data) {

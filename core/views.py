@@ -8,6 +8,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User
 from django.contrib.messages.views import SuccessMessageMixin
+from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import EmailMessage
 from django.db.models import Count, Sum
 from django.http import HttpResponseRedirect, JsonResponse
@@ -15,17 +16,22 @@ from django.http.response import HttpResponse, JsonResponse
 from django.shortcuts import HttpResponse, redirect, render
 from django.template.loader import get_template, render_to_string
 from django.urls import reverse_lazy
+from django.utils.functional import SimpleLazyObject
 from django.views.generic import CreateView
 from rental_property.models import Building, MaintananceNotice, RentalUnit
 from utilities_and_rent.models import ElectricityBilling, WaterBilling
 
-from core.filters import (CommsFilter, EvictionNoticeFilter, MoveOutNoticeFilter,
-                          MyNoticeFilter, TenantsMailFilter, VisitFilter)
-from core.forms import (CancelMoveOutForm, ContactForm, EvictionNoticeForm, FromTenantForm,
+from core.filters import (CommsFilter, ContactFilter, EvictionNoticeFilter,
+                          MoveOutNoticeFilter, MyNoticeFilter,
+                          TenantsMailFilter, VisitFilter)
+from core.forms import (CancelMoveOutForm, ContactForm, ContactReplyForm,
+                        EvictionNoticeForm, FromTenantForm,
                         NewMoveOutNoticeForm, NewTenantEmailForm, UnitTourForm,
                         UpdateEvictionNotice, UpdateMoveOutNotice,
                         VisitUpdateForm)
-from core.models import Contact, EvictionNotice, ManagerTenantCommunication, MoveOutNotice, TenantEmails, UnitTour
+from core.models import (Contact, ContactReply, EvictionNotice,
+                         ManagerTenantCommunication, MoveOutNotice,
+                         TenantEmails, UnitTour)
 from core.utils import render_to_pdf
 
 User = get_user_model()
@@ -36,6 +42,46 @@ class CreateContact(SuccessMessageMixin, CreateView):
     form_class = ContactForm
     success_message = "Your contact has been submitted."
     success_url = reverse_lazy('operational-buildings')
+    
+@login_required
+def view_contacts(request):
+    contacts = Contact.objects.all().order_by('-created')
+    contacts_filter = ContactFilter(request.GET,queryset=contacts)
+    context = {'recieved_contacts': contacts_filter}
+    return render(request, 'core/contacts_view.html',context)
+
+@login_required
+def contact_reply(request,ref_code):
+    contact = Contact.objects.get(ref_code=ref_code)
+    replies = ContactReply.objects.filter(parent=contact)
+    
+    if request.method == 'POST':
+        reply_form = ContactReplyForm(request.POST)
+        if reply_form.is_valid():
+            reply_form.instance.parent = contact
+            reply_form.save()
+            contact.status = 'closed'
+            contact.save(update_fields=['status',])
+            messages.success(request,'reply sent')
+            get_message = reply_form.instance
+            replied_by = request.user
+            manager = Managers.objects.get(associated_account=replied_by)
+            subject = 'RESPONSE TO YOUR CONTACT ON: {0}'.format(SimpleLazyObject(lambda: get_current_site(request)))
+            html_content = 'core/mail/contact_reply.html'
+            html_message = render_to_string(html_content, {'my_contact':get_message,'manager':manager})
+            from_email = DEFAULT_FROM_EMAIL
+            to_email = contact.email
+            message = EmailMessage(subject, html_message, from_email, [to_email])
+            message.content_subtype = 'html'
+            message.send()
+            messages.info(request, 'Locking contact')
+            return redirect('core:contact_reply',ref_code=contact.ref_code)
+    else:
+        reply_form = ContactReplyForm(request.POST)
+    
+    context = {'r_contact':contact,'reply_form':reply_form,'replies':replies}
+    return render(request, 'core/contact_reply.html', context)
+    
 
 #visits
 def schedule_unit_tour(request, unit_slug):
@@ -46,7 +92,7 @@ def schedule_unit_tour(request, unit_slug):
         if tour_form.is_valid():
             tour_form.instance.unit = unit
             tour_form.save()
-            messages.success(request, 'Visit has been added, an email will be sent after checking.')
+            messages.success(request, 'Visit has been added, you will receive an email concerning any action.')
             return redirect('unit-details', building_slug=unit.building.slug, unit_slug=unit.slug)
     else:
         tour_form = UnitTourForm()
@@ -85,7 +131,7 @@ def update_view_visits(request, building_slug, visit_code):
             check_status = update_visit_form.instance.visit_status
             
             if check_status == 'cancelled' or check_status == 'approved':
-                subject = 'ACTION ON OUR VISIT REF: {0}'.format(check_status)
+                subject = 'ACTION ON OUR VISIT REF: {0}'.format(visit.visit_code)
                 html_content = 'core/mail/confirm-visit.html'
                 html_message = render_to_string(html_content, {'building':building,'visit':visit})
                 from_email = DEFAULT_FROM_EMAIL
@@ -129,7 +175,7 @@ def my_move_out_notice(request, building_slug, username):
                 message.content_subtype = 'html'
                 message.send()
                 messages.success(request, 'Your notice has been sent')
-                return redirect('profile')
+                return HttpResponseRedirect('')
         else:
             vacate_form = NewMoveOutNoticeForm()
         

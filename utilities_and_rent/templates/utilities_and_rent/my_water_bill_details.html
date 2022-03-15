@@ -14,18 +14,18 @@
   </ol>
 </nav>
 
-<section class="mb-5 mt-5" style="background-color: #dfe8da;">
+<section class="mb-5 mt-3" style="background-color: #dfe8da;">
     <div class="container">
       <div class="row d-flex justify-content-center align-items-center h-100">
 
         <div class="row">
-            <div class="col-sm-3">
-              <div class="mt-5 mb-2 d-grid gap-2">
+            <div class="col-sm-12 col-md-3 colxl-3">
+              <div class="mb-2 d-grid gap-2">
                 <a href="#payments-direct" class="btn btn-outline-success" type="button">Go to payments <em class="fas fa-arrow-down"></em></a>
               </div>
             </div>
 
-        <div class="col-sm-9">
+        <div class="mt-3 col-sm-12 col-md-9 col-xl-9">
           <div class="card shadow-2-strong" style="border-radius: 1rem;">
             <div class="card-body p-5">
                 <h3 class="text-uppercase text-center"> My Water Billing Cycle For "{{water_bill.from_date|naturalday}} - {{water_bill.to_date|naturalday}}" </h3> </h3>
@@ -132,7 +132,7 @@
                     </tr>
                     {% empty %}
                     <tr> 
-                      <td> No payments submitted. </td>
+                      <td> No Readings yet. </td>
                     </tr>
                     {% endfor %} 
                   </tbody>
@@ -144,6 +144,55 @@
       </div>
     </div>
   </div>
+
+  <section class="mb-4 mt-2">
+    <div class="container">
+      <div class="row d-flex justify-content-center align-items-center h-100">
+  
+        <div class="row">
+        <div class="col-sm-12 col-md-3 col-xl-3">
+          <span id="payments-direct"> </span>
+        </div>
+  
+        <div class="col-sm-12 col-md-9 col-xl-9 card table-responsive shadow-lg p-3 mb-5" style="border-radius: 1rem;">
+          <table class="table caption-top">
+            <caption> Payments submitted for this cycle </caption>
+            <thead>
+              <tr>
+                <th scope="col">Payment Code</th>
+                <th scope="col">Paid Amount</th>
+                <th scope="col">Payment Method</th>
+                <th scope="col"> Date </th>
+                <th scope="col"> Status </th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for p in payments_made %}
+              <tr>
+                <td>{{p.payment_code}}</td>
+                <td>KES {{p.amount}}</td>
+                <td> {{p.payment_method}} </td>
+                <td> {{p.date_paid|naturalday}} </td>
+                <td> {{p.get_status_display}}</td>
+                {% if p.lock %}
+                <td title="payment locked"> <em class="fa fa-lock"></em> </td>
+                {% else %}
+                <td title="payment still open"> <em class="fa fa-lock-open"></em> </td>
+                {% endif %}
+              </tr>
+              {% empty %}
+              <tr> 
+                <td> No payments submitted. </td>
+              </tr>
+              {% endfor %} 
+            </tbody>
+          </table>
+          </div>
+        </div>
+  
+      </div>  
+    </div>
+  </section>
 
   <!-- start billing modal -->
   <div class="modal fade" id="waterPaymentBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="waterPaymentBackdropLabel" aria-hidden="true">
@@ -170,54 +219,5 @@
     </div>
   </div>
   <!-- end billing modal -->
-</section>
-
-<section class="mb-4 mt-2">
-  <div class="container">
-    <div class="row d-flex justify-content-center align-items-center h-100">
-
-      <div class="row">
-      <div class="col-sm-3">
-        <span id="payments-direct"> </span>
-      </div>
-
-      <div class="col-sm-9 card table-responsive shadow-lg p-3 mb-5 bg-body rounded">
-        <table class="table caption-top">
-          <caption> Payments submitted for this cycle </caption>
-          <thead>
-            <tr>
-              <th scope="col">Payment Code</th>
-              <th scope="col">Paid Amount</th>
-              <th scope="col">Payment Method</th>
-              <th scope="col"> Date </th>
-              <th scope="col"> Status </th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for p in payments_made %}
-            <tr>
-              <td>{{p.payment_code}}</td>
-              <td>KES {{p.amount}}</td>
-              <td> {{p.payment_method}} </td>
-              <td> {{p.date_paid|naturalday}} </td>
-              <td> {{p.get_status_display}}</td>
-              {% if p.lock %}
-              <td title="payment locked"> <em class="fa fa-lock"></em> </td>
-              {% else %}
-              <td title="payment still open"> <em class="fa fa-lock-open"></em> </td>
-              {% endif %}
-            </tr>
-            {% empty %}
-            <tr> 
-              <td> No payments submitted. </td>
-            </tr>
-            {% endfor %} 
-          </tbody>
-        </table>
-        </div>
-      </div>
-
-    </div>  
-  </div>
 </section>
 {% endblock %}

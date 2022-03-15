@@ -178,7 +178,7 @@ def property_maintanance_notice(request,building_slug):
             new_m_form.save()
             notify = new_m_form.instance
             if notify.send_email:
-                subject = 'Maintanance notice from {0}'.format(notify.from_date)
+                subject = '{0}'.format(notify.title)
                 notify_content = 'rental_property/mails/maintanance_notify.html'
                 html_message = render_to_string(notify_content,
                                                 {'building':building,'notify':notify,})

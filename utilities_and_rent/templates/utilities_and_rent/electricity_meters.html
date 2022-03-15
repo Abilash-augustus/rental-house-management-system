@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+{% block metadescription %} Electricity Meters Management  {% endblock %}
+{% load humanize %}
+{% load crispy_forms_tags %}
+
+{% block content %}	
+<nav class="container mt-3">
+  <ol class="breadcrumb bg-light p-2 rounded-2">
+      <li class="breadcrumb-item "><a href="{% url 'building-dashboard' building.slug %}">Dashboard</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'rent-and-utilities' building.slug %}">Rent & Utilities </a></li>
+      <li class="breadcrumb-item active">Electricity Meters Management</li>
+  </ol>
+</nav>
+
+<section class="container" style="margin-top:2%; margin-bottom:4%;">
+    <div class="row justify-content-center">
+        <div class="container">
+
+          <!-- overview start -->
+          <div class="container card p-0 mb-2">
+            <div class="card-header text-center w-100">
+              Electricity Meters Management
+            </div>
+        </div>
+    
+            <div class="row">
+              <div class="col-sm-3">
+                <form method='get'>
+                    {{electricity_meters.form|crispy }}
+                    <br>
+                        <div class="form-group text-center">
+                            <button class="btn btn-outline-secondary" type="submit">Get</button>
+                        </div>
+                </form>
+              </div>
+
+              <div class="col-sm-9">
+                <div class="row">
+                  <div class="col-sm-12">
+                      <div class="card card-body">
+
+                        <div class="btn-group" role="group" aria-label="Start new electric billing cycle ">
+                            <button type="button" class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#electricityMeterBackdrop">Add New Meter</button>
+                          </div>
+                          &nbsp;&nbsp;&nbsp;
+                          <input class="form-control" id="myInput" type="text" placeholder="Search..">
+                          <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                          <caption></caption>
+                            <thead>
+                              <tr>
+                                <th scope="col"> SSID </th> 
+                                <th scope="col">Meter ID</th>
+                                <th scope="col"> Unit </th>
+                                <th scope="col"> Updated </th>
+                              </tr>
+                            </thead>
+                            <tbody id='ourTable'>
+                        {% for meter in electricity_meters.qs %}
+                        <tr>
+                          <th scope="row"> {{meter.ssid}} </th>
+                            <td > {{meter.number}} </th>
+                            <td> {{meter.unit.unit_number}}</td>
+                            <td> {{meter.updated|naturaltime}}</td>
+                            <td> <a href="{% url 'electricity_meter_update' building.slug meter.ssid %}">
+                              Update </a>
+                        {% empty %}
+                        <tbody>
+                            <tr>
+                              <td>
+                          <p> Nothing to display! </p>
+                              </td>
+                            </tr>
+                        {% endfor %}
+                          </tbody>
+                          </table>
+                        </div>
+
+                    </tr>
+                </tbody>
+                      </ul> 
+                      </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>    
+    </section>
+    
+    <!-- electricity meter modal start -->
+    <div class="modal fade" id="electricityMeterBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="waterMeterBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="electricityMeterBackdropLabel">Add Electricity Meter</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <form action="" method="post" class="no-padding">
+                  {% csrf_token %}
+                  {{electricity_meter_add_form|crispy }}
+                  <br>
+                  <div class="form-group text-center">
+                    <button class="btn btn-outline-secondary" type="submit">Add</button>
+                  </div>
+              </form>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">close</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- electricity meter modal end -->      
+{% endblock %}

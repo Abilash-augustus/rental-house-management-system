@@ -72,7 +72,7 @@
     
                       <a href="{% url 'profile' %}" class="dropdown-item"> Profile</a>
                       {% if user.is_tenant %}
-                      <a href="{% url 'core:my_mails' user.tenants.rented_unit.building.slug user.username %}" class="dropdown-item"><em class="fa fa-envelope"></em> Inbox </a>
+                      <a href="{% url 'core:my_mails' user.tenants.rented_unit.building.slug user.username %}" class="dropdown-item text-center"><em class="fa fa-envelope"></em></a>
                       {% endif %}
                       <a href="{% url 'account_logout' %}" class="dropdown-item" type="button">Logout</a>
                     </div>
@@ -100,31 +100,25 @@
               <div class="offcanvas-body">
 
                 <div class="container-fluid">
-                  <div>
-                    <ul class="d-lg-block">
-                      <div class="position-sticky">
-                        <div class="list-group list-group-flush mx-3 mt-4">
-                          
-                      <li class="list-group-item list-group-item-action py-2 ripple">
-                        <a class="nav-link" href="{% url 'add-new-manager' %}"> Add New Managers</a>
-                      </li>
+                  <div class="mb-3">
+                    <img src="{{user.avatar.url}}" 
+                    alt="profile image" class="img-fluid rounded-circle" style="width:100px;height:100px;">
+                  </div>
 
-                      <li class="list-group-item list-group-item-action py-2 ripple">
-                        <h4> Managed Building List</h4>
-                        <ul class="list-group" style="list-style: none;">
-                        {% for managed_building in managed_buildings %}
-                          <li><a class="list-group-item list-group-item-action py-2 ripple" href="{% url 'building-dashboard' managed_building.slug %}">{{managed_building.name}}</a></li>
-                          {% empty %}
-                          <li><a class="list-group-item list-group-item-action py-2 ripple" href="#notassigned">No buildings have been assigned to you yet!</a></li>
-                          {% endfor %}
-                        </ul>
-                      </li>
-                        </ul>
-                      </li>
-                    </ul>
-                  </div>
-                  </div>
-                  </div>
+                  <ul class="nav flex-column">
+                    <li class="nav-item">
+                      <a class="nav-link active" aria-current="page" href="{% url 'add-new-manager' %}">Add Managers</a>
+                      <a class="nav-link active" aria-current="page" href="{% url 'core:view_contacts' %}">View Contacts</a>
+                    </li>
+                    <h5 class="mt-4 mb-2 card-header text-center"> Managed Building List</h5>
+                    <li class="nav-item">
+                      {% for managed_building in managed_buildings %}
+                      <a class="nav-link" href="{% url 'building-dashboard' managed_building.slug %}">{{managed_building.name}}</a>
+                      {% empty %}
+                      <a class="av-link" href="#notassigned">No buildings have been assigned to you yet!</a></li>
+                      {% endfor %}
+                    </li>
+                  </ul>
                 </div>
               </div>
             </div>
@@ -145,9 +139,9 @@
 
 
     <!-- live chat bot -->
-    <!--
+    
 <script id="TelegramLiveChatLoader" data-bot="81B58C84-8B5C-11EC-A9B8-05FC22E822B5" src="//livechatbot.net/assets/chat/js/loader.js"></script>
-  -->
+  
 
 
 <!-- in page search -->
@@ -165,13 +159,51 @@
 
 <!-- alert messages display time -->
 <script>
-  $(".user-alert").delay(7000).slideUp(200, function() {
+  $(".user-alert").delay(6000).slideUp(200, function() {
     $(this).alert('close');
     });
 </script>
 
+<!-- help contact area -->
+<div class="offcanvas offcanvas-bottom" tabindex="-1" id="contactsOffcanvas" aria-labelledby="contactsOffcanvasLabel">
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title" id="contactsOffcanvasLabel">HELP CONTACTS</h5>
+    <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+  <div class="offcanvas-body small">
+    <div class="container-fluid">
+      <div class="row flex-row flex-nowrap">
+        {% for contact in contacts %}
+          <div class="col-5">
+            <ul class="list-group">
+              <h6 class="card-header text-center">{{contact.used_for}}</h6>
+              </li>
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                Type <span class="badge bg-primary rounded-pill"> {{contact.get_is_type_display}} </span>
+              </li>
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                Contact <small>
+                  <a {% if contact.is_type == 'email' %} href ="mailto:{{contact.contact}}" 
+                  {% elif contact.is_type == 'phone' %} href ="tel:{{contact.contact}}" {% else %} {% endif %}>
+                  {{contact.contact}} </a> </small>
+              </li>
+            </ul>
+          </div>
+          {% endfor %}
+      </div>
+  </div>
+  </div>
+</div>
+<!-- End help contact area -->
+
+
     <footer class="mt-auto bg-light">
+      <div class="mb-3 text-center">
+      <button class="btn btn-outline-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#contactsOffcanvas" aria-controls="contactsOffcanvas"><em class="fas fa-arrow-upfas fa-arrow-up"></em> Help Contacts</button>
+      </div>
+      <div>
         <p class="text-center ">&copy; 2022</p>
+      </di>
   </footer>
     <!-- Bootstrap Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>

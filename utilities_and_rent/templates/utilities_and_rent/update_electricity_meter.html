@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block metadescription %} Update Electricity Meter {% endblock %}
+{% load crispy_forms_tags %}
+
+{% block content %} 
+<nav class="container mt-3">
+    <ol class="breadcrumb bg-light p-2 rounded-2">
+        <li class="breadcrumb-item "><a href="{% url 'building-dashboard' building.slug %}">Dashboard</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'rent-and-utilities' building.slug %}">Rent & Utilities </a></li>
+        <li class="breadcrumb-item"><a href="{% url 'electricity_meter_management' building.slug %}">Electricity Meters Management</a></li>
+        <li class="breadcrumb-item active">Update Electricity Meter</li>
+    </ol>
+  </nav>
+
+<section style="background-color: #dfe8da;">
+    <div class="container py-5 h-100">
+      <div class="row d-flex justify-content-center align-items-center h-100">
+        <div class="col-12 col-md-8 col-lg-9 col-xl-9">
+          <div class="card shadow-2-strong" style="border-radius: 1rem;">
+            <div class="card-body p-5">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    {{ update_form|crispy }}                    
+                    <br/>
+                    <div class="text-center">
+                      <input class="btn btn-outline-success" type="submit" name="submit" value="submit" />
+                    </div>
+                </form>
+            </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

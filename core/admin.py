@@ -1,13 +1,16 @@
 from django.contrib import admin
 
-from core.models import (Contact, EvictionNotice, MoveOutNotice, ServiceRating,
+from core.models import (Contact, ContactReply, EvictionNotice, MoveOutNotice, ServiceRating,
                          UnitTour,ManagerTenantCommunication,TenantEmails)
 
-
+class ContactReplyAdmin(admin.StackedInline):
+    model = ContactReply
+    
 @admin.register(Contact)
 class ContactAdmin(admin.ModelAdmin):
     list_display = ['full_name', 'subject', 'created',]
     list_filter = ['created',]
+    inlines = [ContactReplyAdmin,]
 
 @admin.register(UnitTour)
 class UnitTourAdmin(admin.ModelAdmin):

@@ -21,7 +21,13 @@ urlpatterns = [
     path('manage-tenant-electric-bills/<slug:building_slug>/<slug:unit_slug>/<slug:username>/', views.manage_tenant_electric_bills, name="manage_tenant_electric_bills"),
     path('update_water_payments/<slug:building_slug>/<slug:unit_slug>/<slug:username>/<slug:bill_code>/<slug:tracking_code>/', views.update_water_payments, name='update_water_payments'),
     path('manage-tenant-bill-details/<slug:building_slug>/<slug:unit_slug>/<slug:username>/<slug:bill_code>/', views.update_tenant_electric_bill_details, name="tenant_electric_bill_details"),
-    path('update_electricity_payments/<slug:building_slug>/<slug:unit_slug>/<slug:username>/<slug:bill_code>/<slug:t_code>/', views.update_electricity_payments, name='update_electricity_payments'),
-    
+    path('update_electricity_payments/<slug:building_slug>/<slug:unit_slug>/<slug:username>/<slug:bill_code>/<slug:t_code>/', views.update_electricity_payments, name='update_electricity_payments'),    
     path('building_rent_chart/<slug:building_slug>/', views.building_rent_overview, name="building_rent_overview"),
+    path('building_water_consumtion/<slug:building_slug>/', views.building_water_consumtion, name='building_water_consumtion'),
+    path('building_electricity_consumption/<slug:building_slug>/', views.building_electricity_consumption, name='building_electricity_consumption'),
+    
+    path('water_meter_management/<slug:building_slug>/', views.water_meter_management, name='water_meter_management'),
+    path('water_meter_update/<slug:building_slug>/<slug:meter_ssid>/', views.water_meter_update, name='water_meter_update'),
+    path('electricity_meter_management/<slug:building_slug>/', views.electricity_meter_management, name='electricity_meter_management'),
+    path('electricity_meter_update/<slug:building_slug>/<slug:meter_ssid>/', views.electricity_meter_update, name='electricity_meter_update'),
 ]

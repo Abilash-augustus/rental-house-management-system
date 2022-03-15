@@ -4,7 +4,7 @@ from django_summernote.widgets import SummernoteWidget
 from crispy_forms.layout import Layout,HTML,Row,Column,Field
 from crispy_forms.helper import FormHelper
 
-from core.models import Contact, EvictionNotice, ManagerTenantCommunication, ServiceRating, TenantEmails, UnitTour, MoveOutNotice
+from core.models import Contact, ContactReply, EvictionNotice, ManagerTenantCommunication, ServiceRating, TenantEmails, UnitTour, MoveOutNotice
 
 
 class DateInput(forms.DateInput):
@@ -17,7 +17,10 @@ class ContactForm(forms.ModelForm):
         widgets = {
             "message": SummernoteWidget(attrs={'summernote': {'width': '100%', 'height': '400px'}}),
         }
-
+class ContactReplyForm(forms.ModelForm):
+    class Meta:
+        model = ContactReply
+        fields = ['message',]
 
 class UnitTourForm(forms.ModelForm):
     class Meta:
@@ -68,7 +71,7 @@ class NewMoveOutNoticeForm(forms.ModelForm):
         model = MoveOutNotice
         fields = ['move_out_date', 'reason', ]
         widgets = {
-            'reason': SummernoteWidget(attrs={'summernote': {'width': '100%', 'height': '400px'}}),
+            'reason': SummernoteWidget(attrs={'summernote': {'width': '100%', 'height': '700px'}}),
             'move_out_date': DateInput(),
         }
         
@@ -95,7 +98,7 @@ class ServiceRatingForm(forms.ModelForm):
         exclude = ['updated','created','tenant']
         widgets = {
             'score': forms.NumberInput(attrs={
-                'type': 'range','step': '1', 'min': '0', 'max': '10','id':'id_score'}),
+                'type': 'range','step': '1', 'min': '0', 'max': '5','id':'id_score'}),
             }
         
 class NewTenantEmailForm(forms.ModelForm):

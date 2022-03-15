@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+{% block metadescription %} Update Electricity Meter {% endblock %}
+{% load crispy_forms_tags %}
+{% load humanize %}
+
+{% block content %} 
+<nav class="container mt-3">
+    <ol class="breadcrumb bg-light p-2 rounded-2">
+        <li class="breadcrumb-item "><a href="{% url 'operational-buildings' %}">Home</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'core:view_contacts' %}"> Received Contacts </a></li>
+        <li class="breadcrumb-item active">Reply</li>
+    </ol>
+  </nav>
+
+  <section class="container mt-5 mb-5">
+    <div class="row justify-content-center">
+            <div class="row d-flex justify-content-center">
+              <div class="col-md-10">
+                      <div class="card mb-4">
+                        <div class="card-body">
+                              <div class="row">
+                                <div class="col-sm-6">
+                                  <p class="mb-0">
+                                    {% if r_contact.status == 'closed' %}
+                                        <a type="button" class="underline">Replies Locked <em class="fa fa-lock"></em></a></p>
+                                    {% else %}
+                                      <a type="button" class="underline" data-bs-toggle="modal" data-bs-target="#replyModalBackdrop">Reply</a></p>
+                                    {% endif %}
+                                </div>
+                              </div>
+                              <hr>
+
+                          <div class="row">
+                            <div class="col-sm-3">
+                              <p class="mb-0">Ref. Code</p>
+                            </div>
+                            <div class="col-sm-9">
+                              <p class="text-muted mb-0">{{r_contact.ref_code}}</p>
+                            </div>
+                          </div>
+                          <hr>
+                          <div class="row">
+                            <div class="col-sm-3">
+                              <p class="mb-0">Full Name</p>
+                            </div>
+                            <div class="col-sm-9">
+                              <p class="text-muted mb-0">{{r_contact.full_name}}</p>
+                            </div>
+                          </div>
+                          <hr>
+                          <div class="row">
+                            <div class="col-sm-3">
+                              <p class="mb-0">email</p>
+                            </div>
+                            <div class="col-sm-9">
+                              <p class="text-muted mb-0">{{r_contact.email}}</p>
+                            </div>
+                          </div>
+                          
+                          <hr>
+                          <div class="row">
+                            <div class="col-sm-3">
+                              <p class="mb-0">Content</p>
+                            </div>
+                            <div class="col-sm-9">
+                              <p class="text-muted mb-0">{{r_contact.message|safe}}</p>
+                            </div>
+                          </div>
+                          <hr>
+                          <div class="row">
+                            <div class="col-sm-3">
+                              <p class="mb-0">Created</p>
+                            </div>
+                            <div class="col-sm-9">
+                              <p class="text-muted mb-0">{{r_contact.created|naturaltime}}</p>
+                            </div>
+                          </div>
+                          {% if r_contact.updated %}
+                          <hr>
+                          <div class="row">
+                            <div class="col-sm-3">
+                              Last Updated
+                            </div>
+                            <div class="col-sm-9">
+                              <p class="text-muted mb-0">{{r_contact.updated|timesince}}</p>
+                            </div>
+                          </div>
+                          {% endif %}
+                          <hr>
+                          <div class="row">
+                            <div class="col-sm-3">
+                              <p class="mb-0">status</p>
+                            </div>
+                            <div class="col-sm-9">
+                              <p class="text-muted mb-0">{{r_contact.get_status_display}}</p>
+                            </div>
+
+                        </div>
+                      </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-sm-11 col-md-10 mb-4">
+                <div class="row">
+                  <div class=" col-sm-12">
+                      <div class="card card-body">
+                          <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                          <caption>Reply</caption>
+                            <thead>
+                              <tr>
+                                <th scope="col"> Message </th> 
+                              </tr>
+                            </thead>
+                            <tbody id='ourTable'>
+                        {% for reply in replies %}
+                        <tr>
+                          <th scope="row"> {{reply.message}} </th>
+                        </tr>
+                        {% empty %}
+                        <tbody>
+                            <tr>
+                              <td>
+                          <p> No replies! </p>
+                              </td>
+                            </tr>
+                        {% endfor %}
+                          </tbody>
+                          </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+{% if not r_contact.status == 'closed' %}
+  <div class="modal fade" id="replyModalBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="replyBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="replyModalBackdropLabel">Reply</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form action="" method="post" class="no-padding">
+              {% csrf_token %}
+              {{reply_form|crispy }}
+              <br>
+              <div class="form-group text-center">
+                <button class="btn btn-outline-secondary" type="submit">send</button>
+              </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endif %}
+{% endblock %}

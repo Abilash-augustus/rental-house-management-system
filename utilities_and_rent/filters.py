@@ -3,7 +3,7 @@ from accounts.models import Tenants
 from django.forms.widgets import DateInput
 
 from utilities_and_rent.models import (ElectricityBilling, RentPayment,
-                                       UnitRentDetails, WaterBilling)
+                                       UnitRentDetails, WaterBilling, WaterMeter, ElectricityMeter)
 
 
 class UnitTypeFilter(django_filters.FilterSet):
@@ -43,3 +43,19 @@ class ManagerElectricityBillsFilter(django_filters.FilterSet):
     class Meta:
         model = ElectricityBilling
         fields = ['bill_code','cleared','lock_cycle','month','due_date']
+        
+class WaterMetersFilter(django_filters.FilterSet):
+    class Meta:
+        model = WaterMeter
+        fields = ['ssid','number']
+    def __init__(self, *args, **kwargs):
+       super(WaterMetersFilter, self).__init__(*args, **kwargs)
+       self.filters['number'].label="Meter Number"
+     
+class ElectricityMetersFilter(django_filters.FilterSet):
+    class Meta:
+        model = ElectricityMeter
+        fields = ['ssid','number']
+    def __init__(self, *args, **kwargs):
+       super(ElectricityMetersFilter, self).__init__(*args, **kwargs)
+       self.filters['number'].label="Meter Number"

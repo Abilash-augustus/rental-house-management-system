@@ -97,3 +97,26 @@ class Complaints(models.Model):
 
     class Meta:
         verbose_name_plural = 'Complaints'
+        
+class HelpContacts(models.Model):
+    TYPE_CHOICES = [
+        ('email','Email'),
+        ('phone','Phone'),
+        ('forum','Forum'),
+    ]
+    used_for = models.CharField(max_length=30,help_text="objective of this contact")
+    is_active = models.BooleanField(default=False)
+    contact = models.CharField(max_length=50)
+    is_type = models.CharField(max_length=10,choices=TYPE_CHOICES)
+    associated_building = models.ForeignKey(Building, on_delete=models.CASCADE)
+    make_publicly_available = models.BooleanField(default=False)
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+    
+    def __str__(self):
+        return f"{self.contact} | {self.is_type} | {self.is_active} "
+    
+    class Meta:
+        verbose_name = 'Help Contact'
+        verbose_name_plural = verbose_name
+        

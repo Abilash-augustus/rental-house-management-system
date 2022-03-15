@@ -7,7 +7,7 @@ class UnitReportForm(forms.ModelForm):
         model = UnitReport
         fields = ['report_type', 'desc']
         widgets = {
-            'desc': SummernoteWidget(attrs={'summernote': {'width': '100%', 'height': '400px'}}),
+            'desc': SummernoteWidget(attrs={'summernote': {'width': '100%', 'height': '550px'}}),
         }
 
 class UnitReportAlbumForm(forms.ModelForm):
@@ -25,7 +25,7 @@ class NewComplaintForm(forms.ModelForm):
         model = Complaints
         fields = ['name', 'body']
         widgets = {
-            'body': SummernoteWidget(attrs={'summernote': {'width': '100%', 'height': '400px'}}),
+            'body': SummernoteWidget(attrs={'summernote': {'width': '100%', 'height': '600px'}}),
         }
         
 class UpdateComplaintForm(forms.ModelForm):

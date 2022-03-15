@@ -4,8 +4,16 @@ from django.forms.widgets import DateInput
 from django import forms
 from rental_property.models import Building
 
-from core.models import ManagerTenantCommunication, UnitTour,EvictionNotice, MoveOutNotice
+from core.models import Contact, ManagerTenantCommunication, UnitTour,EvictionNotice, MoveOutNotice
 
+class ContactFilter(django_filters.FilterSet):
+    ref_code = django_filters.CharFilter(lookup_expr='icontains')
+    full_name = django_filters.CharFilter(lookup_expr='icontains')
+    email = django_filters.CharFilter(lookup_expr='icontains')
+    class Meta:
+        model = Contact
+        fields = ['ref_code','full_name','email','status','created']
+        
 class VisitFilter(django_filters.FilterSet):
     class Meta:
         model = UnitTour

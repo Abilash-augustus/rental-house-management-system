@@ -42,27 +42,16 @@
               </div>
               </div>   
 
-        <div class="card mb-4 mb-lg-0">
+        <div class="card mb-3 mb-lg-0">
             <div class="card-body text-center p-0">
               <ul class="list-group list-group-flush rounded-3">
                 {% if user.is_tenant %} 
-                <li class="list-group-item d-flex justify-content-center">
-                  <h3 class="mb-0"> Tenant Menu </h3>
-                </li>
-                <hr>
-                  <div class="d-grid gap-2 d-md-block">
-                    <a href="{% url 'create-report' user.username tenant_instance.rented_unit.slug %}" class="btn btn-outline-danger" role="button" type="button">Report an Issue</a>
-                    <a href="{% url 'create-complaint' tenant_instance.rented_unit.building.slug %}" class="btn btn-outline-danger" role="button" type="button">Make a complaint</a> &nbsp;
-                    <a class="btn btn-outline-primary" href=" {% url 'core:my_move_out_notices' tenant_instance.rented_unit.building.slug tenant_instance.rented_unit.slug user.username %} " 
-                    role="button">View My Notices </a>
-                  </div>
-                  {% else %}
-                  <hr>
-                  <div class="d-grid gap-2 d-md-block">
-                    <h3>Explorer</h3>
-                  </div>
+                  <h5 class="mb-3 card-header mb-0"> Tenant Menu </h5>
+                  <a href="{% url 'create-report' user.username tenant_instance.rented_unit.slug %}" type="button" class="list-group-item list-group-item-action" role="button">Make a Report</a>
+                  <a href="{% url 'create-complaint' tenant_instance.rented_unit.building.slug %}" type="button" class="list-group-item list-group-item-action" role="button">Make a complaint</a>
+                  <a href="{% url 'core:my_move_out_notices' tenant_instance.rented_unit.building.slug tenant_instance.rented_unit.slug user.username %}" type="button"
+                  class="mb-3 list-group-item list-group-item-action" role="button">View My Notices</a>
                   {% endif %}
-                  <hr>
               </ul>
             </div>
           </div>
@@ -183,13 +172,13 @@
   var output = document.getElementById('my_rating');
   output.innerHTML = slider.value;
   slider.oninput = function(){
-    if (slider.value <= 3){
+    if (slider.value <= 1){
       slider.style.backgroundColor = 'red';
     }
-    else if (slider.value <= 6){
+    else if (slider.value <= 3){
       slider.style.backgroundColor = 'blue';
     }
-    else if (slider.value <= 10){
+    else if (slider.value <= 5){
       slider.style.backgroundColor = 'green';
     }
     output.innerHTML = this.value;

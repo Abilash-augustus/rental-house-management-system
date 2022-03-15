@@ -1,33 +1,47 @@
 from datetime import datetime
+
 from accounts.models import Managers, Tenants
+from config.settings import DEFAULT_FROM_EMAIL
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.core.mail import EmailMessage
 from django.core.paginator import InvalidPage, PageNotAnInteger, Paginator
 from django.db.models import Q, Sum
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import (HttpResponseRedirect, get_object_or_404,
                               redirect, render)
+from django.template.loader import render_to_string
 from rental_property.models import Building, RentalUnit
 
-from utilities_and_rent.filters import (ManagerElectricityBillsFilter,
+from utilities_and_rent.filters import (ElectricityMetersFilter,
+                                        ManagerElectricityBillsFilter,
                                         PaymentsFilter, RentDetailsFilter,
                                         TenantElectricityBillsFilter,
-                                        UnitTypeFilter, WaterBilingFilter)
-from utilities_and_rent.forms import (AddRentDetailsForm, ElectricityBillCycleUpdateForm,
-                                      ElectricityReadingForm,ElectricityPaySubmitForm, NewElectricityMeterForm, NewWaterMeterForm,
-                                      PaymentUpdateForm, StartEBillCycleForm,
-                                      StartWaterBillingForm,UpdateElectricityPayForm,
-                                      SubmitPaymentsForm, UpdateRentDetails, UpdateWaterPaymentForm,
+                                        UnitTypeFilter, WaterBilingFilter,
+                                        WaterMetersFilter)
+from utilities_and_rent.forms import (AddRentDetailsForm,
+                                      ElectricityBillCycleUpdateForm,
+                                      ElectricityMeterUpdateForm,
+                                      ElectricityPaySubmitForm,
+                                      ElectricityReadingForm,
+                                      NewElectricityMeterForm,
+                                      NewWaterMeterForm, PaymentUpdateForm,
+                                      StartEBillCycleForm,
+                                      StartWaterBillingForm,
+                                      SubmitPaymentsForm,
+                                      UpdateElectricityPayForm,
+                                      UpdateRentDetails,
+                                      UpdateWaterPaymentForm,
                                       WaterBillPaymentsForm,
-                                      WaterBillUpdateForm, WaterReadingForm)
-from utilities_and_rent.models import (ElectricityBilling, ElectricityMeter, ElectricityPayments, ElectricityReadings,
-                                       PaymentMethods, RentPayment,
-                                       UnitRentDetails, WaterBilling,
-                                       WaterConsumption, WaterMeter, WaterPayments)
-from config.settings import DEFAULT_FROM_EMAIL
-from django.core.mail import EmailMessage
-from django.template.loader import render_to_string
+                                      WaterBillUpdateForm,
+                                      WaterMeterUpdateForm, WaterReadingForm)
+from utilities_and_rent.models import (ElectricityBilling, ElectricityMeter,
+                                       ElectricityPayments,
+                                       ElectricityReadings, PaymentMethods,
+                                       RentPayment, UnitRentDetails,
+                                       WaterBilling, WaterConsumption,
+                                       WaterMeter, WaterPayments)
 
 User = get_user_model()
 
@@ -160,23 +174,7 @@ def rent_and_utilities(request, building_slug):
     tenants = Tenants.objects.filter(rented_unit__building=building)
     tenants_filter = UnitTypeFilter(request.GET, queryset=tenants)
     
-    if request.method == 'POST':
-        water_meter_add_form = NewWaterMeterForm(building, request.POST)
-        electricity_meter_add_form = NewElectricityMeterForm(building, request.POST)
-        if water_meter_add_form.is_valid():
-            water_meter_add_form.save()
-            messages.success(request, 'Water meter added')
-            return HttpResponseRedirect("")
-        if electricity_meter_add_form.is_valid():
-            electricity_meter_add_form.save()
-            messages.success(request, 'Electricity meter added')
-            return HttpResponseRedirect("")
-    else:
-        water_meter_add_form = NewWaterMeterForm(building)
-        electricity_meter_add_form = NewElectricityMeterForm(building)
-    
-    context = {'building':building, 'tenants_filter':tenants_filter,'current_year':current_year,
-               'water_meter_add_form':water_meter_add_form,'electricity_meter_add_form':electricity_meter_add_form,}
+    context = {'building':building, 'tenants_filter':tenants_filter,'current_year':current_year,}
     return render(request, 'utilities_and_rent/building_utility_and_rent.html', context)
 
 @login_required
@@ -330,7 +328,7 @@ def manage_tenant_water_billing(request, building_slug, unit_slug, username):
             add_bill_form = StartWaterBillingForm()
     else:
         messages.info(request, 'No available water meter available for the unit, please add one first')
-        return redirect("rent-and-utilities", building_slug=building.slug)
+        return redirect("water_meter_management", building_slug=building.slug)
     
     context = {
         'building':building,'unit':unit,'tenant':tenant,'water_billing_set':billing_queryset,'check_open_billing':check_open_billing,
@@ -431,7 +429,7 @@ def manage_tenant_electric_bills(request, building_slug, unit_slug, username):
             start_e_bill_cycle_form = StartEBillCycleForm()
     else:
         messages.info(request, 'Electricity meter not found, please add one for the unit first')
-        return redirect("rent-and-utilities", building_slug=building.slug)
+        return redirect("electricity_meter_management", building_slug=building.slug)
     
     context = {'building':building,'unit':unit,'tenant':tenant,'bills':bills_qs,'electricity_meter':electricity_meter,
                'bill_form':start_e_bill_cycle_form,'check_open_billing':check_open_billing}
@@ -537,7 +535,7 @@ def tenant_water_usage(request,building_slug,unit_slug,username):
     tenant = Tenants.objects.get(rented_unit=unit,associated_account__username=username)
     queryset = WaterConsumption.objects.filter(
         parent__rental_unit=unit,parent__tenant=tenant).values('reading_added').annotate(
-            consumption=Sum('consumption')).order_by('reading_added')[:10] #last 10 readings
+            consumption=Sum('consumption')).order_by('reading_added')[:20] #last 20 readings
     
     for entry in queryset:
         labels.append(entry['reading_added'])
@@ -555,7 +553,7 @@ def tenant_electricity_usage(request,building_slug,unit_slug,username):
     tenant = Tenants.objects.get(rented_unit=unit,associated_account__username=username)
     queryset = ElectricityReadings.objects.filter(
         parent__rental_unit=unit,parent__tenant=tenant).values('reading_date').annotate(
-            units=Sum('units')).order_by('reading_date')[:10] #last 10 readings
+            units=Sum('units')).order_by('reading_date')[:20] #last 20 readings
     
     for entry in queryset:
         labels.append(entry['reading_date'])
@@ -583,3 +581,109 @@ def building_rent_overview(request,building_slug):
     
     data = {'labels': labels,'data': data}
     return JsonResponse(data)
+
+@login_required
+def building_water_consumtion(request,building_slug):
+    building = Building.objects.get(slug=building_slug)
+    
+    labels = []
+    data = []
+    queryset = WaterConsumption.objects.filter(parent__rental_unit__building=building).values(
+        'reading_added').annotate(units=Sum('consumption')).order_by('reading_added')
+    
+    for x in queryset:
+        labels.append(x['reading_added'])
+        data.append(x['units'])
+    context = {
+        'labels':labels,'data':data,
+    }
+    return JsonResponse(context)
+
+@login_required
+def building_electricity_consumption(request,building_slug):
+    building = Building.objects.get(slug=building_slug)
+    
+    labels = []
+    data = []
+    queryset = ElectricityReadings.objects.filter(
+        parent__rental_unit__building=building).values('reading_date').annotate(
+            kwh=Sum('units')).order_by('reading_date')
+        
+    for e in queryset:
+        labels.append(e['reading_date'])
+        data.append(e['kwh'])
+    context = {
+        'labels':labels,'data':data,
+    }
+    return JsonResponse(context)
+
+@login_required
+def water_meter_management(request,building_slug):
+    building = Building.objects.get(slug=building_slug)
+    
+    water_meters = WaterMeter.objects.filter(unit__building=building)
+    meter_filter = WaterMetersFilter(request.GET, queryset=water_meters)
+    
+    if request.method == 'POST':
+        water_meter_add_form = NewWaterMeterForm(building, request.POST)
+        if water_meter_add_form.is_valid():
+            water_meter_add_form.save()
+            messages.success(request, 'Water meter added')
+            return HttpResponseRedirect("")
+    else:
+        water_meter_add_form = NewWaterMeterForm(building)        
+    
+    context = {'building':building,'water_meters':meter_filter,'water_meter_add_form':water_meter_add_form}
+    return render(request, 'utilities_and_rent/water_meters.html', context)
+
+@login_required
+def water_meter_update(request,building_slug,meter_ssid):
+    building = Building.objects.get(slug=building_slug)
+    meter = WaterMeter.objects.get(ssid=meter_ssid)
+    
+    if request.method == 'POST':
+        update_form = WaterMeterUpdateForm(building, request.POST, instance=meter)
+        if update_form.is_valid():
+            update_form.save()
+            messages.success(request, 'updated')
+            return redirect('water_meter_management', building_slug=building.slug)
+    else:
+        update_form = WaterMeterUpdateForm(building,instance=meter)
+        
+    context = {'building': building, 'update_form': update_form}
+    return render(request, 'utilities_and_rent/update_water_meter.html', context)
+    
+@login_required
+def electricity_meter_management(request, building_slug):
+    building = Building.objects.get(slug=building_slug)
+    electricity_meters = ElectricityMeter.objects.filter(unit__building=building)
+    meter_filter = ElectricityMetersFilter(request.GET, queryset=electricity_meters)
+
+    if request.method == 'POST':
+        electricity_meter_add_form = NewElectricityMeterForm(building, request.POST)
+        if electricity_meter_add_form.is_valid():
+            electricity_meter_add_form.save()
+            messages.success(request, 'Electricity meter added')
+            return HttpResponseRedirect("")
+    else:        
+        electricity_meter_add_form = NewElectricityMeterForm(building)
+        
+    context = {'building':building,'electricity_meters':meter_filter,'electricity_meter_add_form':electricity_meter_add_form}
+    return render(request, 'utilities_and_rent/electricity_meters.html', context)
+
+@login_required
+def electricity_meter_update(request,building_slug,meter_ssid):
+    building = Building.objects.get(slug=building_slug)
+    meter = ElectricityMeter.objects.get(ssid=meter_ssid)
+    
+    if request.method == 'POST':
+        update_form = ElectricityMeterUpdateForm(building,request.POST, instance=meter)
+        if update_form.is_valid():
+            update_form.save()
+            messages.success(request, 'Updated')
+            return redirect('electricity_meter_management', building_slug=building.slug)
+    else:
+        update_form = ElectricityMeterUpdateForm(building,instance=meter)
+        
+    context = {'building': building, 'update_form': update_form,}
+    return render(request, 'utilities_and_rent/update_electricity_meter.html', context)

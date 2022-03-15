@@ -23,7 +23,7 @@
               Electricity Billing for {{unit.unit_number}} Overview
             </div>
             <div class="row">
-              <div class="col-sm-6">
+              <div class="col-sm-12 col-md-6 col-xl-6">
                 <div class="card border-0">
                   <div class="card-body">
                     <ul class="list-group">
@@ -35,10 +35,6 @@
                           <strong> Tenant Name </strong>
                           <span> {{tenant.associated_account.last_name}} {{tenant.associated_account.first_name}}</span>
                         </li>
-                      <li class="list-group-item d-flex justify-content-between border-0 align-items-center">
-                          <strong>Unit Status </strong>
-                          <span>{{tenant.rented_unit.get_maintanance_status_display}}</span>
-                        </li>
                     <li class="list-group-item d-flex justify-content-between border-0 align-items-center">
                             <strong> From </strong> <span> {{oldest_bill.from_date}} </span> &nbsp;
                             <strong> To </strong> <span> {{newest_bill.to_date}}
@@ -47,7 +43,7 @@
                   </div>
                 </div>
               </div>
-              <div class="col-sm-6">
+              <div class="col-sm-12 col-md-6 col-xl-6">
                 <div class="card border-0">
                   <div class="card-body">
                     <canvas id="tenantsElectricityUsage" data-url="{% url 'tenant_electricity_usage' building.slug unit.slug tenant.associated_account.username %}">
@@ -60,7 +56,8 @@
           <!-- Overview end-->
     
             <div class="row">
-              <div class="col-sm-3">
+              <div class="mt-3 col-sm-12 col-md-3 col-xl-3">
+                <h4 class="card-header text-center">Search </h4>
                 <form method='get'>
                     {{e_bills.form|crispy }}
                     <br>
@@ -71,7 +68,7 @@
                 <br>
               </div> 
 
-              <div class="col-sm-9">
+              <div class="col-sm-12 col-md-9 col-xl-9">
                 <div class="row">
                   <div class="col-sm-12">
                       <div class="card card-body">

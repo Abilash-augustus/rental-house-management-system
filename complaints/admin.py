@@ -1,6 +1,8 @@
 from django.contrib import admin
 
-from complaints.models import Complaints, UnitReport, UnitReportType, UnitReportAlbum
+from complaints.models import (Complaints, HelpContacts, UnitReport,
+                               UnitReportAlbum, UnitReportType)
+
 
 class UnitReportAlbumAdmin(admin.StackedInline):
     model = UnitReportAlbum
@@ -21,3 +23,9 @@ class ComplaintsAdmin(admin.ModelAdmin):
 class UnitReportTypeAdmin(admin.ModelAdmin):
     list_display = ['name', 'slug', 'created', 'updated']
     
+    
+@admin.register(HelpContacts)
+class HelpContactsAdmin(admin.ModelAdmin):
+    list_display = ['contact','is_type','used_for','make_publicly_available','created']
+    list_filter = ['is_type','created']
+    list_editable = ['make_publicly_available']

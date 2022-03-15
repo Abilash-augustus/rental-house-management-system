@@ -3,23 +3,6 @@
 {% load static %}
 {% block extra_css %}
 <link type="text/css" href="{% static 'css/dashboard.css' %}" rel="stylesheet" crossorigin="anonymous">
-<style type="text/css">
-    .card {
-        transition: all 0.2s ease;
-        cursor: pointer
-    }
-    .card:hover {
-        box-shadow: 5px 6px 6px 2px #e9ecef;
-        transform: scale(1.1)
-          }
-          a:link { text-decoration: none; }
-
-a:visited { text-decoration: none; }
-
-a:hover { text-decoration: none; }
-
-a:active { text-decoration: none; }
-    </style>
 {% endblock %}
 
 {% block content %}
@@ -48,6 +31,33 @@ a:active { text-decoration: none; }
                     <h2 class="card-header text-center"> Stats </h2>
                 </div>
                 </div>
+
+                <!-- overview start -->
+          <div class="container card p-0 mb-2">
+            <div class="card-header text-center w-100">
+              consumption
+            </div>
+            <div class="row">
+              <div class="col-sm-6 col-md-6 col-xl-6">
+                <div class="card border-0">
+                  <div class="card-body">
+                    <canvas id="buildingWaterChart" data-url="{% url 'building_water_consumtion' building.slug %}">
+                    </canvas>
+                  </div>
+                </div>
+              </div>
+              <div class="col-sm-6 col-md-6 col-xl-6">
+                <div class="card border-0">
+                  <div class="card-body">
+                    <canvas id="buildingElectricityChart" data-url="{% url 'building_electricity_consumption' building.slug %}">
+                    </canvas>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Overview end-->
+          
               <div class="row">
                   <div class="col-md-4 wow fadeInUp" data-wow-delay="0.0s">
                       <div class="describe-item">

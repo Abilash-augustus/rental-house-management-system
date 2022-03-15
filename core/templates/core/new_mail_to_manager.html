@@ -17,7 +17,7 @@
         <div class="col-12 col-md-8 col-lg-8 col-xl-7">
           <div class="card shadow-2-strong" style="border-radius: 1rem;">
             <div class="card-body p-5 text-center">
-                <h3 class="text-center card-header"></h3>
+                <h5 class="text-center card-header">This email will be sent to {{building.manager}}</h5>
                 <form class="no-padding" method="POST" enctype="multipart/form-data">
                     {% csrf_token %}
                     <fieldset class="form-group">

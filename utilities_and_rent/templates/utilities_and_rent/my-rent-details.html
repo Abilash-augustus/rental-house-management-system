@@ -21,7 +21,7 @@
 
           <div class="card mb-3">
             <div class="card-header text-center">
-              Payment Options
+             Rent Payment Options
             </div>
             <div class="card-body">
               <div class="row row-cols-1 row-cols-md-3 g-4">
@@ -50,7 +50,7 @@
               Overview
             </div>
             <div class="row">
-              <div class="col-sm-4">
+              <div class="col-sm-12 col-md-4 col-xl-4">
                 <div class="card border-0">
                   <div class="card-body">
                     <canvas id="tenantRentChart" data-url="{% url 'rent_chart' building.slug unit.slug tenant.associated_account.username %}">
@@ -58,7 +58,7 @@
                   </div>
                 </div>
               </div>
-              <div class="col-sm-4">
+              <div class="col-sm-12 col-md-4 col-xl-4">
                 <div class="card border-0">
                   <div class="card-body">
                     <canvas id="tenantWaterUsageChart" data-url="{% url 'tenant-water-usage' building.slug unit.slug tenant.associated_account.username %}">
@@ -66,7 +66,7 @@
                   </div>
                 </div>
               </div>
-              <div class="col-sm-4">
+              <div class="col-sm-12 col-md-4 col-xl-4">
                 <div class="card border-0">
                   <div class="card-body">
                     <canvas id="tenantsElectricityUsage" data-url="{% url 'tenant_electricity_usage' building.slug unit.slug tenant.associated_account.username %}">
@@ -80,15 +80,14 @@
 
     
             <div class="row">
-              <div class="col-sm-3">
+              <div class="mb-3 col-sm-12 col-md-3 col-xl-3">
                 
                 <div class="list-group">
                     <a href=" {% url 'my_electric_bills' building.slug unit.slug tenant.associated_account.username %} " type="button" class='list-group-item list-group-item-action' role="button">My Electricity Bills</a>
                     <a href="{% url 'my_water_billing' building.slug unit.slug tenant.associated_account.username %}" type="button" class="list-group-item list-group-item-action" role="button">My Water Bills</a>
                   </div>
-
                   <div class="card mt-4">
-                    <h4 class="text-center card-header"> Query Area </h4>
+                    <h4 class="text-center card-header"> Search </h4>
                       <div class="card-body">
                         <form method='GET' class="no-padding">
                           {{tenant_rent_details_qs.form|crispy}}
@@ -101,7 +100,7 @@
                     </div>
               </div>
 
-              <div class="col-sm-9">
+              <div class="col-sm-12 col-md-9 col-xl-9 mb-4">
                 <div class="row">
                   <div class=" col-sm-12">
                       <div class="card card-body">
