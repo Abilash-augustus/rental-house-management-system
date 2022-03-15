@@ -207,7 +207,7 @@ def add_tenant_rent(request, building_slug, unit_slug):
                 messages.success(request, 'Rent added successfully')
                 notify = rent_form.instance
                 if notify.notify_tenant == True:
-                    subject = "Rent Added For '{0} {1}'".format(notify.pay_for_month, current_year)
+                    subject = "RENT ADDED FOR '{0} {1}'".format(notify.pay_for_month, current_year)
                     notify_content = 'utilities_and_rent/mails/notify_rent.html'
                     html_message = render_to_string(notify_content, 
                                                     {'building':building,'notify':notify,'current_year':current_year,})

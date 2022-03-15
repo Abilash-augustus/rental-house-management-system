@@ -76,7 +76,7 @@ class WorkOrder(models.Model):
     due_date = models.DateField()
     created = models.DateTimeField(default=datetime.now)
     updated = models.DateTimeField(auto_now=True)
-    email_personnel = models.BooleanField(default=False)
+    email_personnel = models.BooleanField(default=True)
     
     def save(self, *args, **kwargs):
         if not self.work_order_code:

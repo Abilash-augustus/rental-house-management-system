@@ -35,7 +35,7 @@ class PaymentMethods(models.Model):
     def __str__(self):
         return f'{self.name} - {self.account_number}'
     class Meta:
-        verbose_name_plural = 'Payment Methods'
+        verbose_name_plural = 'Payment Options'
         
     
 class UnitRentDetails(models.Model):

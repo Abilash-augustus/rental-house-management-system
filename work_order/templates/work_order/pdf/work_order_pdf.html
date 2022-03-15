@@ -72,14 +72,14 @@
              </br>
              Etimated Duration: {{oerder.est_duration}}<br/>
              <div>
-                <p class='subject'> Subject: {{order.title}} </p>
+                <p class='subject'> {{order.title}} </p>
             </div>
             <hr class='hrItem' />
 
             <div>
                 &nbsp;&nbsp;&nbsp;{{order.description|safe}}
             </div>
-            {% if order.additional_workers %}
+            {% if order.additional_workers.all %}
             <table>
                 <thead>
                 <tr>
@@ -100,7 +100,7 @@
                 {% endif %}
         </div>
     </div>
-    <hr/>
+    <br/>
     <div id="footer">
         <small>{{building.name}} - {{building.address_line}}</small> <br/>
         Created: {{order.created}} <br/>
