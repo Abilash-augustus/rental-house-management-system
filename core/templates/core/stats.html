@@ -3,6 +3,9 @@
 {% load static %}
 {% block extra_css %}
 <link type="text/css" href="{% static 'css/dashboard.css' %}" rel="stylesheet" crossorigin="anonymous">
+<style type="text/css">
+    .left-success{border-left:.25rem solid #000!important}
+</style>
 {% endblock %}
 
 {% block content %}
@@ -57,155 +60,171 @@
             </div>
           </div>
           <!-- Overview end-->
+
+          
           
               <div class="row">
-                  <div class="col-md-4 wow fadeInUp" data-wow-delay="0.0s">
-                      <div class="describe-item">
-                          <div class="describe-header">
-                              <div class="describe-title">
-                                  <h2>Tenants</h2>
-                              </div>
+
+                <div class="col-xl-3 col-lg-3 col-md-5 mb-3">
+                    <div class="card left-success shadow h-80 py-2">
+                      <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                          <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Tenants</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                            ({{waiting_tenants}}) Waiting <br/>
+                            ({{movedin_tenants}}) Moved In 
+                            </div>
                           </div>
-                          <div class="describe-body">
-                              <div class="describe-description">
-                                  <ul>
-                                      <li><em>"Moved In": {{movedin_tenants}}</em></li>
-                                      <li><em>"Waiting": {{waiting_tenants}}</em></li>
-                                  </ul>
-                              </div>
+                          <div class="col-auto">
+                            <em class="fas fa-user fa-2x text-gray-300"></em>
                           </div>
+                        </div>
                       </div>
+                    </div>
                   </div>
-                  <div class="col-md-4 wow fadeInUp" data-wow-delay="0.3s">
-                      <div class="describe-item featured-item">
-                          <div class="describe-header">
-                              <div class="describe-title">
-                                  <h2>Units</h2>
-                              </div>
+
+                  <div class="col-xl-3 col-lg-3 col-md-5 mb-3">
+                    <div class="card left-success shadow h-80 py-2">
+                      <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                          <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Rental Houses</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                <em>{{occupied_units}} Occupied </em> <br/>
+                                <em>{{un_occupied_units}} Empty</em>
+                            </div>
                           </div>
-                          <div class="describe-body">
-                              <div class="describe-description">
-                                  <ul>
-                                      <li><em>"Occupied": {{occupied_units}}</em></li>
-                                      <li><em>"Un Occupied": {{un_occupied_units}}</em></li>
-                                  </ul>
-                              </div>
+                          <div class="col-auto">
+                            <em class="fas fa-user fa-2x text-gray-300"></em>
                           </div>
+                        </div>
                       </div>
+                    </div>
                   </div>
-                  <div class="col-md-4 wow fadeInUp" data-wow-delay="0.6s">
-                      <div class="describe-item">
-                          <div class="describe-header">
-                              <div class="describe-title">
-                                  <h2>Move Out Notices</h2>
-                              </div>
+
+                  <div class="col-xl-3 col-lg-3 col-md-5 mb-3">
+                    <div class="card left-success shadow h-80 py-2">
+                      <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                          <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Move Out Notices</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {{received_move_out_notices}} Received <br/>
+                                {{checking_move_out_notices}} Checking <br/>
+                                {{confirmed_move_out_notices}} Confirmed <br/>
+                                {{dropped_move_out_notices}} Dropped
+                            </div>
                           </div>
-                          <div class="describe-body">
-                              <div class="describe-description">
-                                  <ul>
-                                      <li>"Received": {{received_move_out_notices}}</li>
-                                      <li><em>"Confirmed": {{confirmed_move_out_notices}}</em></li>
-                                      <li><em>"Checking": {{checking_move_out_notices}}</em></li>
-                                      <li><em>"Dropped": {{dropped_move_out_notices}}</em></li>
-                                  </ul>
-                              </div>
+                          <div class="col-auto">
+                            <em class="fas fa-user fa-2x text-gray-300"></em>
                           </div>
+                        </div>
                       </div>
+                    </div>
                   </div>
-              </div>
-              <div class="row">
-                  <div class="col-md-4 wow fadeInUp" data-wow-delay="0.9s">
-                      <div class="describe-item">
-                          <div class="describe-header">
-                              <div class="describe-title">
-                                  <h2>Eviction Notices</h2>
-                              </div>
+
+                  <div class="col-xl-3 col-lg-3 col-md-5 mb-3">
+                    <div class="card left-success shadow h-80 py-2">
+                      <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                          <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Complaints</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {{open_complaints}} Open <br/>
+                                {{closed_complaints}} Closed
+                            </div>
                           </div>
-                          <div class="describe-body">
-                              <div class="describe-description">
-                                  <ul>
-                                      <li><em>"Initiated": {{initiated_evictions}}</em></li>
-                                      <li><em>"Evicted": {{evicted_evictions}}</em></li>
-                                      <li><em>"Dropped": {{dropped_evictions}}</em></li>
-                                  </ul>
-                              </div>
+                          <div class="col-auto">
+                            <em class="fas fa-user fa-2x text-gray-300"></em>
                           </div>
+                        </div>
                       </div>
+                    </div>
                   </div>
-                  <div class="col-md-4 wow fadeInUp" data-wow-delay="1.2s">
-                      <div class="describe-item featured-item">
-                          <div class="describe-header">
-                              <div class="describe-title">
-                                  <h2>Unit Reports</h2>
-                              </div>
+
+                  <div class="col-xl-3 col-lg-3 col-md-5 mb-3">
+                    <div class="card left-success shadow h-80 py-2">
+                      <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                          <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">House Reports</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {{recieved_unit_reports}} Received <br/>
+                                {{processing_unit_reports}} Processing <br/>
+                                {{resolved_unit_reports}} Resolved <br/>
+                                {{dropped_unit_reports}} Dropped <br/>
+                            </div>
                           </div>
-                          <div class="describe-body">
-                              <div class="describe-description">
-                                  <ul>
-                                      <li><em>"Received": {{recieved_unit_reports}}</em></li>
-                                      <li><em>"Processing": {{processing_unit_reports}}</em></li>
-                                      <li><em>"Resolved": {{resolved_unit_reports}}</em></li>
-                                      <li><em>"Dropped": {{dropped_unit_reports}}</em></li>
-                                  </ul>
-                              </div>
+                          <div class="col-auto">
+                            <em class="fas fa-user fa-2x text-gray-300"></em>
                           </div>
+                        </div>
                       </div>
+                    </div>
                   </div>
-                  <div class="col-md-4 wow fadeInUp" data-wow-delay="1.2s">
-                      <div class="describe-item">
-                          <div class="describe-header">
-                              <div class="describe-title">
-                                  <h2>Building Complaints</h2>
-                              </div>
+
+                  <div class="col-xl-3 col-lg-3 col-md-5 mb-3">
+                    <div class="card left-success shadow h-80 py-2">
+                      <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                          <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Eviction</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {{initiated_evictions}} Initiated <br/>
+                                {{evicted_evictions}} Evicted <br/>
+                                {{dropped_evictions}} Dropped
+                            </div>
                           </div>
-                          <div class="describe-body">
-                              <div class="describe-description">
-                                  <ul>
-                                      <li><em>"Open": {{open_complaints}}</em></li>
-                                      <li><em>"Closed": {{closed_complaints}}</em></li>
-                                  </ul>
-                              </div>
+                          <div class="col-auto">
+                            <em class="fas fa-user fa-2x text-gray-300"></em>
                           </div>
+                        </div>
                       </div>
+                    </div>
                   </div>
-                  <div class="col-md-4 wow fadeInUp" data-wow-delay="1.2s">
-                      <div class="describe-item">
-                          <div class="describe-header">
-                              <div class="describe-title">
-                                  <h2>Planned Tours</h2>
-                              </div>
+
+                  <div class="col-xl-3 col-lg-3 col-md-5 mb-3">
+                    <div class="card left-success shadow h-80 py-2">
+                      <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                          <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Scheduled Visits</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {{waiting_tours}} Waiting <br/>
+                                {{approved_tours}} Approved <br/>
+                                {{cancelled_tours}} Cancelled <br/>
+                                {{visited_tours}} Visited
+                            </div>
                           </div>
-                          <div class="describe-body">
-                              <div class="describe-description">
-                                  <ul>
-                                      <li><em>"Waiting": {{waiting_tours}}</em></li>
-                                      <li><em>"Cancelled": {{cancelled_tours}}</em></li>
-                                      <li><em>"Approved": {{approved_tours}}</em></li>
-                                      <li><em>"Visited": {{visited_tours}}</em></li>
-                                  </ul>
-                              </div>
+                          <div class="col-auto">
+                            <em class="fas fa-user fa-2x text-gray-300"></em>
                           </div>
+                        </div>
                       </div>
+                    </div>
                   </div>
-                  <div class="col-md-4 wow fadeInUp" data-wow-delay="1.2s">
-                      <div class="describe-item featured-item">
-                          <div class="describe-header">
-                              <div class="describe-title">
-                                  <h2>Utilities (30 Days)</h2>
-                              </div>
+
+                  <div class="col-xl-3 col-lg-3 col-md-5 mb-3">
+                    <div class="card left-success shadow h-80 py-2">
+                      <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                          <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Building Consumption</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                Electricity (KwH)": {{sum_electric_consumption.normalize|intcomma}} <hr/>
+                                Water (m3) : {{sum_water_consumption.normalize|intcomma}} 
+                                </ul>
+                            </div>
                           </div>
-                          <div class="describe-body">
-                              <div class="describe-description">
-                                  <ul>
-                                      <h5>Electricity</h5>
-                                      <li><em>"Units (KwH)": {{sum_electric_consumption.normalize|intcomma}}</em></li>
-                                      <h5>Water</h5>
-                                      <li><em>"Units": {{sum_water_consumption.normalize|intcomma}}</em></li>
-                                  </ul>
-                              </div>
+                          <div class="col-auto">
+                            <em class="fas fa-user fa-2x text-gray-300"></em>
                           </div>
+                        </div>
                       </div>
+                    </div>
                   </div>
+
             </div>
         </div>
     </div>

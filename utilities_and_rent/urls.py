@@ -30,4 +30,5 @@ urlpatterns = [
     path('water_meter_update/<slug:building_slug>/<slug:meter_ssid>/', views.water_meter_update, name='water_meter_update'),
     path('electricity_meter_management/<slug:building_slug>/', views.electricity_meter_management, name='electricity_meter_management'),
     path('electricity_meter_update/<slug:building_slug>/<slug:meter_ssid>/', views.electricity_meter_update, name='electricity_meter_update'),
+    
 ]

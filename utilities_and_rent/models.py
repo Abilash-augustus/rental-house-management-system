@@ -9,6 +9,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from multiselectfield import MultiSelectField
 from rental_property.models import RentalUnit,Building
+import uuid
 
 MONTHS_SELECT = [
     ('jan', 'January'),
@@ -43,9 +44,10 @@ class UnitRentDetails(models.Model):
         ('refunded', 'Refunded'),
         ('open','open'),
         ('closed','closed'),
+        ('defaulted','Defaulted'),
     ]
     RENT_TYPE_CHOICES = [
-        ('rent','Rent'),
+        ('rent','Monthly Rent'),
         ('s_deposit','Security Deposit'),
     ]
     code = models.CharField(max_length=15, unique=True, null=True, blank=True)
@@ -58,9 +60,9 @@ class UnitRentDetails(models.Model):
     cleared = models.BooleanField(default=False)
     status = models.CharField(max_length=15, choices=STATUS_CHOICES, default='open')
     rent_type = models.CharField(max_length=15,choices=RENT_TYPE_CHOICES,default='rent')
-    start_date = models.DateField()
-    end_date = models.DateField()
-    due_date = models.DateField()
+    start_date = models.DateTimeField()
+    end_date = models.DateTimeField()
+    due_date = models.DateTimeField()
     notify_tenant = models.BooleanField(default=True)
     added = models.DateTimeField(default=datetime.now)
     updated = models.DateTimeField(auto_now=True)
@@ -310,4 +312,4 @@ class ElectricityMeter(models.Model):
     updated = models.DateTimeField(auto_now=True)
     
     def __str__(self):
-        return f"{self.number} - {self.unit}"
+        return f"{self.number} - {self.unit}"  

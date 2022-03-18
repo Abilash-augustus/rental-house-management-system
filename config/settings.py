@@ -8,7 +8,7 @@ load_dotenv()
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = str(os.getenv('DJANGO_SECRET_KEY'))
-DEBUG = False
+DEBUG = True
 
 # Authentication handler for django/allauth
 AUTHENTICATION_BACKENDS = [
@@ -16,7 +16,7 @@ AUTHENTICATION_BACKENDS = [
     'allauth.account.auth_backends.AuthenticationBackend',
 ]
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'hrmsysytem.herokuapp.com']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'hrmsysytem.herokuapp.com','.ngrok.io']
 
 # Application definition
 
@@ -42,7 +42,7 @@ INSTALLED_APPS = [
 
     'accounts.apps.AccountsConfig',
     'rental_property',
-    'utilities_and_rent',
+    'utilities_and_rent.apps.UtilitiesAndRentConfig',
     'core',
     'complaints',
     'work_order',
@@ -50,6 +50,8 @@ INSTALLED_APPS = [
 
 SITE_ID = 1
 AUTH_USER_MODEL = 'accounts.User'
+
+CSRF_TRUSTED_ORIGINS = ['https://b3d7-154-122-63-122.ngrok.io',]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

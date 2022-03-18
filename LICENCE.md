@@ -1,6 +1,6 @@
 MIT License
 
-Copyright (c) [2022] [Bravin&Gilbert]
+Copyright (c) [2022] [Bravin and Gilbert]
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
