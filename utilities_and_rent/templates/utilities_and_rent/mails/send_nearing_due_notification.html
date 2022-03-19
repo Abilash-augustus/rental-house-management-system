@@ -337,11 +337,7 @@
                                 <div class="col-md-8">
                                     <div class="card">
                                         <div class="d-flex flex-row p-2">
-                                            {% if today > data.due_date  %}
-                                            You have rent due in {{data.due_date|naturaltime}}. Please pay to avoid penalties. Find the details below: <br/>
-                                            {% else %}
-                                            You have rent that has been due for {{data.due_date|naturaltime}}. Please pay to avoid penalties. Find the details below: <br/>
-                                            {% endif %}
+                                            Notification for rent due {{data.due_date|naturaltime}}. Please pay to avoid extra charges. Find the details below: <br/>
                                             <br/>
                                             <div class="d-flex flex-column"> <span class="font-weight-bold"> RENT DETAILS </span></div>
                                         </div>

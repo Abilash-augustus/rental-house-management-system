@@ -51,7 +51,7 @@ INSTALLED_APPS = [
 SITE_ID = 1
 AUTH_USER_MODEL = 'accounts.User'
 
-CSRF_TRUSTED_ORIGINS = ['https://b3d7-154-122-63-122.ngrok.io',]
+CSRF_TRUSTED_ORIGINS = ['https://ea66-154-122-7-113.ngrok.io',]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -64,6 +64,9 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+STRIPE_PUBLISHABLE_KEY = str(os.getenv('STRIPE_PUBLISHABLE_KEY'))
+STRIPE_SECRET_KEY = str(os.getenv('STRIPE_SECRET_KEY'))
+    
 #handle staticfiles
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
@@ -126,11 +129,11 @@ USE_TZ = True
 
 #sendgrig email settings for notifications
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.sendgrid.net'
+EMAIL_HOST = 'smtp.mailgun.org' #'smtp.sendgrid.net'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'apikey'
-EMAIL_HOST_PASSWORD = os.environ.get('SENDGRID_EMAIL_HOST_PASSWORD')
+EMAIL_HOST_USER = 'postmaster@sandboxbdd5463522f84dc9bb8a887714075ada.mailgun.org'#'apikey'
+EMAIL_HOST_PASSWORD =  'd94e94834d566c1284aa110ccce96e37-90346a2d-09e3ab9c' # os.environ.get('SENDGRID_EMAIL_HOST_PASSWORD')
 DEFAULT_FROM_EMAIL = 'Rental House Management System <bravinshumwe@gmail.com>'
 
 # Static files (CSS, JavaScript, Images)

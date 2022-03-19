@@ -20,7 +20,7 @@
           Rent Overview - {{building.name}} "{{current_year}}"
         </div>
         <div class="row d-flex justify-content-center">
-          <div class="col-sm-6">
+          <div class="col-sm-12 col-lg-6 col-md-6">
             <div class="card border-0">
               <div class="card-body">
                 <canvas id="building-rent-chart" data-url="{% url 'building_rent_overview' building.slug %}">
@@ -33,7 +33,7 @@
       <!-- Overview end-->
 
         <div class="row">
-            <div class="col-sm-3">
+            <div class="col-sm-3 col-md-3 co-lg-3 col-xl-3">
               <div class="list-group mb-2">
                   <a role="button" type="button" class="list-group-item list-group-item-action" href="{% url 'electricity_meter_management' building.slug %}"> Electricity Meter Management</a>
                   <a role="button" type="button" class="list-group-item list-group-item-action" href="{% url 'water_meter_management' building.slug %}">Water Meter Management</a>

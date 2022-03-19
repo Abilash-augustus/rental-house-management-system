@@ -60,7 +60,7 @@
                   <caption> Submitted Payments </caption>
                   <thead>
                     <tr>
-                      <th scope="col">Code</th>
+                      <th scope="col">Ref. Code</th>
                       <th scope="col">Tenant</th>
                       <th scope="col">Paid Amount</th>
                       <th scope="col"> Payment Method </th>
@@ -76,7 +76,7 @@
                       <th scope="row">{{pay.payment_code}}</th>
                       <td>{{pay.tenant.associated_account.first_name}} {{tenant.associated_account.last_name}}</td>
                       <td>{{rent.currency}} {{pay.amount|intcomma}}</td>
-                      <td> {{pay.payment_method.name}} </td>
+                      <td> {% if pay.paid_with_stripe %} Stripe {% else %} {{pay.payment_method.name}} {% endif %} </td>
                       <td> {{pay.paid_on}} </td>
                       <td> {{pay.get_status_display}}</td>
                       <td> <a href="{% url 'update-rent' building.slug unit.slug tenant.associated_account.username rent_details.code pay.tracking_code%}"> 

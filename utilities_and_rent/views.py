@@ -1,7 +1,9 @@
+import json
 from datetime import datetime
-
+import stripe
+import math
 from accounts.models import Managers, Tenants
-from config.settings import DEFAULT_FROM_EMAIL
+from config.settings import DEFAULT_FROM_EMAIL, STRIPE_PUBLISHABLE_KEY, STRIPE_SECRET_KEY
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -9,11 +11,14 @@ from django.core.mail import EmailMessage
 from django.core.paginator import InvalidPage, PageNotAnInteger, Paginator
 from django.db.models import Q, Sum
 from django.http import HttpResponse, JsonResponse
+from django.http.response import HttpResponseNotFound, JsonResponse
 from django.shortcuts import (HttpResponseRedirect, get_object_or_404,
                               redirect, render)
 from django.template.loader import render_to_string
+from django.urls import reverse, reverse_lazy
+from django.views.decorators.csrf import csrf_exempt
 from rental_property.models import Building, RentalUnit
-
+from decimal import Decimal
 from utilities_and_rent.filters import (ElectricityMetersFilter,
                                         ManagerElectricityBillsFilter,
                                         PaymentsFilter, RentDetailsFilter,
@@ -42,7 +47,7 @@ from utilities_and_rent.models import (ElectricityBilling, ElectricityMeter,
                                        RentPayment, UnitRentDetails,
                                        WaterBilling, WaterConsumption,
                                        WaterMeter, WaterPayments)
-
+from django.core.exceptions import ObjectDoesNotExist
 User = get_user_model()
 
 current_year = datetime.now().year
@@ -72,8 +77,39 @@ def submit_rent_payments(request, building_slug, unit_slug, rent_code, username)
     rent = UnitRentDetails.objects.get(code=rent_code, tenant=tenant)
     previous_payments = RentPayment.objects.filter(tenant=tenant, tenant__rented_unit=unit, rent_details=rent)
     
+    stripe.api_key = STRIPE_SECRET_KEY
+    rent_description = 'RENT CHARGES'
+    charge_total = int(rent.rent_amount-rent.amount_paid)*100
+        
     if request.method == 'POST':
+        # stripe bill
+        try:
+            token = request.POST['stripeToken']
+            email = request.POST['stripeEmail']
+            stripe_tenant = stripe.Customer.create(email=email, source=token)
+            charge = stripe.Charge.create(amount=charge_total,
+                                          currency = 'kes',description = rent_description,
+                                          customer = stripe_tenant.id)
+            # create pay to model
+            try:
+                paid_by_stripe = RentPayment.objects.create(
+                    rent_details=rent, manager=manager, tenant=tenant,status='approved',
+                    payment_code=token, amount=(charge_total/100), paid_for_month=rent.pay_for_month,
+                    paid_on=datetime.now().date(), paid_with_stripe=True,)
+                paid_by_stripe.save()
+                #update rent instance
+                rent.amount_paid += Decimal(float(paid_by_stripe.amount))
+                rent.save()                
+                messages.success(request, 'Charge was succesful')
+                return HttpResponseRedirect('')
+            except ObjectDoesNotExist:
+                pass
+        except stripe.error.CardError as e:
+            return False,e
+                
+        # end stripe
         pay_info_form = SubmitPaymentsForm(request.POST)
+        #ofline submit
         if pay_info_form.is_valid():
             pay_info_form.instance.rent_details = rent
             pay_info_form.instance.tenant = tenant
@@ -86,8 +122,11 @@ def submit_rent_payments(request, building_slug, unit_slug, rent_code, username)
         pay_info_form = SubmitPaymentsForm()
         
     context = {'pay_info_form':pay_info_form,'building':building,'rent':rent,
-               'tenant':tenant,'unit':unit,'previous_payments':previous_payments}
+               'tenant':tenant,'unit':unit,'previous_payments':previous_payments,
+               'stripe_publishable_key':STRIPE_PUBLISHABLE_KEY,'description':rent_description,
+               'charge_total':charge_total,}
     return render(request, 'utilities_and_rent/submit-payments-rent.html', context)
+    
 
 @login_required
 def my_water_billing(request,building_slug,unit_slug,username):

@@ -7,15 +7,14 @@ from utilities_and_rent.models import (ElectricityBilling, ElectricityPayments,
 @admin.register(UnitRentDetails)
 class UnitRentDetailsAdmin(admin.ModelAdmin):
     list_display = ['tenant', 'unit', 'rent_amount', 'pay_for_month', 'cleared', 'due_date']
-    list_editable = ['rent_amount',]
     
     def has_change_permission(self, request, obj=None):
         return False
 
 @admin.register(RentPayment)
 class RentPaymentAdmin(admin.ModelAdmin):
-    list_display = ['rent_details','manager','payment_code','amount','paid_for_month','paid_on','payment_method', 'status','payment_method']
-    list_filter = ('status','added_on')
+    list_display = ['rent_details','manager','payment_code','amount','paid_for_month','paid_on','payment_method','paid_with_stripe', 'status','added_on']
+    list_filter = ('status','paid_with_stripe','added_on')
     search_fields = ('payment_code',)
 
 @admin.register(PaymentMethods)

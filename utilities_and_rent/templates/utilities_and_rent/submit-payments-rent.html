@@ -80,10 +80,33 @@
                         <div class="ms-2 me-auto">Last Updated</div>
                         <span> {{rent.updated|naturaltime}} </span>
                       </li>
-
                   </ul>
                 <br>
+        <!--test stripe -->
+        <!-- data-label TODO: -->
+        <div class="disaled text-center mb-3" style="{% if rent.cleared %} pointer-events: none; opacity: 0.4;{% endif %}">
+          <form method="post">
+            {% csrf_token %}
+            <script src="https://checkout.stripe.com/checkout.js" class="stripe-button"
+              data-key="{{ stripe_publishable_key }}"
+              data-amount="{{charge_total}}"
+              data-name="RENT PAYMENT"
+              data-description="{{description}}"
+              data-image="https://stripe.com/img/documentation/checkout/marketplace.png"
+              data-locale="auto"
+              data-currency="KES">
+            </script>
+          </form>
+        </div>
+              <!-- end -->
+
+              <div class="text-center">
+                <h3><kbd> OR </kbd></h3>
+                <div>
+
                 {% if rent.cleared == False %}
+                <div class="text-center">
+                <small class="card-header"> Just submit your records here <em class="fa fa-arrow-down"></em></small>
                 <form class="no-padding text-center" method="POST" enctype="multipart/form-data">
                     {% csrf_token %}
                     <fieldset class="form-group">
@@ -95,6 +118,7 @@
                         <button class="btn btn-outline-primary" type="submit">Submit</button>
                     </div>
                 </form>
+                <div>
                 {% endif %}
                 <br>
 
@@ -119,7 +143,7 @@
                       <th scope="row">{{pay.payment_code}}</th>
                       <td>{{pay.tenant.associated_account.first_name}} {{tenant.associated_account.last_name}}</td>
                       <td>{{rent.currency}} {{pay.amount|intcomma}}</td>
-                      <td> {{pay.payment_method.name}} </td>
+                      <td> {% if pay.paid_with_stripe %} Stripe {% else %} {{pay.payment_method.name}} {% endif %} </td>
                       <td> {{pay.paid_on}} </td>
                       <td> {{pay.get_status_display}}</td>
                       {% if pay.reason %}
@@ -144,5 +168,4 @@
   </div>
 </section>
 
-</section>
 {% endblock %}

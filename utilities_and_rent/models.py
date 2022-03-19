@@ -1,7 +1,7 @@
 import random
 import string
 from datetime import datetime
-
+import math
 from accounts.models import Managers, Tenants
 from django.contrib.auth import get_user_model
 from django.db import models
@@ -70,12 +70,12 @@ class UnitRentDetails(models.Model):
     
     def amount_remaining(self):
         r_amount = (self.rent_amount-self.amount_paid)
-        return r_amount       
+        return r_amount
     
     def save(self, *args, **kwargs):
         if not self.code:
             self.code = ''.join(random.choices(string.digits, k=12))
-        if self.amount_paid > self.rent_amount or self.rent_amount == self.amount_paid:
+        if self.amount_paid >= self.rent_amount:
             self.cleared = True
             self.status = 'closed'
         elif self.rent_amount > self.amount_paid:
@@ -106,7 +106,8 @@ class RentPayment(models.Model):
     amount = models.DecimalField(max_digits=9, decimal_places=2)
     paid_for_month = MultiSelectField(choices=MONTHS_SELECT)
     paid_on = models.DateField(null=True, blank=True)
-    payment_method = models.ForeignKey(PaymentMethods, on_delete=models.CASCADE)
+    payment_method = models.ForeignKey(PaymentMethods, on_delete=models.CASCADE, null=True, blank=True)
+    paid_with_stripe = models.BooleanField(default=False)
     status = models.CharField(max_length=10, choices=PAYMENT_STATUS_CHOICES, default='pending')
     reason = models.TextField(verbose_name="Reason, if rejected", blank=True, null=True)
     confirmed = models.BooleanField(default=False)
@@ -238,7 +239,7 @@ class ElectricityBilling(models.Model):
     updated = models.DateTimeField(auto_now=True)
     
     def remaining_amount(self):
-        remaining = self.total-self.amount_paid
+        remaining = (self.total-self.amount_paid)
         return remaining
     
     def save(self, *args, **kwargs):
@@ -313,3 +314,4 @@ class ElectricityMeter(models.Model):
     
     def __str__(self):
         return f"{self.number} - {self.unit}"  
+    
