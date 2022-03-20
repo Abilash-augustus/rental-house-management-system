@@ -317,15 +317,15 @@ class ElectricityMeter(models.Model):
     
 class MpesaPayment(models.Model):
     paid_for = models.ForeignKey(UnitRentDetails, on_delete=models.CASCADE)
-    first_name = models.CharField(max_length=55)
-    last_name = models.CharField(max_length=55)
-    middle_name = models.CharField(max_length=55)
+    first_name = models.CharField(max_length=255)
+    last_name = models.CharField(max_length=255)
+    middle_name = models.CharField(max_length=255)
     description = models.TextField()
-    phone_number = models.CharField(max_length=25)
+    phone_number = models.CharField(max_length=225)
     amount = models.DecimalField(decimal_places=2, max_digits=9)
-    reference = models.CharField(max_length=155)
+    reference = models.CharField(max_length=255)
     organization_balance = models.DecimalField(decimal_places=2, max_digits=9)
-    type = models.CharField(max_length=55)
+    type = models.CharField(max_length=255)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
     
