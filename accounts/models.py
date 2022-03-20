@@ -3,6 +3,8 @@ from datetime import datetime
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from PIL import Image
+from phonenumber_field.modelfields import PhoneNumberField
+
 
 def get_avatar_path(instance, filename):
     return 'user-avatar/{0}/{1}'.format(instance.username, filename)
@@ -22,7 +24,7 @@ class User(AbstractUser):
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    phone = models.CharField(max_length=14)
+    phone = PhoneNumberField()
     street_address = models.CharField(max_length=30)
     county = models.CharField(max_length=30)
     country = models.CharField(max_length=30, default='Kenya')
@@ -44,7 +46,7 @@ class Managers(models.Model):
     id_back = models.ImageField(upload_to=get_user_docs_path, help_text=ID_WARNING)
     id_front = models.ImageField(upload_to=get_user_docs_path, help_text=ID_WARNING)
     added_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name='added_by')
-    active_phone_number = models.CharField(max_length=14)
+    active_phone_number = PhoneNumberField()
     whatsapp_number = models.CharField(max_length=14)
     status = models.CharField(max_length=3, choices=VER_STATUS, default='pv')
     created = models.DateTimeField(default=datetime.now)
@@ -72,7 +74,7 @@ class Tenants(models.Model):
     id_number = models.CharField(max_length=10)
     id_front = models.ImageField(upload_to=get_user_docs_path, blank=True)
     id_back = models.ImageField(upload_to=get_user_docs_path, blank=True)
-    active_phone_number = models.CharField(max_length=14, null=True, blank=True)
+    active_phone_number = PhoneNumberField()
     policy_agreement = models.BooleanField(default=False)
     rented_unit = models.ForeignKey(RentalUnit, on_delete=models.CASCADE, related_name="tenants", null=True, blank=True)
     moved_in = models.BooleanField(default=False)

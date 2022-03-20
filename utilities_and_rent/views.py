@@ -29,7 +29,7 @@ from utilities_and_rent.forms import (AddRentDetailsForm,
                                       ElectricityBillCycleUpdateForm,
                                       ElectricityMeterUpdateForm,
                                       ElectricityPaySubmitForm,
-                                      ElectricityReadingForm,
+                                      ElectricityReadingForm, MpesaPhoneRequest,
                                       NewElectricityMeterForm,
                                       NewWaterMeterForm, PaymentUpdateForm,
                                       StartEBillCycleForm,
@@ -76,40 +76,30 @@ def submit_rent_payments(request, building_slug, unit_slug, rent_code, username)
     tenant = Tenants.objects.get(rented_unit=unit, associated_account__username=username)
     rent = UnitRentDetails.objects.get(code=rent_code, tenant=tenant)
     previous_payments = RentPayment.objects.filter(tenant=tenant, tenant__rented_unit=unit, rent_details=rent)
-    
-    stripe.api_key = STRIPE_SECRET_KEY
+
+    stripe_charge_total = int(rent.rent_amount-rent.amount_paid)*100
+    mpesa_charge_conversion = int(rent.rent_amount-rent.amount_paid)
     rent_description = 'RENT CHARGES'
-    charge_total = int(rent.rent_amount-rent.amount_paid)*100
+    client = MpesaClient()
         
-    if request.method == 'POST':
-        # stripe bill
-        try:
-            token = request.POST['stripeToken']
-            email = request.POST['stripeEmail']
-            stripe_tenant = stripe.Customer.create(email=email, source=token)
-            charge = stripe.Charge.create(amount=charge_total,
-                                          currency = 'kes',description = rent_description,
-                                          customer = stripe_tenant.id)
-            # create pay to model
-            try:
-                paid_by_stripe = RentPayment.objects.create(
-                    rent_details=rent, manager=manager, tenant=tenant,status='approved',
-                    payment_code=token, amount=(charge_total/100), paid_for_month=rent.pay_for_month,
-                    paid_on=datetime.now().date(), paid_with_stripe=True,)
-                paid_by_stripe.save()
-                #update rent instance
-                rent.amount_paid += Decimal(float(paid_by_stripe.amount))
-                rent.save()                
-                messages.success(request, 'Charge was succesful')
-                return HttpResponseRedirect('')
-            except ObjectDoesNotExist:
-                pass
-        except stripe.error.CardError as e:
-            return False,e
-                
-        # end stripe
-        pay_info_form = SubmitPaymentsForm(request.POST)
-        #ofline submit
+    if request.method == 'POST':        
+        #mpesa
+        mpesa_form = MpesaPhoneRequest(request.POST)
+        if mpesa_form.is_valid():
+            # acccept lipa na mpesa
+            if rent.cleared == False:
+                phone_number = request.POST['pay_with_phone']
+                amount = mpesa_charge_conversion
+                account_reference = 'Rental House Managgement System'
+                transaction_desc = 'Rent Payment'
+                callback_url = 'https://rentalhousemanagementsystem.herokuapp.com/rent-and-utility/daraja/stk-push/callback'#request.build_absolute_uri(reverse('mpesa_stk_push_callback'))
+                response = client.stk_push(phone_number,amount,account_reference,transaction_desc,callback_url)
+                messages.info(request, response)
+                return HttpResponseRedirect("")
+            else:
+                messages.info(request, 'Payments are closed at the moment')
+        
+        pay_info_form = SubmitPaymentsForm(request.POST)        
         if pay_info_form.is_valid():
             pay_info_form.instance.rent_details = rent
             pay_info_form.instance.tenant = tenant
@@ -119,14 +109,35 @@ def submit_rent_payments(request, building_slug, unit_slug, rent_code, username)
             messages.success(request, 'Record submitted, update will be done once approved')
             return redirect('my-rent', building_slug=building.slug, unit_slug=unit.slug, username=tenant.associated_account.username)
     else:
+        mpesa_form = MpesaPhoneRequest(request.POST)
         pay_info_form = SubmitPaymentsForm()
         
-    context = {'pay_info_form':pay_info_form,'building':building,'rent':rent,
+    context = {'pay_info_form':pay_info_form,'mpesa_form':mpesa_form,'building':building,'rent':rent,
                'tenant':tenant,'unit':unit,'previous_payments':previous_payments,
                'stripe_publishable_key':STRIPE_PUBLISHABLE_KEY,'description':rent_description,
-               'charge_total':charge_total,}
+               'charge_total':stripe_charge_total,}
     return render(request, 'utilities_and_rent/submit-payments-rent.html', context)
     
+def stk_push_callback(request):
+    data = request.body.decode('utf-8')
+    pay = json.loads(data)
+    p = MpesaPayment(
+        first_name=pay['FirstName'],
+        last_name=pay['LastName'],
+        middle_name=pay['MiddleName'],
+        description=pay['TransID'],
+        phone_number=pay['MSISDN'],
+        amount=pay['TransAmount'],
+        reference=pay['BillRefNumber'],
+        organization_balance=pay['OrgAccountBalance'],
+        type=pay['TransactionType'],
+    )
+    p.save()
+    context = {
+        "ResultCode": 0,
+        "ResultDesc": "Accepted",
+    }
+    return JsonResponse(dict(context))
 
 @login_required
 def my_water_billing(request,building_slug,unit_slug,username):
@@ -726,3 +737,45 @@ def electricity_meter_update(request,building_slug,meter_ssid):
         
     context = {'building': building, 'update_form': update_form,}
     return render(request, 'utilities_and_rent/update_electricity_meter.html', context)
+
+from django_daraja.mpesa.core import MpesaClient
+from utilities_and_rent.models import MpesaPayment
+
+def stripe_pay(request,building_slug, unit_slug, rent_code, username):
+    building = Building.objects.get(slug=building_slug)
+    unit = RentalUnit.objects.get(building=building, slug=unit_slug)
+    manager = Managers.objects.get(building_manager__pk=building.id)
+    tenant = Tenants.objects.get(rented_unit=unit, associated_account__username=username)
+    rent = UnitRentDetails.objects.get(code=rent_code, unit=unit, tenant=tenant)
+    
+    stripe.api_key = STRIPE_SECRET_KEY
+    rent_description = 'RENT CHARGES'
+    charge_total = int(rent.rent_amount-rent.amount_paid)*100
+    
+    if request.method == 'POST':
+        # stripe bill
+        try:
+            token = request.POST['stripeToken']
+            email = request.POST['stripeEmail']
+            stripe_tenant = stripe.Customer.create(email=email, source=token)
+            charge = stripe.Charge.create(amount=charge_total,
+                                          currency = 'kes',description = rent_description,
+                                          customer = stripe_tenant.id)
+            # create pay to model
+            try:
+                paid_by_stripe = RentPayment.objects.create(
+                    rent_details=rent, manager=manager, tenant=tenant,status='approved',
+                    payment_code=token, amount=(charge_total/100), paid_for_month=rent.pay_for_month,
+                    paid_on=datetime.now().date(), paid_with_stripe=True,)
+                paid_by_stripe.save()
+                #update rent instance
+                rent.amount_paid += Decimal(float(paid_by_stripe.amount))
+                rent.save()                
+                messages.success(request, 'Charge was succesful')
+                return HttpResponseRedirect('')
+            except ObjectDoesNotExist:
+                pass
+        except stripe.error.CardError as e:
+            return False,e     
+        # end stripe
+    

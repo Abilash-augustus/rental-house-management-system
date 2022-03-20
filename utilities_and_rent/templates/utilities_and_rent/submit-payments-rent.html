@@ -84,8 +84,9 @@
                 <br>
         <!--test stripe -->
         <!-- data-label TODO: -->
-        <div class="disaled text-center mb-3" style="{% if rent.cleared %} pointer-events: none; opacity: 0.4;{% endif %}">
-          <form method="post">
+        <div class="row text-center mb-3" style="{% if rent.cleared %} pointer-events: none; opacity: 0.4;{% endif %}">
+          <div class="col-6">
+          <form method="post" action="{% url 'stripe_pay' building.slug unit.slug rent.code tenant.associated_account.username %}">
             {% csrf_token %}
             <script src="https://checkout.stripe.com/checkout.js" class="stripe-button"
               data-key="{{ stripe_publishable_key }}"
@@ -98,7 +99,11 @@
             </script>
           </form>
         </div>
-              <!-- end -->
+
+          <div class="col-6">
+            <a type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#mpesaPaybillBackdrop"> Mpesa PayBill </a>
+          </div>
+        </div>
 
               <div class="text-center">
                 <h3><kbd> OR </kbd></h3>
@@ -160,12 +165,37 @@
                   </tbody>
                 </table>
                 </div>
-
             </div>
         </div>
       </div>
     </div>
   </div>
 </section>
+
+
+<div class="modal fade" id="mpesaPaybillBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="mpesaPaybillBackdropLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="mpesaPaybillBackdropLabel">MPESA ONLINE PAYBILL</h5>
+        <small> Your phone will be prompted for a pin </small>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form action="" method="post" class="no-padding">
+            {% csrf_token %}
+            {{mpesa_form|crispy }}
+            <br>
+            <div class="form-group text-center">
+              <button class="btn btn-outline-secondary" type="submit">Pay</button>
+            </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 {% endblock %}

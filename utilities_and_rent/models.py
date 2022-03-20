@@ -313,5 +313,21 @@ class ElectricityMeter(models.Model):
     updated = models.DateTimeField(auto_now=True)
     
     def __str__(self):
-        return f"{self.number} - {self.unit}"  
+        return f"{self.number} - {self.unit}"
     
+class MpesaPayment(models.Model):
+    paid_for = models.ForeignKey(UnitRentDetails, on_delete=models.CASCADE)
+    first_name = models.CharField(max_length=55)
+    last_name = models.CharField(max_length=55)
+    middle_name = models.CharField(max_length=55)
+    description = models.TextField()
+    phone_number = models.CharField(max_length=25)
+    amount = models.DecimalField(decimal_places=2, max_digits=9)
+    reference = models.CharField(max_length=155)
+    organization_balance = models.DecimalField(decimal_places=2, max_digits=9)
+    type = models.CharField(max_length=55)
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+    
+    def __unicode__(self):
+        return f"{self.request_id}"

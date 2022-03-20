@@ -6,6 +6,7 @@ from utilities_and_rent.models import (ElectricityBilling, ElectricityMeter, Ele
                                        UnitRentDetails, WaterBilling,
                                        WaterConsumption, WaterMeter, WaterPayments)
 
+from phonenumber_field.formfields import PhoneNumberField
 
 class DateInput(forms.DateInput):
     input_type = 'date'
@@ -179,3 +180,10 @@ class ElectricityMeterUpdateForm(forms.ModelForm):
     class Meta:
         model = ElectricityMeter
         exclude = ['created', 'updated']
+        
+        
+class MpesaPhoneRequest(forms.Form):
+    pay_with_phone = forms.CharField(
+        max_length = 200,help_text = "e.g 0723457345"
+    )
+    #PhoneNumberField(widget=forms.TextInput(attrs={'placeholder':'Phone'}),required=True)

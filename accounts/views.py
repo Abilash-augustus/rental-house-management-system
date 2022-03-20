@@ -9,7 +9,7 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from rental_property.models import Building, RentalUnit
 
-from accounts.forms import (AddManagerForm, ProfileUpdateForm, TenantsForm,
+from accounts.forms import (AddManagerForm, ProfileUpdateForm, TenantUpdateForm, TenantsForm,
                             UserUpdateForm)
 from accounts.models import Managers, Profile, Tenants
 
@@ -122,14 +122,14 @@ def update_tenant(request, building_slug, username):
         associated_account_id=tenant_user, rented_unit__building=building)
 
     if request.method == 'POST':
-        tenant_form = TenantsForm(building, request.POST, instance=tenant)
+        tenant_form = TenantUpdateForm(request.POST, instance=tenant)
         if tenant_form.is_valid():
             tenant_form.instance.user = tenant_user
             tenant_form.save()
             messages.success(request, 'Tenant was updated successfully!')
             return redirect('building-dashboard', building_slug=building.slug)
     else:
-        tenant_form = TenantsForm(building, instance=tenant)
+        tenant_form = TenantUpdateForm(instance=tenant)
     context = {'tenant_user': tenant_user, 'tenant_form': tenant_form,
                'building': building, 'tenant': tenant}
     return render(request, 'accounts/update-tenant.html', context)

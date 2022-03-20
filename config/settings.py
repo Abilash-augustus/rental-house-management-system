@@ -8,7 +8,7 @@ load_dotenv()
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = str(os.getenv('DJANGO_SECRET_KEY'))
-DEBUG = True
+DEBUG = False
 
 # Authentication handler for django/allauth
 AUTHENTICATION_BACKENDS = [
@@ -32,6 +32,7 @@ INSTALLED_APPS = [
     'django.contrib.sites',
 
     # installed apps
+    'rest_framework',
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
@@ -39,6 +40,8 @@ INSTALLED_APPS = [
     'crispy_forms',
     'django_summernote',
     'django_filters',
+    'phonenumber_field',
+    'django_daraja',
 
     'accounts.apps.AccountsConfig',
     'rental_property',
@@ -51,7 +54,7 @@ INSTALLED_APPS = [
 SITE_ID = 1
 AUTH_USER_MODEL = 'accounts.User'
 
-CSRF_TRUSTED_ORIGINS = ['https://ea66-154-122-7-113.ngrok.io',]
+CSRF_TRUSTED_ORIGINS = ['https://363e-102-166-78-88.ngrok.io',]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -116,6 +119,16 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+MPESA_ENVIRONMENT = 'sandbox'
+MPESA_CONSUMER_KEY = 'ok1GPtTX03RBGvKa918FS0XeAFrdDdXG'
+MPESA_CONSUMER_SECRET = 'nMosJos4CkUSHlkp'
+MPESA_SHORTCODE = '600996'
+MPESA_EXPRESS_SHORTCODE = '174379'
+MPESA_SHORTCODE_TYPE = 'paybill'
+MPESA_PASSKEY = 'bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919'
+MPESA_INITIATOR_USERNAME = 'testapi'
+MPESA_INITIATOR_SECURITY_CREDENTIAL = 'Safaricom996!'
+
 # Internationalization
 # https://docs.djangoproject.com/en/4.0/topics/i18n/
 
@@ -132,8 +145,8 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.mailgun.org' #'smtp.sendgrid.net'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'postmaster@sandboxbdd5463522f84dc9bb8a887714075ada.mailgun.org'#'apikey'
-EMAIL_HOST_PASSWORD =  'd94e94834d566c1284aa110ccce96e37-90346a2d-09e3ab9c' # os.environ.get('SENDGRID_EMAIL_HOST_PASSWORD')
+EMAIL_HOST_USER = 'apikey'
+EMAIL_HOST_PASSWORD = os.environ.get('SENDGRID_EMAIL_HOST_PASSWORD')
 DEFAULT_FROM_EMAIL = 'Rental House Management System <bravinshumwe@gmail.com>'
 
 # Static files (CSS, JavaScript, Images)

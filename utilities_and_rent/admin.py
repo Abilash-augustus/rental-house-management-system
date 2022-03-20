@@ -1,9 +1,14 @@
 from django.contrib import admin
 
-from utilities_and_rent.models import (ElectricityBilling, ElectricityPayments,
-                                       ElectricityReadings, PaymentMethods,
-                                       RentPayment, UnitRentDetails,
-                                       WaterBilling, WaterPayments, WaterConsumption, WaterMeter, ElectricityMeter)
+from utilities_and_rent.models import (ElectricityBilling, ElectricityMeter,
+                                       ElectricityPayments,
+                                       ElectricityReadings, MpesaPayment,
+                                       PaymentMethods, RentPayment,
+                                       UnitRentDetails, WaterBilling,
+                                       WaterConsumption, WaterMeter,
+                                       WaterPayments)
+
+
 @admin.register(UnitRentDetails)
 class UnitRentDetailsAdmin(admin.ModelAdmin):
     list_display = ['tenant', 'unit', 'rent_amount', 'pay_for_month', 'cleared', 'due_date']
@@ -54,3 +59,7 @@ class WaterMeterAdmin(admin.ModelAdmin):
 @admin.register(ElectricityMeter)
 class ElectricityMeterAdmin(admin.ModelAdmin):
     pass
+
+@admin.register(MpesaPayment)
+class MpesaPaymentAdmin(admin.ModelAdmin):
+    list_display = ['first_name','middle_name','last_name','amount','paid_for',]
