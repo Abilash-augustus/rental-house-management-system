@@ -2,7 +2,7 @@ from django.contrib import admin
 
 from utilities_and_rent.models import (ElectricityBilling, ElectricityMeter,
                                        ElectricityPayments,
-                                       ElectricityReadings, MpesaPayment,
+                                       ElectricityReadings, PayOnlineMpesa,
                                        PaymentMethods, RentPayment,
                                        UnitRentDetails, WaterBilling,
                                        WaterConsumption, WaterMeter,
@@ -12,10 +12,10 @@ from utilities_and_rent.models import (ElectricityBilling, ElectricityMeter,
 @admin.register(UnitRentDetails)
 class UnitRentDetailsAdmin(admin.ModelAdmin):
     list_display = ['tenant', 'unit', 'rent_amount', 'pay_for_month', 'cleared', 'due_date']
-    
+    """
     def has_change_permission(self, request, obj=None):
         return False
-
+"""
 @admin.register(RentPayment)
 class RentPaymentAdmin(admin.ModelAdmin):
     list_display = ['rent_details','manager','payment_code','amount','paid_for_month','paid_on','payment_method','paid_with_stripe', 'status','added_on']
@@ -60,6 +60,6 @@ class WaterMeterAdmin(admin.ModelAdmin):
 class ElectricityMeterAdmin(admin.ModelAdmin):
     pass
 
-@admin.register(MpesaPayment)
-class MpesaPaymentAdmin(admin.ModelAdmin):
+@admin.register(PayOnlineMpesa)
+class PayOnlineMpesaAdmin(admin.ModelAdmin):
     list_display = ['first_name','middle_name','last_name','amount','paid_for',]

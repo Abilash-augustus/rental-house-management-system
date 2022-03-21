@@ -177,17 +177,21 @@
   <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="mpesaPaybillBackdropLabel">MPESA ONLINE PAYBILL</h5>
-        <small> Your phone will be prompted for a pin </small>
+        <h5 class="modal-title" id="mpesaPaybillBackdropLabel">MPESA ONLINE PAYBILL</h5><br/>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <form action="" method="post" class="no-padding">
+        <small> Provide a number accessible to you. Your phone will be prompted for a pin </small>
+        <form  method="post" action="{% url 'mpesa_pay' building.slug unit.slug rent.code tenant.associated_account.username %}"
+        class="no-padding">
             {% csrf_token %}
-            {{mpesa_form|crispy }}
+            <div class="form-outline">
+              <input placeholder="e.g 07XXX" type="tel" id="pay_with_phone" name="pay_with_phone" class="form-control" />
+              <label class="form-label" for="typePhone">Phone number input</label>
+            </div>
             <br>
             <div class="form-group text-center">
-              <button class="btn btn-outline-secondary" type="submit">Pay</button>
+              <button class="btn btn-outline-secondary" type="submit">Proceed</button>
             </div>
         </form>
       </div>

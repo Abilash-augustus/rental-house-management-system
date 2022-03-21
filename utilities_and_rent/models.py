@@ -98,17 +98,17 @@ PAYMENT_STATUS_CHOICES = [
     ]
 
 class RentPayment(models.Model):
-    rent_details = models.ForeignKey(UnitRentDetails, on_delete=models.CASCADE)
-    tenant = models.ForeignKey(Tenants, on_delete=models.CASCADE)
-    manager = models.ForeignKey(Managers, on_delete=models.CASCADE, null=True, blank=True)
+    rent_details = models.ForeignKey(UnitRentDetails, on_delete=models.CASCADE, related_name='payment')
+    tenant = models.ForeignKey(Tenants, on_delete=models.CASCADE, related_name='pay')
+    manager = models.ForeignKey(Managers, on_delete=models.CASCADE, null=True, blank=True, related_name='payments_manager')
     tracking_code = models.CharField(max_length=15, unique=True, null=True, blank=True)
-    payment_code = models.CharField(max_length=50)
+    payment_code = models.CharField(max_length=155)
     amount = models.DecimalField(max_digits=9, decimal_places=2)
     paid_for_month = MultiSelectField(choices=MONTHS_SELECT)
     paid_on = models.DateField(null=True, blank=True)
     payment_method = models.ForeignKey(PaymentMethods, on_delete=models.CASCADE, null=True, blank=True)
     paid_with_stripe = models.BooleanField(default=False)
-    status = models.CharField(max_length=10, choices=PAYMENT_STATUS_CHOICES, default='pending')
+    status = models.CharField(max_length=15, choices=PAYMENT_STATUS_CHOICES, default='pending')
     reason = models.TextField(verbose_name="Reason, if rejected", blank=True, null=True)
     confirmed = models.BooleanField(default=False)
     notify_tenant = models.BooleanField(default=False)
@@ -315,7 +315,7 @@ class ElectricityMeter(models.Model):
     def __str__(self):
         return f"{self.number} - {self.unit}"
     
-class MpesaPayment(models.Model):
+class PayOnlineMpesa(models.Model):
     paid_for = models.ForeignKey(UnitRentDetails, on_delete=models.CASCADE)
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
