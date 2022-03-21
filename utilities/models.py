@@ -316,18 +316,23 @@ class ElectricityMeter(models.Model):
         return f"{self.number} - {self.unit}"
     
 class PayOnlineMpesa(models.Model):
-    paid_for = models.ForeignKey(UnitRentDetails, on_delete=models.CASCADE)
-    first_name = models.CharField(max_length=100)
-    last_name = models.CharField(max_length=100)
-    middle_name = models.CharField(max_length=100)
-    description = models.TextField()
-    phone_number = models.CharField(max_length=225)
+    paid_for = models.ForeignKey(UnitRentDetails, on_delete=models.CASCADE, null=True, blank=True)
+    first_name = models.CharField(max_length=100,null=True, blank=True)
+    last_name = models.CharField(max_length=100,null=True, blank=True)
+    middle_name = models.CharField(max_length=100,null=True, blank=True)
+    transaction_id = models.TextField(null=True, blank=True)
+    phone_number = models.CharField(max_length=25,null=True, blank=True)
     amount = models.DecimalField(decimal_places=2, max_digits=9)
-    reference = models.CharField(max_length=255)
+    reference = models.CharField(max_length=55,null=True, blank=True)
     organization_balance = models.DecimalField(decimal_places=2, max_digits=9)
-    type = models.CharField(max_length=255)
+    type = models.CharField(max_length=55,null=True, blank=True)
     created = models.DateTimeField(auto_now_add=True)
+    timestamp = models.CharField(max_length=55,null=True, blank=True)
     updated = models.DateTimeField(auto_now=True)
     
     def __unicode__(self):
         return f"{self.request_id}"
+    
+    class Meta:
+        verbose_name = "Mpesa Online Payments"
+        verbose_name_plural = verbose_name

@@ -178,18 +178,19 @@ def mpesa_pay(request,building_slug, unit_slug, rent_code, username):
     
     
 def stk_push_callback(request):
-    data = request.body.decode('utf-8')
-    pay = json.loads(data)
+    pay = request.body()
+    #pay = json.loads(data)
     p = PayOnlineMpesa(
         first_name=pay['FirstName'],
         last_name=pay['LastName'],
         middle_name=pay['MiddleName'],
-        description=pay['TransID'],
+        transaction_id=pay['TransID'],
         phone_number=pay['MSISDN'],
         amount=pay['TransAmount'],
         reference=pay['BillRefNumber'],
         organization_balance=pay['OrgAccountBalance'],
         type=pay['TransactionType'],
+        timestamp=pay['TransTime']
     )
     p.save()
     context = {
