@@ -19,7 +19,7 @@ from django.urls import reverse_lazy
 from django.utils.functional import SimpleLazyObject
 from django.views.generic import CreateView
 from rental_property.models import Building, MaintananceNotice, RentalUnit
-from utilities_and_rent.models import ElectricityBilling, WaterBilling
+from utilities.models import ElectricityBilling, WaterBilling
 
 from core.filters import (CommsFilter, ContactFilter, EvictionNoticeFilter,
                           MoveOutNoticeFilter, MyNoticeFilter,

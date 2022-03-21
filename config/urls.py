@@ -8,7 +8,7 @@ urlpatterns = [
     path('accounts/', include('allauth.urls')),
     path('accounts/', include('accounts.urls')),
     path('', include('rental_property.urls')),
-    path('rent-and-utility/', include('utilities_and_rent.urls')),
+    path('rent-and-utility/', include('utilities.urls')),
     path('core/', include('core.urls')),
     path('crm/', include('complaints.urls')),
     path('work_order/', include('work_order.urls')),
