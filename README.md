@@ -31,7 +31,7 @@ at any particular time.
 **Currently included tenants' functionalities**
 ```
 - [x] Personal Rent and utility tracking (visualizing electricity & water consumtion)
-- [ ] Online payments submission (MPESA Integration)
+- [ ] Online payments submission (MPESA Integration & strips)
 - [x] View payments history
 - [x] Keep track of notices nade by managers
 - [x] View receieved notices & create moveout notice
@@ -84,7 +84,7 @@ at any particular time.
                 - Unit Album
             - MaintananceNotice
 
-- [Utilities & Rent](https://github.com/shumwe/rental-house-management-system/tree/main/utilities_and_rent)
+- [Utilities & Rent](https://github.com/shumwe/rental-house-management-system/tree/main/utilities)
     - Payment Methods
     - Unit Rent Details
         - Rent Payment
