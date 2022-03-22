@@ -28,7 +28,8 @@ class VacateNoticeAdmin(admin.ModelAdmin):
 
 @admin.register(ServiceRating)
 class ServiceRatingAdmin(admin.ModelAdmin):
-    pass
+    list_display = ['building','score','created','updated']
+    list_filter = ['building','created',]
 
 @admin.register(ManagerTenantCommunication)
 class ManagerTenantCommunicationAdmin(admin.ModelAdmin):

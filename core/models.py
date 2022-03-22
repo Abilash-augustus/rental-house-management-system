@@ -61,6 +61,7 @@ class UnitTour(models.Model):
     visit_date = models.DateField(validators=[MinValueValidator(datetime.date.today, message='Past dates are not allowed!')])
     message = models.TextField(null=True, blank=True)
     unit = models.ForeignKey(RentalUnit, on_delete=models.DO_NOTHING)
+    building = models.ForeignKey(Building, on_delete=models.CASCADE, null=True, blank=True)
     visit_status = models.CharField(choices=VISIT_STATUS_CHOICES, default='waiting', max_length=10)
     last_updated_by = models.ForeignKey(Managers, on_delete=models.DO_NOTHING, null=True, blank=True)
     created = models.DateTimeField(default=datetime.datetime.now)
@@ -69,6 +70,8 @@ class UnitTour(models.Model):
     def save(self, *args, **kwargs):
         if not self.visit_code:
             self.visit_code = ''.join(random.choices(string.ascii_lowercase+string.digits + string.ascii_uppercase, k=12))
+        if not self.building:
+            self.building = self.unit.building
             super(UnitTour, self).save()
         super(UnitTour, self).save()
 
@@ -138,6 +141,7 @@ class EvictionNotice(models.Model):
     
 class ServiceRating(models.Model):    
     tenant = models.ForeignKey(Tenants, on_delete=models.CASCADE)
+    building = models.ForeignKey(Building, on_delete=models.CASCADE, null=True, blank=True)
     message = models.TextField(max_length=100)
     score = models.IntegerField(default=0,
         validators=[
@@ -146,6 +150,12 @@ class ServiceRating(models.Model):
         ],verbose_name="Rate us", null=True, blank=True)
     created = models.DateTimeField(default=datetime.datetime.now)
     updated = models.DateTimeField(auto_now=True)
+    
+    def save(self, *args, **kwargs):
+        if not self.building:
+            self.building = self.tenant.rented_unit.building
+            super(ServiceRating, self).save(*args, **kwargs)
+        super(ServiceRating, self).save(*args, **kwargs)
     
     def __str__(self):
         return f"{self.pk}"

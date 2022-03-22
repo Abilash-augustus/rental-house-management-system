@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'django_filters',
     'phonenumber_field',
     'django_daraja',
+    'slick_reporting',
 
     'accounts.apps.AccountsConfig',
     'rental_property',
@@ -49,6 +50,7 @@ INSTALLED_APPS = [
     'core',
     'complaints',
     'work_order',
+    'reporting.apps.ReportingConfig',
 ]
 
 SITE_ID = 1

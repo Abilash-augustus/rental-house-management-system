@@ -178,8 +178,8 @@ def mpesa_pay(request,building_slug, unit_slug, rent_code, username):
     
     
 def stk_push_callback(request):
-    pay = request.body()
-    #pay = json.loads(data)
+    data = request.body.decode('utf-8')
+    pay = json.loads(data)
     p = PayOnlineMpesa(
         first_name=pay['FirstName'],
         last_name=pay['LastName'],

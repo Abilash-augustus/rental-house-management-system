@@ -147,6 +147,11 @@ class UnitAlbum(models.Model):
         return f"{self.unit.unit_number}"
 
 class MaintananceNotice(models.Model):
+    NOTICE_STATUS_CHOICES = [
+        ('Not Started', 'Not Yet Started'),
+        ('In Progress', 'In progress'),
+        ('Completed', 'Completed'),
+    ]
     notice_by = models.ForeignKey(Managers, on_delete=models.DO_NOTHING)
     ref_number = models.CharField(max_length=15,unique=True, null=True, blank=True)
     building = models.ForeignKey(Building, on_delete=models.DO_NOTHING)
@@ -156,6 +161,7 @@ class MaintananceNotice(models.Model):
     to_date = models.DateTimeField()
     created = models.DateTimeField(default=datetime.now)
     updated = models.DateTimeField(auto_now=True)
+    maintanance_status = models.CharField(max_length=20,choices=NOTICE_STATUS_CHOICES,default='Not Started')
     send_email = models.BooleanField(default=False)
     
     def save(self, *args, **kwargs):

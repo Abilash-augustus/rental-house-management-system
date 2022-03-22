@@ -149,6 +149,7 @@ class WaterBilling(models.Model):
     due_date = models.DateField(null=True, blank=True)
     added = models.DateTimeField(default=datetime.now)
     updated = models.DateTimeField(auto_now_add=True)
+    building = models.ForeignKey(Building, on_delete=models.CASCADE, null=True, blank=True)
     
     def amount_remaining(self):
         r_amount = self.total-self.amount_paid
@@ -164,7 +165,9 @@ class WaterBilling(models.Model):
                 self.cleared = True
             else:
                 self.cleared = False
-            
+                # to easen report generation
+        if not self.building:
+            self.building = self.rental_unit.building            
             super(WaterBilling, self).save(*args, **kwargs)
         super(WaterBilling, self).save(*args, **kwargs)
     
@@ -237,6 +240,7 @@ class ElectricityBilling(models.Model):
     due_date = models.DateField()
     added = models.DateTimeField(default=datetime.now)
     updated = models.DateTimeField(auto_now=True)
+    building = models.ForeignKey(Building, on_delete=models.CASCADE, null=True, blank=True)
     
     def remaining_amount(self):
         remaining = (self.total-self.amount_paid)
@@ -252,6 +256,9 @@ class ElectricityBilling(models.Model):
                 self.cleared = True
             elif self.total > self.amount_paid:
                 self.cleared = False
+            # to easen report generation
+        if not self.building:
+            self.building = self.rental_unit.building  
             super(ElectricityBilling, self).save(*args, **kwargs)
         super(ElectricityBilling, self).save(*args, **kwargs)
     
