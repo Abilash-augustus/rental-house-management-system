@@ -46,6 +46,7 @@ class UnitReport(models.Model):
     desc = models.TextField(verbose_name="Describe the situation")
     created = models.DateTimeField(default=datetime.now)
     updated = models.DateTimeField(auto_now=True)
+    building = models.ForeignKey(Building, on_delete=models.CASCADE, null=True, blank=True)
 
     def save(self, *args, **kwargs):
         if not self.code:
@@ -56,6 +57,8 @@ class UnitReport(models.Model):
             RentalUnit.objects.filter(pk=self.unit_id).update(maintanance_status='op')
         else:
             RentalUnit.objects.filter(pk=self.unit_id).update(maintanance_status='ip')
+        if not self.building:
+            self.building = self.unit.building
         super().save(*args, **kwargs)
 
     def __str__(self):

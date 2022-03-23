@@ -96,3 +96,4 @@ class Tenants(models.Model):
 
     class Meta:
         verbose_name_plural = 'Tenants'
+    

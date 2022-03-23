@@ -1,9 +1,11 @@
+from django.contrib import messages
 from complaints.models import Complaints, UnitReport
 from core.models import (Contact, ContactReply, EvictionNotice,
                          ManagerTenantCommunication, MoveOutNotice,
                          ServiceRating, TenantEmails, UnitTour)
 from django.contrib.auth import get_user_model
 from django.db.models import Count, Sum, Avg
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import render
 from django.template.defaultfilters import date
 from django.utils.translation import gettext_lazy as _
@@ -11,37 +13,37 @@ from slick_reporting.fields import SlickReportField
 from slick_reporting.registry import field_registry
 from slick_reporting.views import SlickReportView
 from rental_property.models import Building, MaintananceNotice, RentalUnit
-from utilities.models import ElectricityBilling, UnitRentDetails, WaterBilling
+from utilities.models import ElectricityBilling, RentPayment, UnitRentDetails, WaterBilling
 import itertools
 import operator
-
-from work_order.models import HiredPersonnel, WorkOrder
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.shortcuts import redirect
+from work_order.models import HiredPersonnel, WorkOrder, WorkOrderPayments
+from user_visit.models import UserVisit
 
 User = get_user_model()
-
-class LogIns(SlickReportView):
-    report_model = User
-    date_field = 'last_login'
-    group_by = 'is_verified'
-    columns = ['is_verified','count__login','__time_series__'] 
+        
+class LogIns(UserPassesTestMixin,SlickReportView):
+    report_model = UserVisit
+    date_field = 'created_at'
+    columns = ['count__logins','__time_series__'] 
     time_series_pattern = 'monthly'
-    time_series_columns = ['count__login',]
+    time_series_columns = ['count__logins',]
     chart_settings = [{
-        'type': 'bar',
-        'data_source': ['count__login'],
-        'title_source': 'last_login',
+        'type': 'column',
+        'data_source': ['count__logins'],
+        'title_source': 'created_at',
         'plot_total': True,
-        'title': _('Logins Per Day'),
-
-    }, ]
-    """
-    def format_row(self, creation_date):
-        creation_date['last_login'] = date(creation_date['last_login'], 'd-m-y H:i')
-        return creation_date
-    """
+        'title': 'Monthly Logins',
+    },]
+    def test_func(self):
+        return self.request.user.is_superuser
+    def handle_no_permission(self):
+        messages.info(self.request, 'You have no permission')
+        return redirect('profile')
     
 #core app reports
-class ContactReportView(SlickReportView):
+class ContactReportView(UserPassesTestMixin,SlickReportView):
     report_model = Contact
     date_field = 'created'
     group_by = 'status'
@@ -61,8 +63,13 @@ class ContactReportView(SlickReportView):
          'title': 'Contacts By Status'
          }
         ]
+    def test_func(self):
+        return self.request.user.is_superuser
+    def handle_no_permission(self):
+        messages.info(self.request, 'You have no permission')
+        return redirect('profile')
     
-class UnitTourReportView(SlickReportView):
+class UnitTourReportView(UserPassesTestMixin,SlickReportView):
     report_model = UnitTour
     date_field = 'visit_date'
     group_by = 'building'
@@ -81,50 +88,53 @@ class UnitTourReportView(SlickReportView):
          'title': 'Unit Tours Column Graph'
          }
         ]
+    def test_func(self):
+        return self.request.user.is_superuser
+    def handle_no_permission(self):
+        messages.info(self.request, 'You have no permission')
+        return redirect('profile')
     
-class MoveOutNoticeReportView(SlickReportView):
+    
+class MoveOutNoticeReportView(UserPassesTestMixin,SlickReportView):
     report_model = MoveOutNotice
     date_field = 'created'
-    group_by = 'notice_status'
-    columns = ['notice_status','move_out_notice_status_count']
+    group_by = 'building'
+    columns = ['name','move_out_notice_status_count']
+    time_series_pattern = 'monthly'
+    time_series_columns = ['move_out_notice_status_count',]
     chart_settings = [{
-        'type': 'pie',
+        'type': 'line',
         'data_source': ['move_out_notice_status_count'],
-        'title_source': ['notice_status'],
+        'title_source': ['name'],
         'plot_total': False,
         'title': 'Move Out Notice Report'
         },]
+    def test_func(self):
+        return self.request.user.is_superuser
+    def handle_no_permission(self):
+        messages.info(self.request, 'You have no permission')
+        return redirect('profile')
     
-class EvictionNoticeReportView(SlickReportView):
+class EvictionNoticeReportView(UserPassesTestMixin,SlickReportView):
     report_model = EvictionNotice
     date_field = 'created'
-    group_by = 'eviction_status'
-    columns = ['eviction_status','eviction_status_count']
+    group_by = 'building'
+    columns = ['name','eviction_status_count']
     chart_settings = [{
-        'type': 'pie',
+        'type': 'line',
         'data_source': ['eviction_status_count'],
-        'title_source': ['eviction_status'],
+        'title_source': ['name'],
         'plot_total': False,
         'title': 'Eviction Notice Report'
         },]
     
-class ServiceRatingReportView(SlickReportView):
-    report_model = ServiceRating
-    date_field = 'created'
-    group_by = 'building'
-    columns = ['name', 'score_calc'
-               ]
-    time_series_pattern = 'monthly'
-    time_series_columns = ['score_calc',]
-    chart_settings = [{
-        'type': 'column',
-        'data_source': ['score_calc'],
-        'title_source': ['name'],
-        'plot_total': False,
-        'title': 'Service Rating Report'
-        },]
+    def test_func(self):
+        return self.request.user.is_superuser
+    def handle_no_permission(self):
+        messages.info(self.request, 'You have no permission')
+        return redirect('profile')    
     
-class ManagerTenantCommsReportView(SlickReportView):
+class ManagerTenantCommsReportView(UserPassesTestMixin,SlickReportView):
     report_model = ManagerTenantCommunication
     date_field = 'created'
     group_by = 'building'
@@ -138,8 +148,14 @@ class ManagerTenantCommsReportView(SlickReportView):
         'plot_total': False,
         'title': 'Manager &rarr; Tenants Emails'
         },]
+    def test_func(self):
+        return self.request.user.is_superuser
+    def handle_no_permission(self):
+        messages.info(self.request, 'You have no permission')
+        return redirect('profile')
+    
         
-class ReceivedEmailsReportView(SlickReportView):
+class ReceivedEmailsReportView(UserPassesTestMixin,SlickReportView):
     report_model = TenantEmails
     date_field = 'created'
     group_by = 'building'
@@ -147,47 +163,83 @@ class ReceivedEmailsReportView(SlickReportView):
     time_series_pattern = 'monthly'
     time_series_columns = ['count_sent_emails',]
     chart_settings = [{
-        'type': 'column',
+        'type': 'line',
         'data_source': ['count_sent_emails'],
         'title_source': ['name'],
         'plot_total': False,
         'title': 'Tenants &rarr; Manager Emails Report'
         },]
+    def test_func(self):
+        return self.request.user.is_superuser
+    def handle_no_permission(self):
+        messages.info(self.request, 'You have no permission')
+        return redirect('profile')
+    
+class ServiceRatingReportView(UserPassesTestMixin,SlickReportView):
+    report_model = ServiceRating
+    date_field = 'created'
+    group_by = 'building'
+    columns = ['name', 'score_calc'
+               ]
+    time_series_pattern = 'monthly'
+    time_series_columns = ['score_calc',]
+    chart_settings = [{
+        'type': 'line',
+        'data_source': ['score_calc'],
+        'title_source': ['name'],
+        'plot_total': False,
+        'title': 'Service Rating Report'
+        },]
+    def test_func(self):
+        return self.request.user.is_superuser
+    def handle_no_permission(self):
+        messages.info(self.request, 'You have no permission')
+        return redirect('profile')    
 
 #complaints app reports
 
-class UnitReportView(SlickReportView):
+class UnitReportView(UserPassesTestMixin,SlickReportView):
     report_model = UnitReport
     date_field = 'created'
-    group_by = 'report_type'
-    columns = ['name',
-               SlickReportField.create(Count, 'report_type',
-                                       name='report_type__count', verbose_name=_('Reports'))]
+    group_by = 'building'
+    columns = ['name','report__count',]
     time_series_pattern = 'monthly'
-    time_series_columns = ['report_type__count']
+    time_series_columns = ['report__count']
     chart_settings = [{
-        'type': 'column',
-        'data_source': ['report_type__count'],
+        'type': 'line',
+        'data_source': ['report__count'],
         'title_source': ['name'],
-        'title': 'Tenant Reports',
+        'title': 'Tenant Report',
     }]
+    def test_func(self):
+        return self.request.user.is_superuser
+    def handle_no_permission(self):
+        messages.info(self.request, 'You have no permission')
+        return redirect('profile')
     
-class ComplaintsReportView(SlickReportView):
+    
+class ComplaintsReportView(UserPassesTestMixin,SlickReportView):
     report_model = Complaints
     date_field = 'created'
     group_by = 'building'
-    columns = ['name','status__count']
+    columns = ['name','complaints__count']
     time_series_pattern = 'monthly'
-    time_series_columns = ['status__count']
+    time_series_columns = ['complaints__count']
     chart_settings = [{
         'type': 'line',
-        'data_source': ['status__count'],
+        'data_source': ['complaints__count'],
         'title_source': ['name'],
         'title': 'Complaints Report',
     }]
+    def test_func(self):
+        return self.request.user.is_superuser
+    def handle_no_permission(self):
+        messages.info(self.request, 'You have no permission')
+        return redirect('profile')
+    
     
 # rental property app reports
-class RentalUnitReports(SlickReportView):
+class RentalUnitReports(UserPassesTestMixin,SlickReportView):
     report_model = RentalUnit
     date_field = 'updated'
     group_by = 'building'
@@ -203,8 +255,14 @@ class RentalUnitReports(SlickReportView):
         'title_source': ['name'],
         'title': 'Rental Units Report',
     }]
+    def test_func(self):
+        return self.request.user.is_superuser
+    def handle_no_permission(self):
+        messages.info(self.request, 'You have no permission')
+        return redirect('profile')
     
-class MaintananceNoticeReportView(SlickReportView):
+    
+class MaintananceNoticeReportView(UserPassesTestMixin,SlickReportView):
     report_model = MaintananceNotice
     date_field = 'created'
     group_by = 'maintanance_status'
@@ -217,9 +275,39 @@ class MaintananceNoticeReportView(SlickReportView):
         'title_source': ['maintanance_status'],
         'title': 'Maintanance Report',
     }]
+    def test_func(self):
+        return self.request.user.is_superuser
+    def handle_no_permission(self):
+        messages.info(self.request, 'You have no permission')
+        return redirect('profile')
+    
     
     #utilities app
-class WaterConsumptionReportView(SlickReportView):
+class RentPaymentsReportView(UserPassesTestMixin,SlickReportView):
+    report_model = RentPayment
+    date_field = 'added_on'
+    group_by = 'building'
+    columns = ['name',
+               SlickReportField.create(Sum, 'amount', name='amount__sum', verbose_name=_('Total Payments'))
+               ]
+    
+    time_series_pattern = 'monthly'
+    time_series_columns = [
+                           SlickReportField.create(Sum, 'amount', name='amount__sum', verbose_name=_('Total Payments'))
+                           ]
+    chart_settings = [{
+        'type': 'column',
+        'data_source': ['amount__sum'],
+        'title_source': ['name'],
+        'title': 'Rent Payments Report',
+    }]
+    def test_func(self):
+        return self.request.user.is_superuser
+    def handle_no_permission(self):
+        messages.info(self.request, 'You have no permission')
+        return redirect('profile')
+    
+class WaterConsumptionReportView(UserPassesTestMixin,SlickReportView):
     report_model = WaterBilling
     date_field = 'added'
     group_by = 'building'
@@ -228,13 +316,43 @@ class WaterConsumptionReportView(SlickReportView):
     time_series_pattern = 'monthly'
     time_series_columns = ['w_units__sum']
     chart_settings = [{
-        'type': 'column',
+        'type': 'line',
         'data_source': ['w_units__sum'],
         'title_source': ['name'],
         'title': 'Water Consumption Report',
     }]
+    def test_func(self):
+        return self.request.user.is_superuser
+    def handle_no_permission(self):
+        messages.info(self.request, 'You have no permission')
+        return redirect('profile')
     
-class ElectricityConsumptionReportView(SlickReportView):
+class WaterBillPaymentsReportView(UserPassesTestMixin,SlickReportView):
+    report_model = WaterBilling
+    date_field = 'added'
+    group_by = 'building'
+    columns = ['name',
+               SlickReportField.create(Sum, 'amount_paid', name='amount_paid__sum', verbose_name=_('Total Payments'))
+               ]
+    
+    time_series_pattern = 'monthly'
+    time_series_columns = [
+                           SlickReportField.create(Sum, 'amount_paid', name='amount_paid__sum', verbose_name=_('Total Payments'))
+                           ]
+    chart_settings = [{
+        'type': 'column',
+        'data_source': ['amount_paid__sum'],
+        'title_source': ['name'],
+        'title': 'Water Bill Payments',
+    }]
+    def test_func(self):
+        return self.request.user.is_superuser
+    def handle_no_permission(self):
+        messages.info(self.request, 'You have no permission')
+        return redirect('profile')
+    
+    
+class ElectricityConsumptionReportView(UserPassesTestMixin,SlickReportView):
     report_model = ElectricityBilling
     date_field = 'added'
     group_by = 'building'
@@ -243,15 +361,44 @@ class ElectricityConsumptionReportView(SlickReportView):
     time_series_pattern = 'monthly'
     time_series_columns = ['e_units__sum']
     chart_settings = [{
-        'type': 'column',
+        'type': 'line',
         'data_source': ['e_units__sum'],
         'title_source': ['name'],
-        'title': 'Water Consumption Report',
+        'title': 'Electricity Consumption Report',
     }]
-
+    def test_func(self):
+        return self.request.user.is_superuser
+    def handle_no_permission(self):
+        messages.info(self.request, 'You have no permission')
+        return redirect('profile')
+    
+class ElectricityBillPaymentsReportView(UserPassesTestMixin,SlickReportView):
+    report_model = ElectricityBilling
+    date_field = 'added'
+    group_by = 'building'
+    columns = ['name',
+               SlickReportField.create(Sum, 'amount_paid', name='amount_paid__sum', verbose_name=_('Total Payments'))
+               ]
+    
+    time_series_pattern = 'monthly'
+    time_series_columns = [
+                           SlickReportField.create(Sum, 'amount_paid', name='amount_paid__sum', verbose_name=_('Total Payments'))
+                           ]
+    chart_settings = [{
+        'type': 'column',
+        'data_source': ['amount_paid__sum'],
+        'title_source': ['name'],
+        'title': 'Electricity Bill Payments',
+    }]
+    def test_func(self):
+        return self.request.user.is_superuser
+    def handle_no_permission(self):
+        messages.info(self.request, 'You have no permission')
+        return redirect('profile')
+    
 # work order reports
 
-class HiredPersonnelReportView(SlickReportView):
+class HiredPersonnelReportView(UserPassesTestMixin,SlickReportView):
     report_model = HiredPersonnel
     date_field = 'hired_date'
     group_by = 'building'
@@ -264,8 +411,14 @@ class HiredPersonnelReportView(SlickReportView):
         'title_source': ['name'],
         'title': 'Personnels Report',
     }]
+    def test_func(self):
+        return self.request.user.is_superuser
+    def handle_no_permission(self):
+        messages.info(self.request, 'You have no permission')
+        return redirect('profile')
     
-class WorkOrderReportView(SlickReportView):
+
+class WorkOrderReportView(UserPassesTestMixin,SlickReportView):
     report_model = WorkOrder
     date_field = 'created'
     group_by = 'building'
@@ -279,4 +432,32 @@ class WorkOrderReportView(SlickReportView):
         'title_source': ['name'],
         'title': 'Work Order Report',
     }]
-# todo add payment reports
+    def test_func(self):
+        return self.request.user.is_superuser
+    def handle_no_permission(self):
+        messages.info(self.request, 'You have no permission')
+        return redirect('profile')
+    
+class WorkOrderPaymentsReportView(UserPassesTestMixin,SlickReportView):
+    report_model = WorkOrderPayments
+    date_field = 'created'
+    group_by = 'building'
+    columns = ['name',
+               SlickReportField.create(Sum, 'amount', name='amount_paid__sum', verbose_name=_('Total Payments'))
+               ]
+    
+    time_series_pattern = 'monthly'
+    time_series_columns = [
+                           SlickReportField.create(Sum, 'amount', name='amount_paid__sum', verbose_name=_('Total Payments'))
+                           ]
+    chart_settings = [{
+        'type': 'column',
+        'data_source': ['amount_paid__sum'],
+        'title_source': ['name'],
+        'title': 'Work Order Payments',
+    }]
+    def test_func(self):
+        return self.request.user.is_superuser
+    def handle_no_permission(self):
+        messages.info(self.request, 'You have no permission')
+        return redirect('profile')

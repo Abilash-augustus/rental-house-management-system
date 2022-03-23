@@ -19,7 +19,11 @@ urlpatterns = [
     
     path('water_consumption_report/', views.WaterConsumptionReportView.as_view(), name='water_consumption_report'),
     path('electricity_consumption_report/', views.ElectricityConsumptionReportView.as_view(), name='electricity_consumption_report'),
+    path('rent_payment_report/', views.RentPaymentsReportView.as_view(), name='rent_payment_report'),
+    path('water_billing_payment_report/', views.WaterBillPaymentsReportView.as_view(), name='water_billing_payment_report'),
+    path('electricity_bill_payment_report/', views.ElectricityBillPaymentsReportView.as_view(), name='electricity_bill_payment_report'),
     
     path('hired_personnel_report/', views.HiredPersonnelReportView.as_view(), name='hired_personnel_report'),
     path('work_order_report/', views.WorkOrderReportView.as_view(), name='work_order_report'),
+    path('work_order_payment_report/', views.WorkOrderPaymentsReportView.as_view(), name='work_order_payment_report'),
 ]

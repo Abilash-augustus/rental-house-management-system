@@ -30,8 +30,9 @@ at any particular time.
 ```
 **Currently included tenants' functionalities**
 ```
+
 - [x] Personal Rent and utility tracking (visualizing electricity & water consumtion)
-- [ ] Online payments submission (MPESA Integration & strips)
+- [ ] Online payments submission (MPESA Integration & stripe :white_check_mark )
 - [x] View payments history
 - [x] Keep track of notices nade by managers
 - [x] View receieved notices & create moveout notice
@@ -102,3 +103,6 @@ at any particular time.
         - Personnel Contact
     - Work Order
         - WorkOrderPayments
+
+- [Reporting](https://github.com/shumwe/rental-house-management-system/tree/main/reporting)
+    - ** Reports

@@ -100,6 +100,7 @@ PAYMENT_STATUS_CHOICES = [
 class RentPayment(models.Model):
     rent_details = models.ForeignKey(UnitRentDetails, on_delete=models.CASCADE, related_name='payment')
     tenant = models.ForeignKey(Tenants, on_delete=models.CASCADE, related_name='pay')
+    building = models.ForeignKey(Building, on_delete=models.CASCADE, null=True, blank=True)
     manager = models.ForeignKey(Managers, on_delete=models.CASCADE, null=True, blank=True, related_name='payments_manager')
     tracking_code = models.CharField(max_length=15, unique=True, null=True, blank=True)
     payment_code = models.CharField(max_length=155)
@@ -120,6 +121,8 @@ class RentPayment(models.Model):
             self.tracking_code = ''.join(random.choices(string.digits, k=10))
         if self.status == 'approved':
             self.confirmed = True
+        if not self.building:
+            self.building = self.rent_details.unit.building
             super(RentPayment, self).save(*args, **kwargs)
         super(RentPayment, self).save(*args, **kwargs)
         
@@ -133,6 +136,7 @@ class RentPayment(models.Model):
 class WaterBilling(models.Model):
     rental_unit = models.ForeignKey(RentalUnit, on_delete=models.CASCADE)
     tenant = models.ForeignKey(Tenants, on_delete=models.CASCADE)
+    building = models.ForeignKey(Building, on_delete=models.CASCADE, null=True, blank=True)
     bill_code = models.CharField(max_length=15, unique=True, null=True, blank=True)
     meter_number = models.ForeignKey('WaterMeter', on_delete=models.CASCADE)
     units = models.DecimalField(decimal_places=2, max_digits=9, default=0, null=True, blank=True)
@@ -149,8 +153,7 @@ class WaterBilling(models.Model):
     due_date = models.DateField(null=True, blank=True)
     added = models.DateTimeField(default=datetime.now)
     updated = models.DateTimeField(auto_now_add=True)
-    building = models.ForeignKey(Building, on_delete=models.CASCADE, null=True, blank=True)
-    
+        
     def amount_remaining(self):
         r_amount = self.total-self.amount_paid
         return r_amount

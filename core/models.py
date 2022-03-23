@@ -96,10 +96,13 @@ class MoveOutNotice(models.Model):
     drop = models.BooleanField(default=False, verbose_name='I would like to drop this notice')
     created = models.DateTimeField(default=datetime.datetime.now)
     updated = models.DateTimeField(auto_now=True)
+    building = models.ForeignKey(Building, on_delete=models.CASCADE, blank=True, null=True)
     
     def save(self, *args, **kwargs):
         if not self.code:
             self.code = ''.join(random.choices(string.digits, k=12))
+        if not self.building:
+            self.building = self.tenant.rented_unit.building
             super(MoveOutNotice, self).save()
         super(MoveOutNotice, self).save()
     
@@ -126,10 +129,13 @@ class EvictionNotice(models.Model):
     created = models.DateTimeField(default=datetime.datetime.now)
     updated = models.DateTimeField(auto_now=True)
     send_email = models.BooleanField(default=False)
+    building = models.ForeignKey(Building,on_delete=models.CASCADE, null=True, blank=True)
 
     def save(self, *args, **kwargs):
         if not self.notice_code:
             self.notice_code = ''.join(random.choices(string.digits, k=10))
+        if not self.building:
+            self.building = self.unit.building
             super(EvictionNotice, self).save()
         super(EvictionNotice, self).save()
 

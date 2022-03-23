@@ -93,21 +93,28 @@ class WorkOrder(models.Model):
 
 class WorkOrderPayments(models.Model):
     parent_order = models.ForeignKey(WorkOrder, on_delete=models.CASCADE)
+    building = models.ForeignKey(Building, on_delete=models.CASCADE, null=True, blank=True)
     tracking_code = models.CharField(max_length=12, unique=True, null=True, blank=True)
     payment_code = models.CharField(max_length=30)
     paid_to_name = models.CharField(max_length=55)
     paid_to_account = models.CharField(max_length=55,null=True, blank=True)
     payment_method = models.CharField(max_length=30,help_text="e.g Mpesa")
     amount = models.DecimalField(max_digits=9, decimal_places=2)
-    payment_date = models.CharField(max_length=30)
+    payment_date = models.DateTimeField()
     created = models.DateTimeField(default=datetime.now)
     updated = models.DateTimeField(auto_now=True)
     
     def save(self, *args, **kwargs):
         if not self.tracking_code:
             self.tracking_code = ''.join(random.choices(string.digits, k=10))
+        if not self.building:
+            self.building = self.parent_order.building
             super(WorkOrderPayments, self).save(*args, **kwargs)
         super(WorkOrderPayments, self).save(*args, **kwargs)
+        
+    class Meta:
+        verbose_name = 'Payments'
+        verbose_name_plural = verbose_name
         
     
     def __str__(self):

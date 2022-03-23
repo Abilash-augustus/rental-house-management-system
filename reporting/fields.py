@@ -4,9 +4,9 @@ from slick_reporting.registry import field_registry
 from django.utils.translation import gettext_lazy as _
 
 class CountLogin(SlickReportField):
-    name = 'count__login'
+    name = 'count__logins'
     verbose_name = _('Logins')
-    calculation_field = 'last_login'
+    calculation_field = 'created_at'
     calculation_method = Count 
     is_summable = True
 field_registry.register(CountLogin)
@@ -21,21 +21,21 @@ field_registry.register(CountStatusContacts)
 class VisiStatusCount(SlickReportField):
     name = 'visit_status_count'
     verbose_name = 'Visits'
-    calculation_field = 'visit_status'
+    calculation_field = 'building'
     calculation_method = Count
 field_registry.register(VisiStatusCount)
 
 class MoveOutNoticeStatusCount(SlickReportField):
     name = 'move_out_notice_status_count'
-    verbose_name = 'Move Out Notices'
-    calculation_field = 'notice_status'
+    verbose_name = 'Notices'
+    calculation_field = 'building'
     calculation_method = Count
 field_registry.register(MoveOutNoticeStatusCount)
 
 class EvictionNoticeStatusCount(SlickReportField):
     name = 'eviction_status_count'
-    verbose_name = 'Eviction Status Count'
-    calculation_field = 'eviction_status'
+    verbose_name = 'Notices'
+    calculation_field = 'building'
     calculation_method = Count
 field_registry.register(EvictionNoticeStatusCount)
 
@@ -57,16 +57,16 @@ field_registry.register(CountSentEmails)
 
 #complaints
 class UnitReportsByTenants(SlickReportField):
-    name = 'report_type__count'
+    name = 'report__count'
     verbose_name = 'Tenant Reports'
-    calculation_field = 'report_type'
+    calculation_field = 'building'
     calculation_method = Count
 field_registry.register(UnitReportsByTenants)
 
 class ComplaintsReportField(SlickReportField):
-    name = 'status__count'
+    name = 'complaints__count'
     verbose_name=_('Complaints')
-    calculation_field = 'status'
+    calculation_field = 'building'
     calculation_method = Count
 field_registry.register(ComplaintsReportField)
 
