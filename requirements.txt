@@ -28,6 +28,7 @@ django-phonenumber-field==6.1.0
 django-slick-reporting==0.6.3
 django-summernote==0.8.20.0
 django-timezone-field==4.2.3
+django-user-visit==0.5.1
 djangorestframework==3.13.1
 future==0.18.2
 gunicorn==20.1.0
@@ -67,7 +68,9 @@ sqlparse==0.4.2
 stripe==2.67.0
 tzdata==2022.1
 tzlocal==4.1
+ua-parser==0.10.0
 urllib3==1.26.8
+user-agents==2.2.0
 vine==5.0.0
 wcwidth==0.2.5
 webencodings==0.5.1
