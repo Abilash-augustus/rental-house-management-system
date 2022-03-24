@@ -37,9 +37,10 @@
               <div class="list-group mb-2">
                   <a role="button" type="button" class="list-group-item list-group-item-action" href="{% url 'electricity_meter_management' building.slug %}"> Electricity Meter Management</a>
                   <a role="button" type="button" class="list-group-item list-group-item-action" href="{% url 'water_meter_management' building.slug %}">Water Meter Management</a>
+                  <a role="button" type="button" class="list-group-item list-group-item-action" href="{% url 'rent_increase_notices' building.slug %}"> Rent Increase Notices </a>
                 </div>
                 <div class="card card-body mb-2">
-                  <h5 class="card-header text-center">Search Area</h5>
+                  <h5 class="card-header text-center">Search</h5>
                   <form method="get">
                     <br>
                     {{ tenants_filter.form|crispy }}

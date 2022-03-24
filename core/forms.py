@@ -1,8 +1,6 @@
 from django import forms
 from accounts.models import Tenants
 from django_summernote.widgets import SummernoteWidget
-from crispy_forms.layout import Layout,HTML,Row,Column,Field
-from crispy_forms.helper import FormHelper
 
 from core.models import Contact, ContactReply, EvictionNotice, ManagerTenantCommunication, ServiceRating, TenantEmails, UnitTour, MoveOutNotice
 

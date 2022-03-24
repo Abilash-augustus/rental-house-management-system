@@ -6,7 +6,7 @@ from utilities.models import (ElectricityBilling, ElectricityMeter,
                                        PaymentMethods, RentPayment,
                                        UnitRentDetails, WaterBilling,
                                        WaterConsumption, WaterMeter,
-                                       WaterPayments)
+                                       WaterPayments,RentIncrementNotice)
 
 
 @admin.register(UnitRentDetails)
@@ -21,6 +21,12 @@ class RentPaymentAdmin(admin.ModelAdmin):
     list_display = ['rent_details','manager','payment_code','amount','paid_for_month','paid_on','payment_method','paid_with_stripe', 'status','added_on']
     list_filter = ('status','paid_with_stripe','added_on')
     search_fields = ('payment_code',)
+    
+@admin.register(RentIncrementNotice)
+class RentIncrementNoticeAdmin(admin.ModelAdmin):
+    list_display = ['ref_code','re','takes_effect_on','notify_all','created']
+    list_filter = ['created','notify_all','building']
+    search_fields = ['ref_code','re','takes_effect_on']
 
 @admin.register(PaymentMethods)
 class PaymentMethodsAdmin(admin.ModelAdmin):

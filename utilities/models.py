@@ -53,7 +53,7 @@ class UnitRentDetails(models.Model):
     code = models.CharField(max_length=15, unique=True, null=True, blank=True)
     tenant = models.ForeignKey(Tenants, on_delete=models.DO_NOTHING)
     unit = models.ForeignKey(RentalUnit, on_delete=models.CASCADE)
-    rent_amount = models.DecimalField(max_digits=9, decimal_places=2, default=0)
+    rent_amount = models.DecimalField(max_digits=9, decimal_places=2, help_text="This field will be populated automatically")
     currency = models.CharField(max_length=10, default='KES')
     amount_paid = models.DecimalField(max_digits=9, decimal_places=2, default=0)
     pay_for_month = MultiSelectField(choices=MONTHS_SELECT)
@@ -75,6 +75,7 @@ class UnitRentDetails(models.Model):
     def save(self, *args, **kwargs):
         if not self.code:
             self.code = ''.join(random.choices(string.digits, k=12))
+            self.rent_amount = self.unit.rent_amount
         if self.amount_paid >= self.rent_amount:
             self.cleared = True
             self.status = 'closed'
@@ -89,6 +90,33 @@ class UnitRentDetails(models.Model):
     class Meta:
         verbose_name_plural = 'Billing 1 | Rent Details'
         verbose_name = 'Rent For Unit'
+
+class RentIncrementNotice(models.Model):
+    ref_code = models.CharField(max_length=20, unique=True, null=True, blank=True)
+    building = models.ForeignKey(Building, on_delete=models.CASCADE)
+    to_tenants = models.ManyToManyField(Tenants, blank=True)
+    notify_all = models.BooleanField(default=True, verbose_name='Send TO All Tenants')
+    re = models.CharField(max_length=155, default='Rent Increase', verbose_name="RE: ")
+    takes_effect_on = models.DateField()
+    notice_detail = models.TextField()
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+    
+    def receivers(self):
+        return ', '.join([str(t.associated_account.username) for t in self.to_tenants.all()])
+    
+    def save(self, *args, **kwargs):
+        if not self.ref_code:
+            self.ref_code = ''.join(random.choices(string.digits, k=12))
+            super(RentIncrementNotice, self).save(*args, **kwargs)
+        super(RentIncrementNotice, self).save(*args, **kwargs)
+        
+    class meta:
+        verbose_name = 'Rent Increment Notice'
+        verbose_name_plural = verbose_name
+        
+    def __str__(self):
+        return f"{self.building.name} Rent Increase Notice"
         
 
 PAYMENT_STATUS_CHOICES = [
@@ -346,3 +374,5 @@ class PayOnlineMpesa(models.Model):
     class Meta:
         verbose_name = "Mpesa Online Payments"
         verbose_name_plural = verbose_name
+        
+        

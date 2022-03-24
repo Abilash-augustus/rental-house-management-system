@@ -1,0 +1,80 @@
+{% load humanize %}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Rent Increase Notice</title>
+        <style type="text/css">
+            body {
+                font-weight: 200;
+                font-size: 14px;
+            }
+            .header {
+                font-size: 20px;
+                font-weight: 100;
+                text-align: center;
+                color: #007cae;
+            }
+            .title {
+                font-size: 22px;
+                font-weight: 100;
+               /* text-align: right;*/
+               padding: 10px 20px 0px 20px;  
+            }
+            .title span {
+                color: #007cae;
+            }
+            .details {
+                padding: 10px 20px 0px 20px;
+                text-align: left !important;
+                /*margin-left: 40%;*/
+            }
+            .hrItem {
+                border: none;
+                height: 1px;
+                /* Set the hr color */
+                color: #333; /* old IE */
+                background-color: #fff; /* Modern Browsers */
+            }
+            #footer {
+                position: relative;
+                bottom: 0;
+                width: 100%;
+                height: 2.5rem;            /* Footer height */
+              }
+        </style>
+    </head>
+    <body>
+        <div class='wrapper'>
+            <div class='header'>
+                <p class='title'>RENT INCREASE NOTICE </p>
+            </div>
+        <div>
+        <div class='details'>
+            REF CODE: {{notice.ref_code}} <br/>
+            BUILDING: {{notice.building.name}} <br/>
+            TO:  {% if notice.notify_all %} All Tenants {% else %} {{notice.receivers}} {% endif %} <br/>
+            EFFECTIVE FROM: {{notice.takes_effect_on|naturalday}} <br/>
+            <br/>
+            <div class="header"> 
+                {{notice.re}} 
+            </div>
+            <hr class='hrItem' />
+
+            <div class='text-center'>
+                <p>
+                {{notice.notice_detail|safe}} </p>
+            </div>
+        </div>
+    </div>
+    <br/>
+    <br/>
+    <div id="footer">Created {{notice.created|naturalday}} <br/>
+        Last Updated {{notice.updated|naturaltime}}
+    </div>
+    <br/>
+    @{{building.manager.associated_account.username}}<br/>
+    <br>
+        <em>Contact Phone: {{notice.building.manager.active_phone_number}} <br/>
+            Contact E-mail: {{notice.building.manager.associated_account.email}}</em>
+    </body>
+</html>

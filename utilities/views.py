@@ -1,3 +1,4 @@
+from django.contrib.sites.models import Site
 import json
 import math
 from datetime import datetime
@@ -27,7 +28,7 @@ from rental_property.models import Building, RentalUnit
 
 from utilities.filters import (ElectricityMetersFilter,
                                         ManagerElectricityBillsFilter,
-                                        PaymentsFilter, RentDetailsFilter,
+                                        PaymentsFilter, RentDetailsFilter, RentIncrementNoticeFilter,
                                         TenantElectricityBillsFilter,
                                         UnitTypeFilter, WaterBilingFilter,
                                         WaterMetersFilter)
@@ -37,7 +38,7 @@ from utilities.forms import (AddRentDetailsForm,
                                       ElectricityPaySubmitForm,
                                       ElectricityReadingForm,
                                       NewElectricityMeterForm,
-                                      NewWaterMeterForm, PaymentUpdateForm,
+                                      NewWaterMeterForm, PaymentUpdateForm, RentIncreaseNoticeForm,
                                       StartEBillCycleForm,
                                       StartWaterBillingForm,
                                       SubmitPaymentsForm,
@@ -50,7 +51,7 @@ from utilities.forms import (AddRentDetailsForm,
 from utilities.models import (ElectricityBilling, ElectricityMeter,
                                        ElectricityPayments,
                                        ElectricityReadings, PaymentMethods,
-                                       PayOnlineMpesa, RentPayment,
+                                       PayOnlineMpesa, RentIncrementNotice, RentPayment,
                                        UnitRentDetails, WaterBilling,
                                        WaterConsumption, WaterMeter,
                                        WaterPayments)
@@ -67,10 +68,19 @@ def my_rent_details(request, building_slug, unit_slug, username):
     tenant = Tenants.objects.get(rented_unit=unit, associated_account__username=username)
     payment_options = PaymentMethods.objects.all()
     
+    latest_notice = RentIncrementNotice.objects.filter(building=building,notify_all=False).order_by('-created')[0]
+    
+    if latest_notice.to_tenants:
+        if tenant in latest_notice.to_tenants.all():
+            i_notice = latest_notice
+        else:
+            i_notice = RentIncrementNotice.objects.filter(building=building,notify_all=True).order_by('-created')[0]
+    
     tenant_rent_details = UnitRentDetails.objects.filter(tenant=tenant, unit=unit).order_by('-added')
     tenant_rent_details_qs = RentDetailsFilter(request.GET, queryset=tenant_rent_details)
               
-    context = {'building':building, 'unit':unit, 'tenant':tenant,'tenant_rent_details_qs':tenant_rent_details_qs,'payment_options':payment_options}
+    context = {'building':building, 'unit':unit, 'tenant':tenant,'tenant_rent_details_qs':tenant_rent_details_qs,
+               'payment_options':payment_options,'i_notice':i_notice}
     return render(request, 'utilities_and_rent/my-rent-details.html', context)
 
 @login_required
@@ -351,7 +361,7 @@ def update_tenant_rent(request, building_slug, unit_slug, username, rent_code):
             messages.success(request, 'Rent updated successfully')
             notify = update_form.instance
             if notify.notify_tenant == True:
-                subject = "Rent Adjustment for '{0} {1}'".format(notify.pay_for_month, current_year)
+                subject = "RENT DETAILS ADJUSTED -> '{0} {1}'".format(notify.pay_for_month, current_year)
                 notify_content = 'utilities_and_rent/mails/notify_rent.html'
                 html_message = render_to_string(notify_content,
                                                 {'building':building,'notify':notify,'current_year':current_year,})
@@ -797,3 +807,77 @@ def electricity_meter_update(request,building_slug,meter_ssid):
         
     context = {'building': building, 'update_form': update_form,}
     return render(request, 'utilities_and_rent/update_electricity_meter.html', context)
+
+@login_required
+def add_rentincrement_notice(request,building_slug):
+    building = Building.objects.get(slug=building_slug)
+    current_site = Site.objects.get_current()
+    
+    tenants = Tenants.objects.filter(rented_unit__building=building)
+    recipients = []
+    for tenant in tenants:
+        recipients.append(tenant.associated_account.email)
+    
+    if request.method == 'POST':
+        add_form = RentIncreaseNoticeForm(building,request.POST)
+        if add_form.is_valid():
+            add_form.instance.building = building
+            add_form.save()
+            
+            
+            data = add_form.instance
+            if data.notify_all:
+                send_to_emails = recipients
+            else:
+                get_recipients = data.to_tenants.all()
+                select_recipients = []
+                for t in get_recipients:
+                    select_recipients.append(t.associated_account.email)
+                send_to_emails = select_recipients
+                
+            subject = data.re
+            template = 'utilities_and_rent/mails/rent_increase_email.html'
+            html_message = render_to_string(template,{'data':data,'site':current_site,'building':building})
+            from_email = DEFAULT_FROM_EMAIL
+            to_email = send_to_emails
+            message = EmailMessage(subject, html_message, from_email, to_email)
+            message.content_subtype = 'html'
+            message.send()
+            messages.success(request, 'Email sent successfully')
+            return redirect('rent-and-utilities', building_slug=building.slug)
+    else:
+        add_form = RentIncreaseNoticeForm(building)
+    
+    context = {
+        'building': building, 'add_form': add_form,
+    }
+    return render(request, 'utilities_and_rent/inrement_notice.html', context)
+from core.utils import render_to_pdf
+from django.template.loader import get_template
+@login_required
+def view_rent_increase_notice_pdf(request,building_slug, r_code):
+    building = Building.objects.get(slug=building_slug)
+    notice = RentIncrementNotice.objects.get(building=building,ref_code=r_code)
+    
+    context = {'notice':notice,'building':building}
+    template = get_template('utilities_and_rent/pdf/rent_increase_pdf.html')
+    html = template.render(context)
+    pdf = render_to_pdf('utilities_and_rent/pdf/rent_increase_pdf.html', context)
+    if pdf:
+        response = HttpResponse(pdf,content_type='application/pdf')
+        filename = "rent_increase_notice_%s" %(notice.ref_code)
+        content = "inline; filename='%s'" %(filename)
+        download = request.GET.get('download')
+        if download:
+            content = "attachment; filename='%s'" %(filename)
+        response['Content-Disposition'] = content
+        return response
+    return HttpResponse("Not Found")
+
+def rent_increase_notices(request,building_slug):
+    building = Building.objects.get(slug=building_slug)
+    
+    notices = RentIncrementNotice.objects.filter(building=building).order_by('-created')
+    notices_filter = RentIncrementNoticeFilter(request.GET, queryset=notices)    
+    return render(request, 'utilities_and_rent/rent_inrement_notices.html',
+                  {'building': building,'notices':notices_filter,})

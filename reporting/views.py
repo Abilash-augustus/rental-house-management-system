@@ -288,12 +288,12 @@ class RentPaymentsReportView(UserPassesTestMixin,SlickReportView):
     date_field = 'added_on'
     group_by = 'building'
     columns = ['name',
-               SlickReportField.create(Sum, 'amount', name='amount__sum', verbose_name=_('Total Payments'))
+               SlickReportField.create(Sum, 'amount', name='amount__sum', verbose_name=_('Total (KES)'))
                ]
     
     time_series_pattern = 'monthly'
     time_series_columns = [
-                           SlickReportField.create(Sum, 'amount', name='amount__sum', verbose_name=_('Total Payments'))
+                           SlickReportField.create(Sum, 'amount', name='amount__sum', verbose_name=_('Total (KES)'))
                            ]
     chart_settings = [{
         'type': 'column',
@@ -332,12 +332,12 @@ class WaterBillPaymentsReportView(UserPassesTestMixin,SlickReportView):
     date_field = 'added'
     group_by = 'building'
     columns = ['name',
-               SlickReportField.create(Sum, 'amount_paid', name='amount_paid__sum', verbose_name=_('Total Payments'))
+               SlickReportField.create(Sum, 'amount_paid', name='amount_paid__sum', verbose_name=_('Total (KES)'))
                ]
     
     time_series_pattern = 'monthly'
     time_series_columns = [
-                           SlickReportField.create(Sum, 'amount_paid', name='amount_paid__sum', verbose_name=_('Total Payments'))
+                           SlickReportField.create(Sum, 'amount_paid', name='amount_paid__sum', verbose_name=_('Total (KES)'))
                            ]
     chart_settings = [{
         'type': 'column',
@@ -377,12 +377,12 @@ class ElectricityBillPaymentsReportView(UserPassesTestMixin,SlickReportView):
     date_field = 'added'
     group_by = 'building'
     columns = ['name',
-               SlickReportField.create(Sum, 'amount_paid', name='amount_paid__sum', verbose_name=_('Total Payments'))
+               SlickReportField.create(Sum, 'amount_paid', name='amount_paid__sum', verbose_name=_('Total (KES)'))
                ]
     
     time_series_pattern = 'monthly'
     time_series_columns = [
-                           SlickReportField.create(Sum, 'amount_paid', name='amount_paid__sum', verbose_name=_('Total Payments'))
+                           SlickReportField.create(Sum, 'amount_paid', name='amount_paid__sum', verbose_name=_('Total (KES)'))
                            ]
     chart_settings = [{
         'type': 'column',
@@ -443,12 +443,12 @@ class WorkOrderPaymentsReportView(UserPassesTestMixin,SlickReportView):
     date_field = 'created'
     group_by = 'building'
     columns = ['name',
-               SlickReportField.create(Sum, 'amount', name='amount_paid__sum', verbose_name=_('Total Payments'))
+               SlickReportField.create(Sum, 'amount', name='amount_paid__sum', verbose_name=_('Total (KES)'))
                ]
     
     time_series_pattern = 'monthly'
     time_series_columns = [
-                           SlickReportField.create(Sum, 'amount', name='amount_paid__sum', verbose_name=_('Total Payments'))
+                           SlickReportField.create(Sum, 'amount', name='amount_paid__sum', verbose_name=_('Total (KES)'))
                            ]
     chart_settings = [{
         'type': 'column',

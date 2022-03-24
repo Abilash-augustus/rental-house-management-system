@@ -1,21 +1,28 @@
 from django import forms
+from accounts.models import Tenants
+from django_summernote.widgets import SummernoteWidget
+from phonenumber_field.formfields import PhoneNumberField
 from rental_property.models import RentalUnit
 
-from utilities.models import (ElectricityBilling, ElectricityMeter, ElectricityPayments,
-                                       ElectricityReadings, RentPayment,
-                                       UnitRentDetails, WaterBilling,
-                                       WaterConsumption, WaterMeter, WaterPayments)
+from utilities.models import (ElectricityBilling, ElectricityMeter,
+                              ElectricityPayments, ElectricityReadings,
+                              RentIncrementNotice, RentPayment,
+                              UnitRentDetails, WaterBilling, WaterConsumption,
+                              WaterMeter, WaterPayments)
 
-from phonenumber_field.formfields import PhoneNumberField
 
 class DateInput(forms.DateInput):
     input_type = 'date'
     
 class AddRentDetailsForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(AddRentDetailsForm, self).__init__(*args, **kwargs)
+        self.fields['currency'].disabled = True
+        self.fields['added'].disabled = True
     class Meta:
         model = UnitRentDetails
-        fields = ['rent_amount','currency','amount_paid','pay_for_month','start_date',
-                  'end_date','due_date','notify_tenant']
+        fields = ['currency','amount_paid','pay_for_month','start_date',
+                  'end_date','due_date','notify_tenant','added']
         widgets = {
             'start_date': DateInput(),
             'end_date': DateInput(),
@@ -35,7 +42,7 @@ class UpdateRentDetails(forms.ModelForm):
         super(UpdateRentDetails, self).__init__(*args, **kwargs)
         self.fields['currency'].disabled = True
         self.fields['added'].disabled = True
-        self.fields['amount_paid'].disabled = True
+        self.fields['rent_amount'].disabled = True
     class Meta:
         model = UnitRentDetails
         fields = ['currency','rent_amount','amount_paid','pay_for_month',
@@ -180,3 +187,15 @@ class ElectricityMeterUpdateForm(forms.ModelForm):
     class Meta:
         model = ElectricityMeter
         exclude = ['created', 'updated']
+        
+class RentIncreaseNoticeForm(forms.ModelForm):
+    def __init__(self, building, *args, **kwargs):
+        super(RentIncreaseNoticeForm,self).__init__(*args, **kwargs)
+        self.fields['to_tenants'].queryset = Tenants.objects.filter(rented_unit__building=building)
+    class Meta:
+        model = RentIncrementNotice
+        fields = ['to_tenants','notify_all','takes_effect_on','re','notice_detail']
+        widgets = {
+            'takes_effect_on': DateInput(),
+            'notice_detail': SummernoteWidget(attrs={'summernote': {'width': '100%', 'height': '400px'}}),
+            }

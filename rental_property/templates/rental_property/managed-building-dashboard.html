@@ -75,24 +75,87 @@
               <div class="container">
                 <div class="row">
                   <div class="col-sm-3">
-                    <div class="list-group">
-                      <h5 class='list-group-item list-group-item-action'>Building Menu</h5>
-                      {% if user.is_manager %}
-                      <a href="{% url 'managed-building-units' building.slug %}" type="button" class="list-group-item list-group-item-action" role="button">Rental Houses</a>
-                      <a href="{% url 'add-new-tenant' building.slug %}" type="button" class="list-group-item list-group-item-action" role="button">Add Tenants</a>
-                      <a href="{% url 'core:general_communications' building.slug %}" type="button" class="list-group-item list-group-item-action" role="button">General Communications</a>
-                      <a href="{% url 'hired_personnel' building.slug %}" type="button" class="list-group-item list-group-item-action" role="button">Hired Personnel</a>
-                      <a href="{% url 'work_orders' building.slug %}" type="button" class="list-group-item list-group-item-action" role="button">Work Orders</a>
-                      <a href="{% url 'rent-and-utilities' building.slug %}" type="button" class="list-group-item list-group-item-action" role="button"> Rent and Utilities </a>
-                      <a href="{% url 'maintanance_notices' building.slug %}" type="button" class="list-group-item list-group-item-action" role="button"> Maintanance Notices </a>
-                      <a href="{% url 'core:visits' building.slug %}" type="button" class="list-group-item list-group-item-action" role="button">Visits</a>
-                      <a href="{% url 'reports' building.slug %}" type="button" class="list-group-item list-group-item-action" role="button">Reports 
-                        <small class="position-absolute top-1 start-100 translate-middle badge rounded-pill bg-secondary">({{building_reports_count}})</small></a>
-                      <a href="{% url 'building-complaints' building.slug %}" type="button" class="list-group-item list-group-item-action" role="button">Complaints</a>
-                      <a href="{% url 'core:evictions' building.slug %}" type="button" class="list-group-item list-group-item-action" role="button">Evictions</a>
-                      <a href="{% url 'core:move-out-notices' building.slug %}" title="submitted move out notices" type="button" class="list-group-item list-group-item-action" role="button">Move Out Notices</a>
-                      {% endif %}
-                    </div>
+                    <!-- start test-->
+                    <div class="container-fluid overflow-hidden">
+                      <div class="row vh-100 overflow-auto">
+                          <div class="col-12 col-xl-12 col-md-12 px-sm-2 px-0 bg-light d-flex sticky-top">
+                              <div class="d-flex flex-sm-column flex-row flex-grow-1 align-items-center align-items-sm-start px-3 pt-2 text-white">
+                                  <a href="/" class="d-flex align-items-center pb-sm-3 mb-md-0 me-md-auto text-white text-decoration-none">
+                                      <span class="text-dark fs-5">Building Menu</span>
+                                  </a>
+                                  <ul class="nav nav-pills flex-sm-column flex-row flex-nowrap flex-shrink-1 flex-sm-grow-0 flex-grow-1 mb-sm-auto mb-0 justify-content-center align-items-center align-items-sm-start" id="menu">
+                                      <li class="nav-item">
+                                          <a href="{% url 'managed-building-units' building.slug %}" class="nav-link px-sm-0 px-2">
+                                              <span class="ms-1 d-none d-sm-inline">Rental Houses</span>
+                                          </a>
+                                      </li>
+                                      <li>
+                                          <a href="{% url 'add-new-tenant' building.slug %}" data-bs-toggle="collapse" class="nav-link px-sm-0 px-2">
+                                              <span class="ms-1 d-none d-sm-inline">Add Tenants</span> </a>
+                                      </li>
+                                      <li>
+                                          <a href="{% url 'core:general_communications' building.slug %}" class="nav-link px-sm-0 px-2">
+                                             <em class="fa fa-envelope"></em><span class="ms-1 d-none d-sm-inline">Comms</span></a>
+                                      </li>
+                                      <li>
+                                        <a href="{% url 'rent-and-utilities' building.slug %}" class="nav-link px-sm-0 px-2">
+                                            <span class="ms-1 d-none d-sm-inline">Utilities & Rent</span></a>
+                                    </li>
+                                    <li>
+                                      <a href="{% url 'hired_personnel' building.slug %}" class="nav-link px-sm-0 px-2">
+                                          <span class="ms-1 d-none d-sm-inline">Hired Personnel</span></a>
+                                    </li>
+                                    <li>
+                                      <a href="{% url 'work_orders' building.slug %}" class="nav-link px-sm-0 px-2">
+                                          <span class="ms-1 d-none d-sm-inline">Work Orders</span></a>
+                                    </li>
+                                    <li>
+                                      <a href="{% url 'maintanance_notices' building.slug %}" class="nav-link px-sm-0 px-2">
+                                          <span class="ms-1 d-none d-sm-inline">Maintanance Notices</span></a>
+                                    </li>
+                                    <li>
+                                      <a href="{% url 'core:visits' building.slug %}" class="nav-link px-sm-0 px-2">
+                                          <span class="ms-1 d-none d-sm-inline">Visits|Tours</span></a>
+                                    </li>
+                                    <li>
+                                      <a href="{% url 'reports' building.slug %}" class="nav-link px-sm-0 px-2">
+                                        <em class="top-1 badge rounded-pill bg-secondary">({{building_reports_count}})</em>
+                                        <span class="ms-1 d-none d-sm-inline">Reports</span></a>
+                                    </li>
+                                    <li>
+                                      <a href="{% url 'building-complaints' building.slug %}" class="nav-link px-sm-0 px-2">
+                                          <span class="ms-1 d-none d-sm-inline">Complaints</span></a>
+                                    </li>
+                                    <li>
+                                      <a href="{% url 'core:evictions' building.slug %}" class="nav-link px-sm-0 px-2">
+                                          <span class="ms-1 d-none d-sm-inline">Evictions</span></a>
+                                    </li>
+                                    <li>
+                                      <a href="{% url 'core:move-out-notices' building.slug %}" class="nav-link px-sm-0 px-2">
+                                          <span class="ms-1 d-none d-sm-inline">Move Out Notices</span></a>
+                                    </li>
+                                    <!--
+                                    <li class="dropdown">
+                                      <a href="#" class="nav-link dropdown-toggle px-sm-0 px-1" id="dropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                          <span class="ms-1 d-none d-sm-inline">Bootstrap</span>
+                                      </a>
+                                          <ul class="dropdown-menu dropdown-menu-dark text-small shadow" aria-labelledby="dropdown">
+                                              <li><a class="dropdown-item" href="#">New project...</a></li>
+                                              <li><a class="dropdown-item" href="#">Settings</a></li>
+                                              <li><a class="dropdown-item" href="#">Profile</a></li>
+                                              <li>
+                                                  <hr class="dropdown-divider">
+                                              </li>
+                                              <li><a class="dropdown-item" href="#">Sign out</a></li>
+                                          </ul>
+                                    </li>
+                                  -->
+                                  </ul>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+                  <!-- end test -->
                   </div>
                   <div class="col-sm-9">
                     <div class="row">

@@ -5,7 +5,11 @@ urlpatterns = [
     path('my-rent/<slug:building_slug>/<slug:unit_slug>/<slug:username>/', views.my_rent_details, name='my-rent'),
     path('submit-rent-pay-info/<slug:building_slug>/<slug:unit_slug>/<slug:rent_code>/<slug:username>/', views.submit_rent_payments, name='pay-info'),
     path('rent-and-utilities/<slug:building_slug>/', views.rent_and_utilities, name='rent-and-utilities'),
+    path('rent_increase_notices/<building_slug>/', views.rent_increase_notices, name='rent_increase_notices'),
     path('add-rent/<slug:building_slug>/<slug:unit_slug>/', views.add_tenant_rent, name='add-rent'),
+    path('add_rent_increase_notice/<slug:building_slug>/', views.add_rentincrement_notice, name='add_rentincrement_notice'),
+    path('view_rent_increase_notice_pdf/<slug:building_slug>/<slug:r_code>/', views.view_rent_increase_notice_pdf, name='view_rent_increase_notice_pdf'),
+    
     path('my_water_billing/<slug:building_slug>/<slug:unit_slug>/<slug:username>/', views.my_water_billing, name='my_water_billing'),
     path('my_water_billing_details/<slug:building_slug>/<slug:unit_slug>/<slug:username>/<slug:bill_code>/', views.my_water_billing_details, name="my_water_billing_details"),
     path('my-electric-bills/<slug:building_slug>/<slug:unit_slug>/<slug:username>/', views.my_electric_bills, name="my_electric_bills"),

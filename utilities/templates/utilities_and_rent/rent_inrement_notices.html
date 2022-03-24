@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% load crispy_forms_tags %}
-{% block metadescription %} General Comms {% endblock %}
+{% block metadescription %} Rent Increase Notices {% endblock %}
 {% load humanize %}
 
 {% block content %} 
@@ -8,7 +8,7 @@
   <ol class="breadcrumb bg-light p-2 rounded-2">
       <li class="breadcrumb-item "><a href="{% url 'building-dashboard' building.slug %}">Dashboard</a></li>
       <li class="breadcrumb-item active"> {{building.name}} </li>
-      <li class="breadcrumb-item active"> General Communications </li>
+      <li class="breadcrumb-item active"> Rent Increase Notices </li>
   </ol>
 </nav>
 
@@ -18,7 +18,7 @@
       <!-- overview start -->
       <div class="container card p-0 mb-3">
         <div class="card-header text-center w-100">
-          General Communications
+            Rent Increase Notices
         </div>
       </div>
       <!-- Overview end-->
@@ -26,12 +26,12 @@
       <div class="row">
         <div class="col-sm-3">
             <div class="mb-3 list-group">
-                <a href="{% url 'core:new_email' building.slug %}" type="button" class="btn btn-outline-primary"> New Email </a>
+                <a href="{% url 'add_rentincrement_notice' building.slug %}" type="button" class="btn btn-outline-info"> New Notices </a>
             </div>
 
-            <h4 class="card-header text-center"> Filter </h4>
+            <h4 class="card-header text-center"> Search </h4>
           <form method='get'>
-              {{comms.form|crispy }}
+              {{notices.form|crispy }}
               <br>
                   <div class="form-group text-center">
                       <button class="btn btn-outline-secondary" type="submit">Search</button>
@@ -51,30 +51,31 @@
                   <caption> sent mails </caption>
                     <thead>
                       <tr>
-                        <th scope="col">Ref.</th>
-                        <th scope="col">Subject</th>
+                        <th scope="col">Ref. Code</th>
+                        <th scope="col">Re</th>
                         <th scope="col">Sent To</th>
-                        <th scope="col"> Due Date </th>
+                        <th scope="col"> Effective On </th>
                         <th scope="col"> created </th>
                         <th scope="col">Updated</th>
                       </tr>
                     </thead>
                     <tbody id='ourTable'>
-                        {% for c in comms.qs %}
+                        {% for n in notices.qs %}
                       <tr>
-                        <th scope="row"> {{c.ref_number}} </th>
-                        <td>{{ c.subject }}</td>
-                        {% if c.send_to_all %}
+                        <th scope="row"> {{n.ref_code}} </th>
+                        <td>{{ n.re }}</td>
+                        {% if n.notify_all %}
                         <td>All Tenants</td>
                         {% else %}
                         <td>
-                          {{c.receiver_names|slice:":25"}}
+                          {{n.receivers|slice:":25"}}
                         </td>
                         {% endif %}
-                        <td> {{c.due_date|naturalday}} </td>
-                        <td>{{ c.created|naturalday }}</td>
-                        <td>{{ c.updated|naturalday }}</td>
-                        <td><a href="{% url 'core:email_archive_view' building.slug c.ref_number %}">view archive</a> </td>
+                        <td> {{n.takes_effect_on|naturalday}} </td>
+                        <td>{{ n.created|naturalday }}</td>
+                        <td>{{ n.updated|naturaltime }}</td>
+                        <td><a href=" {% url 'view_rent_increase_notice_pdf' building.slug n.ref_code %} ">
+                            view pdf</a> </td>
                       </tr>
                       {% empty %}
                       <tbody>

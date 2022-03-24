@@ -85,9 +85,14 @@
                 <div class="list-group">
                     <a href=" {% url 'my_electric_bills' building.slug unit.slug tenant.associated_account.username %} " type="button" class='list-group-item list-group-item-action' role="button">My Electricity Bills</a>
                     <a href="{% url 'my_water_billing' building.slug unit.slug tenant.associated_account.username %}" type="button" class="list-group-item list-group-item-action" role="button">My Water Bills</a>
+                    {% if i_notice %}
+                    <a href="{% url 'view_rent_increase_notice_pdf' building.slug i_notice.ref_code %}" type="button" class="list-group-item list-group-item-action" role="button">Rent Increase Notice </a>
+                    {% else %}
+                    <a href="#" type="button" class="list-group-item list-group-item-action" role="button"> No Rent Notice </a>
+                    {% endif %}
                   </div>
                   <div class="card mt-4">
-                    <h4 class="text-center card-header"> Search </h4>
+                    <h4 class="text-center card-header">Search </h4>
                       <div class="card-body">
                         <form method='GET' class="no-padding">
                           {{tenant_rent_details_qs.form|crispy}}

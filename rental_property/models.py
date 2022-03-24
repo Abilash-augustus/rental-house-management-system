@@ -117,6 +117,7 @@ class RentalUnit(models.Model):
     maintanance_status = models.CharField(max_length=6, choices=MAINTANANCE_STATUS_CHOICES, default='op')
     total_occupants = models.PositiveIntegerField(help_text="Number of people in the unit", null=True, blank=True)
     water_available = models.BooleanField(default=True)
+    rent_amount = models.DecimalField(decimal_places=2, max_digits=9, null=True, blank=True)
     electricity_available = models.BooleanField(default=True)
     added = models.DateTimeField(default=datetime.now)
     updated = models.DateTimeField(auto_now=True)

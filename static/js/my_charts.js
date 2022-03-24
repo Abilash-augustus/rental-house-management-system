@@ -28,11 +28,11 @@ $(function () {
     var $buildingRentChart = $("#building-rent-chart");
     $.ajax({url: $buildingRentChart.data("url"),success: function (data) {        
         var ctx = $buildingRentChart[0].getContext("2d");        
-        new Chart(ctx, {type: 'pie',data: {labels: data.labels,datasets: [{data: data.data,
+        new Chart(ctx, {type: 'bar',data: {labels: data.labels,datasets: [{data: data.data,
               backgroundColor: [
               '#fcba03', '#88fc03', '#A9A9A9', '#1daba8', '#3d5454', '#1e3152',
               '#47410b', '#557310', '#277310', '#107331', '#2792b0', '#d47a6a',
-              ],}]},options: {responsive: true,legend: {display: true, },
+              ],}]},options: {responsive: true,legend: {display: false, },
             scales: {yAxes: [{ticks: { display: false,}}]},
             title: {display: true,text: 'Rent Overview'}}});}});});
 
@@ -132,8 +132,10 @@ $(function () {var $tenantsElectricityChart = $("#tenantsElectricityUsage");
 $(function () {var $rentChart = $("#tenantRentChart");
     $.ajax({url: $rentChart.data("url"),success: function (data) {
     var ctx = $rentChart[0].getContext("2d");
-    new Chart(ctx, {type: 'line',data: {labels: data.labels,
-        datasets: [{label: 'amount',backgroundColor: 'brown',data: data.data}]},
+    new Chart(ctx, {type: 'bar',data: {labels: data.labels,
+        datasets: [{label: 'amount',backgroundColor: [
+            '#1daba8', '#3d5454', '#1e3152','#47410b', '#557310', '#277310', '#107331','#1daba8', '#3d5454', '#1e3152','#47410b', '#557310',
+        ],data: data.data}]},
         options: {responsive: true,legend: {display: false,},scales: {
         yAxes: [{ticks: {display: false,beginAtZero: true}}]},
         title: {display: true,text: 'Rent Overview'}}});}});});
