@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% load crispy_forms_tags %}
-{% block metadescription %} Rent Increase Notices {% endblock %}
+{% block metadescription %} Defaulters {% endblock %}
 {% load humanize %}
 
 {% block content %} 
@@ -9,7 +9,7 @@
       <li class="breadcrumb-item "><a href="{% url 'building-dashboard' building.slug %}">Dashboard</a></li>
       <li class="breadcrumb-item active"> {{building.name}} </li>
       <li class="breadcrumb-item"><a href="{% url 'rent-and-utilities' building.slug %}">Rent & Utilities </a></li>
-      <li class="breadcrumb-item active"> Rent Increase Notices </li>
+      <li class="breadcrumb-item active">Rent Defaulters </li>
   </ol>
 </nav>
 
@@ -19,20 +19,16 @@
       <!-- overview start -->
       <div class="container card p-0 mb-3">
         <div class="card-header text-center w-100">
-            Rent Increase Notices
+            Defaulters
         </div>
       </div>
       <!-- Overview end-->
 
       <div class="row">
         <div class="col-sm-3">
-            <div class="mb-3 list-group">
-                <a href="{% url 'add_rentincrement_notice' building.slug %}" type="button" class="btn btn-outline-info"> New Notices </a>
-            </div>
-
             <h4 class="card-header text-center"> Search </h4>
           <form method='get'>
-              {{notices.form|crispy }}
+              {{defaulters.form|crispy }}
               <br>
                   <div class="form-group text-center">
                       <button class="btn btn-outline-secondary" type="submit">Search</button>
@@ -44,39 +40,27 @@
           <div class="row">
             <div class="col-sm-12">
               <div class="card card-body">
-                <h4 class="text-center card-header mt-2"> Notices </h4>
+                <h4 class="text-center card-header mt-2"> Defaulters </h4>
                   &nbsp; &nbsp;
                 <input class="form-control" id="myInput" type="text" placeholder="Search..">
                 <div class="table-responsive">
                 <table class="table table-striped table-hover">
-                  <caption> </caption>
+                  <caption></caption>
                     <thead>
                       <tr>
-                        <th scope="col">Ref. Code</th>
-                        <th scope="col">Re</th>
-                        <th scope="col">Sent To</th>
-                        <th scope="col"> Effective On </th>
-                        <th scope="col"> created </th>
+                        <th scope="col">Full Name</th>
+                        <th scope="col">Rented Unit</th>
+                        <th scope="col"> Added On </th>
                         <th scope="col">Updated</th>
                       </tr>
                     </thead>
                     <tbody id='ourTable'>
-                        {% for n in notices.qs %}
+                        {% for d in defaulters.qs %}
                       <tr>
-                        <th scope="row"> {{n.ref_code}} </th>
-                        <td>{{ n.re }}</td>
-                        {% if n.notify_all %}
-                        <td>All Tenants</td>
-                        {% else %}
-                        <td>
-                          {{n.receivers|slice:":25"}}
-                        </td>
-                        {% endif %}
-                        <td> {{n.takes_effect_on|naturalday}} </td>
-                        <td>{{ n.created|naturalday }}</td>
-                        <td>{{ n.updated|naturaltime }}</td>
-                        <td><a href=" {% url 'view_rent_increase_notice_pdf' building.slug n.ref_code %} ">
-                            view pdf</a> </td>
+                        <th scope="row"> {{d.tenancy_account.full_name}} </th>
+                        <td>{{ d.tenancy_account.rented_unit }}</td>
+                        <td> {{d.added|naturalday}} </td>
+                        <td>{{ d.updated|naturaltime }}</td>
                       </tr>
                       {% empty %}
                       <tbody>

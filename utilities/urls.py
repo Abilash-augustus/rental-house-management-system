@@ -9,6 +9,7 @@ urlpatterns = [
     path('add-rent/<slug:building_slug>/<slug:unit_slug>/', views.add_tenant_rent, name='add-rent'),
     path('add_rent_increase_notice/<slug:building_slug>/', views.add_rentincrement_notice, name='add_rentincrement_notice'),
     path('view_rent_increase_notice_pdf/<slug:building_slug>/<slug:r_code>/', views.view_rent_increase_notice_pdf, name='view_rent_increase_notice_pdf'),
+    path('rent_defaulters/<slug:building_slug>/', views.rent_defaulters, name='rent_defaulters'),
     
     path('my_water_billing/<slug:building_slug>/<slug:unit_slug>/<slug:username>/', views.my_water_billing, name='my_water_billing'),
     path('my_water_billing_details/<slug:building_slug>/<slug:unit_slug>/<slug:username>/<slug:bill_code>/', views.my_water_billing_details, name="my_water_billing_details"),

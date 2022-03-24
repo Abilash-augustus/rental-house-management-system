@@ -3,7 +3,7 @@ from django.contrib import admin
 from utilities.models import (ElectricityBilling, ElectricityMeter,
                                        ElectricityPayments,
                                        ElectricityReadings, PayOnlineMpesa,
-                                       PaymentMethods, RentPayment,
+                                       PaymentMethods, RentDefaulters, RentPayment,
                                        UnitRentDetails, WaterBilling,
                                        WaterConsumption, WaterMeter,
                                        WaterPayments,RentIncrementNotice)
@@ -69,3 +69,8 @@ class ElectricityMeterAdmin(admin.ModelAdmin):
 @admin.register(PayOnlineMpesa)
 class PayOnlineMpesaAdmin(admin.ModelAdmin):
     list_display = ['first_name','middle_name','last_name','amount','paid_for',]
+    
+    
+@admin.register(RentDefaulters)
+class RentDefaultersAdmin(admin.ModelAdmin):
+    list_display = ['site_account','building','defaulted_status','added']

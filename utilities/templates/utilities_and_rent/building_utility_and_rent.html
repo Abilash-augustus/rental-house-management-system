@@ -2,6 +2,11 @@
 {% block metadescription %} Building Rent Overview {% endblock %}
 {% load humanize %}
 {% load crispy_forms_tags %}
+{% block extra_css %}
+<style type="text/css">
+    .top-line{border-top:.25rem solid #000!important}
+</style>
+{% endblock %}
 
 {% block content %}	
 <nav class="container mt-3">
@@ -11,7 +16,7 @@
   </ol>
 </nav>
 
-<section class="container border border-5 mb-3 mt-3">
+<section class="container mb-3 mt-3">
     <div class="row">
 
       <!-- overview start -->
@@ -35,10 +40,11 @@
         <div class="row">
             <div class="col-sm-3 col-md-3 co-lg-3 col-xl-3">
               <div class="list-group mb-2">
-                  <a role="button" type="button" class="list-group-item list-group-item-action" href="{% url 'electricity_meter_management' building.slug %}"> Electricity Meter Management</a>
-                  <a role="button" type="button" class="list-group-item list-group-item-action" href="{% url 'water_meter_management' building.slug %}">Water Meter Management</a>
-                  <a role="button" type="button" class="list-group-item list-group-item-action" href="{% url 'rent_increase_notices' building.slug %}"> Rent Increase Notices </a>
-                </div>
+                <a role="button" type="button" class="list-group-item list-group-item-action" href="{% url 'rent_defaulters' building.slug %}"> Rent Defaulters </a>
+                <a role="button" type="button" class="list-group-item list-group-item-action" href="{% url 'rent_increase_notices' building.slug %}"> Rent Increase Notices </a>
+                <a role="button" type="button" class="list-group-item list-group-item-action" href="{% url 'electricity_meter_management' building.slug %}"> Electricity Meter Management</a>
+                <a role="button" type="button" class="list-group-item list-group-item-action" href="{% url 'water_meter_management' building.slug %}">Water Meter Management</a>
+              </div>
                 <div class="card card-body mb-2">
                   <h5 class="card-header text-center">Search</h5>
                   <form method="get">
@@ -61,41 +67,46 @@
                                       Tenants
                                     </div>
                                     <div class="card-body">
-                                      <div class="row row-cols-1 row-cols-md-3 g-4">
-                                     {% for tenant in tenants_filter.qs %}
-                                      <div class="col">
-                                        <div class="card h-100">
-                                        <div class="card-body">
-                                        <ul class="list-group ">
-                                            <li class="list-group-item d-flex justify-content-between align-items-start">
-                                                <div class="ms-2 me-auto"> <span> <h5 class="card-title">Unit Number</h5> </div> &nbsp;
-                                                <span> <h5 class="card-title">{{tenant.rented_unit.unit_number}}</h5> </span> <br>
-                                            </li>   
-                                            <li class="list-group-item d-flex justify-content-between align-items-start">
-                                                <div class="ms-2 me-auto"> <span> <h7 class="card-title">Tenant Name</h7> </div> &nbsp;
-                                                <span> <h class="card-title">{{tenant.associated_account.first_name}} {{tenant.associated_account.last_name}}</h5> </span> <br>
-                                            </li>   
-                                            {% if tenant.rented_unit.status == 'occupied' %}                                
-                                            <li class="list-group-item text-center">
-                                              <span><a  class="btn btn-outline-success" href="{% url 'rent-history' building.slug tenant.rented_unit.slug tenant.associated_account.username %}"> 
-                                                  Enter </a></span>
-                                            </li>
-                                            {% endif %}
-                                          </ul>                       
+                                      <div class="row row-cols-1 row-cols-md-2 g-3">
+
+                                        {% for tenant in tenants_filter.qs %}
+                                        <div class="col">
+                                          <div class="card top-line shadow py-2">
+                                            <div class="card-body">
+                                              <div class="row no-gutters align-items-center">
+                                                <div class="col mr-2">
+                                                  <div class="row">
+                                                    <small class="col-6 font-weight-bold text-success text-uppercase mb-1"> Unit </small>
+                                                    <small class="col-6"> {{tenant.rented_unit.unit_number}}</small>
+                                                  </div>
+                                                  <hr>
+                                                  <div class="row text-center">
+                                                    <small class="col-12 font-weight-bold text-success text-uppercase mb-1"> Name </small>
+                                                    <small class="col-12"> {{tenant.associated_account.first_name}} {{tenant.associated_account.last_name}} </small>
+                                                  </div>
+                                                </div>
+                                                {% if tenant.rented_unit.status == 'occupied' %} 
+                                                <div class="text-center mt-2">
+                                                  <span><a  class="btn btn-outline-success" href="{% url 'rent-history' building.slug tenant.rented_unit.slug tenant.associated_account.username %}"> 
+                                                    Enter </a></span>
+                                                </div>
+                                                {% endif %}
+                                              </div>
+                                            </div>
+                                          </div>
                                         </div>
-                                      </div>
-                                    </div>
                                     {% empty %}
                                       <div class="ms-2 me-auto"> <span> <h7 class="card-title">Nothing to show</h7> </div>  
                                       {% endfor %}
                                       </div>
                                     </div>
                                   </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
                       </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-    </section>
+                  </section>
+                
 {% endblock %}

@@ -116,9 +116,9 @@
                             <td> {{rent.start_date|naturalday}} </td>
                             <td> {{rent.end_date|naturalday}} </td>
                             {% if rent.cleared %}
-                            <td> <del> {{rent.due_date|naturalday}} </del></td>
+                            <td> <del> {{rent.due_date|naturaltime}} </del></td>
                             {% else %}
-                            <td> {{rent.due_date|naturalday}} </td>
+                            <td> {{rent.due_date|naturaltime}} </td>
                             {% endif %}
                             <td> {{rent.status}}</td>
                             {% if rent.cleared %}

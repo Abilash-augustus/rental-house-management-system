@@ -26,7 +26,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django_daraja.mpesa.core import MpesaClient
 from rental_property.models import Building, RentalUnit
 
-from utilities.filters import (ElectricityMetersFilter,
+from utilities.filters import (DefaultersFilter, ElectricityMetersFilter,
                                         ManagerElectricityBillsFilter,
                                         PaymentsFilter, RentDetailsFilter, RentIncrementNoticeFilter,
                                         TenantElectricityBillsFilter,
@@ -51,7 +51,7 @@ from utilities.forms import (AddRentDetailsForm,
 from utilities.models import (ElectricityBilling, ElectricityMeter,
                                        ElectricityPayments,
                                        ElectricityReadings, PaymentMethods,
-                                       PayOnlineMpesa, RentIncrementNotice, RentPayment,
+                                       PayOnlineMpesa, RentDefaulters, RentIncrementNotice, RentPayment,
                                        UnitRentDetails, WaterBilling,
                                        WaterConsumption, WaterMeter,
                                        WaterPayments)
@@ -881,3 +881,14 @@ def rent_increase_notices(request,building_slug):
     notices_filter = RentIncrementNoticeFilter(request.GET, queryset=notices)    
     return render(request, 'utilities_and_rent/rent_inrement_notices.html',
                   {'building': building,'notices':notices_filter,})
+    
+@login_required
+@user_passes_test(lambda user: user.is_manager==True, login_url='profile')
+def rent_defaulters(request, building_slug):
+    building = Building.objects.get(slug=building_slug)
+    defaulters = RentDefaulters.objects.filter(building=building,defaulted_status='active')    
+    defaulters_filter = DefaultersFilter(request.GET, defaulters)
+    return render(request, 'utilities_and_rent/rent_defaulters.html',
+                  {
+                      'building':building,'defaulters':defaulters_filter
+                  })

@@ -2,7 +2,7 @@ import django_filters
 from accounts.models import Tenants
 from django.forms.widgets import DateInput
 
-from utilities.models import (ElectricityBilling, RentIncrementNotice, RentPayment,
+from utilities.models import (ElectricityBilling, RentDefaulters, RentIncrementNotice, RentPayment,
                                        UnitRentDetails, WaterBilling, WaterMeter, ElectricityMeter)
 
 
@@ -68,3 +68,9 @@ class RentIncrementNoticeFilter(django_filters.FilterSet):
     def __init__(self, *args, **kwargs):
        super(RentIncrementNoticeFilter, self).__init__(*args, **kwargs)
        self.filters['takes_effect_on'].label="Effectie From"
+       
+class DefaultersFilter(django_filters.FilterSet):
+    added = django_filters.DateFilter(widget=DateInput(attrs={'type': 'date'}))
+    class Meta:
+        model = RentDefaulters
+        fields = ['tenancy_account','defaulted_status','added']
