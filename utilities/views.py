@@ -1,16 +1,18 @@
-from django.contrib.sites.models import Site
 import json
 import math
 from datetime import datetime
 from decimal import Decimal
 
+import requests
 import stripe
 from accounts.models import Managers, Tenants
 from config.settings import (DEFAULT_FROM_EMAIL, STRIPE_PUBLISHABLE_KEY,
                              STRIPE_SECRET_KEY)
+from core.utils import render_to_pdf
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.sites.models import Site
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import EmailMessage
 from django.core.paginator import InvalidPage, PageNotAnInteger, Paginator
@@ -20,41 +22,34 @@ from django.http import HttpResponse, JsonResponse
 from django.http.response import HttpResponseNotFound, JsonResponse
 from django.shortcuts import (HttpResponseRedirect, get_object_or_404,
                               redirect, render)
-from django.template.loader import render_to_string
+from django.template.loader import get_template, render_to_string
 from django.urls import reverse, reverse_lazy
 from django.views.decorators.csrf import csrf_exempt
 from django_daraja.mpesa.core import MpesaClient
 from rental_property.models import Building, RentalUnit
 
 from utilities.filters import (DefaultersFilter, ElectricityMetersFilter,
-                                        ManagerElectricityBillsFilter,
-                                        PaymentsFilter, RentDetailsFilter, RentIncrementNoticeFilter,
-                                        TenantElectricityBillsFilter,
-                                        UnitTypeFilter, WaterBilingFilter,
-                                        WaterMetersFilter)
+                               ManagerElectricityBillsFilter, PaymentsFilter,
+                               RentDetailsFilter, RentIncrementNoticeFilter,
+                               TenantElectricityBillsFilter, UnitTypeFilter,
+                               WaterBilingFilter, WaterMetersFilter)
 from utilities.forms import (AddRentDetailsForm,
-                                      ElectricityBillCycleUpdateForm,
-                                      ElectricityMeterUpdateForm,
-                                      ElectricityPaySubmitForm,
-                                      ElectricityReadingForm,
-                                      NewElectricityMeterForm,
-                                      NewWaterMeterForm, PaymentUpdateForm, RentIncreaseNoticeForm,
-                                      StartEBillCycleForm,
-                                      StartWaterBillingForm,
-                                      SubmitPaymentsForm,
-                                      UpdateElectricityPayForm,
-                                      UpdateRentDetails,
-                                      UpdateWaterPaymentForm,
-                                      WaterBillPaymentsForm,
-                                      WaterBillUpdateForm,
-                                      WaterMeterUpdateForm, WaterReadingForm)
+                             ElectricityBillCycleUpdateForm,
+                             ElectricityMeterUpdateForm,
+                             ElectricityPaySubmitForm, ElectricityReadingForm,
+                             NewElectricityMeterForm, NewWaterMeterForm,
+                             PaymentUpdateForm, RentIncreaseNoticeForm,
+                             StartEBillCycleForm, StartWaterBillingForm,
+                             SubmitPaymentsForm, UpdateElectricityPayForm,
+                             UpdateRentDetails, UpdateWaterPaymentForm,
+                             WaterBillPaymentsForm, WaterBillUpdateForm,
+                             WaterMeterUpdateForm, WaterReadingForm)
 from utilities.models import (ElectricityBilling, ElectricityMeter,
-                                       ElectricityPayments,
-                                       ElectricityReadings, PaymentMethods,
-                                       PayOnlineMpesa, RentDefaulters, RentIncrementNotice, RentPayment,
-                                       UnitRentDetails, WaterBilling,
-                                       WaterConsumption, WaterMeter,
-                                       WaterPayments)
+                              ElectricityPayments, ElectricityReadings,
+                              PaymentMethods, PayOnlineMpesa, RentDefaulters,
+                              RentIncrementNotice, RentPayment, TemporaryRelief,
+                              UnitRentDetails, WaterBilling, WaterConsumption,
+                              WaterMeter, WaterPayments)
 
 User = get_user_model()
 
@@ -66,8 +61,7 @@ def my_rent_details(request, building_slug, unit_slug, username):
     building = Building.objects.get(slug=building_slug)
     unit = RentalUnit.objects.get(slug=unit_slug, building=building)
     tenant = Tenants.objects.get(rented_unit=unit, associated_account__username=username)
-    payment_options = PaymentMethods.objects.all()
-    
+    payment_options = PaymentMethods.objects.all()    
     latest_notice = RentIncrementNotice.objects.filter(building=building,notify_all=False).order_by('-created')[0]
     
     if latest_notice.to_tenants:
@@ -80,7 +74,7 @@ def my_rent_details(request, building_slug, unit_slug, username):
     tenant_rent_details_qs = RentDetailsFilter(request.GET, queryset=tenant_rent_details)
               
     context = {'building':building, 'unit':unit, 'tenant':tenant,'tenant_rent_details_qs':tenant_rent_details_qs,
-               'payment_options':payment_options,'i_notice':i_notice}
+               'payment_options':payment_options,'i_notice':i_notice,}
     return render(request, 'utilities_and_rent/my-rent-details.html', context)
 
 @login_required
@@ -151,7 +145,7 @@ def stripe_pay(request,building_slug, unit_slug, rent_code, username):
             except IntegrityError as e:
                 messages.error(request, e)
         except stripe.error.CardError as e:
-            return False,e  #todo add email
+            return False,e
         return redirect('pay-info', building_slug=building.slug,
                             unit_slug=unit.slug, rent_code=rent.code,username=tenant.associated_account.username)
         # end stripe    
@@ -174,7 +168,8 @@ def mpesa_pay(request,building_slug, unit_slug, rent_code, username):
             amount = 1 #mpesa_charge_conversion | using kes 1 for testing
             account_reference = 'Rental House Managgement System'
             transaction_desc = rent_description
-            callback_url = request.build_absolute_uri(reverse('mpesa_stk_push_callback'))
+            callback_url = 'https://rentalhousemanagementsystem.herokuapp.com/rent-and-utility/daraja/stk-push/callback/'
+            #request.build_absolute_uri(reverse('mpesa_stk_push_callback'))
             response = client.stk_push(phone_number,amount,account_reference,transaction_desc,callback_url)
             #messages.info(request, response)
             if response.status_code == 200:
@@ -185,22 +180,21 @@ def mpesa_pay(request,building_slug, unit_slug, rent_code, username):
                             unit_slug=unit.slug, rent_code=rent.code,username=tenant.associated_account.username)
     else:
         messages.info(request, 'Payments are closed at the moment')
-    
-    
+          
+@csrf_exempt
 def stk_push_callback(request):
-    data = request.body.decode('utf-8')
-    pay = json.loads(data)
+    response = request.body.decode('utf-8')
+    pay = json.loads(response)
+    
     p = PayOnlineMpesa(
-        first_name=pay['FirstName'],
-        last_name=pay['LastName'],
-        middle_name=pay['MiddleName'],
-        transaction_id=pay['TransID'],
-        phone_number=pay['MSISDN'],
-        amount=pay['TransAmount'],
-        reference=pay['BillRefNumber'],
-        organization_balance=pay['OrgAccountBalance'],
-        type=pay['TransactionType'],
-        timestamp=pay['TransTime']
+        MerchantRequestID = pay.get('MerchantRequestID'),
+        CheckoutRequestID=pay.get("CheckoutRequestID"),
+        ResultCode = pay.get("ResultCode"),
+        ResultDesc = pay.get("ResultDesc"),
+        Amount=pay.get("Amount"),
+        MpesaReceiptNumber = pay.get("MpesaReceiptNumber"),
+        TransactionDate=pay.get('TransactionDate'),
+        PhoneNumber=pay.get("PhoneNumber"),
     )
     p.save()
     context = {
@@ -852,8 +846,7 @@ def add_rentincrement_notice(request,building_slug):
         'building': building, 'add_form': add_form,
     }
     return render(request, 'utilities_and_rent/inrement_notice.html', context)
-from core.utils import render_to_pdf
-from django.template.loader import get_template
+
 @login_required
 def view_rent_increase_notice_pdf(request,building_slug, r_code):
     building = Building.objects.get(slug=building_slug)
@@ -892,3 +885,25 @@ def rent_defaulters(request, building_slug):
                   {
                       'building':building,'defaulters':defaulters_filter
                   })
+
+@login_required
+@user_passes_test(lambda user: user.is_manager==True, login_url='profile')
+def defaulter_details(request, building_slug, username):
+    building = Building.objects.get(slug=building_slug)
+    get_user = User.objects.get(username=username)
+    if get_user.is_tenant:
+        tenant = Tenants.objects.get(associated_account=get_user)
+        unit = RentalUnit.objects.get(id=tenant.rented_unit.id)
+        defaulted_payments = UnitRentDetails.objects.filter(tenant=tenant,unit=unit,status='defaulted').order_by('-added')
+        total_defauled = defaulted_payments.aggregate(total=Sum('rent_amount'))
+        t_relief = TemporaryRelief.objects.filter(defaulter__tenancy_account=tenant).order_by('-created')[0]
+    else:
+        messages.error(request, "Not possile please update tenants' details")
+        return redirect('')
+    
+    context = {
+        'building': building,'tenant': tenant, 'defaults':defaulted_payments,
+        'total_defauled':total_defauled, 't_relief':t_relief,
+    }
+    return render(request, 'utilities_and_rent/defaulter_details.html', context)
+#TODO: request for relief

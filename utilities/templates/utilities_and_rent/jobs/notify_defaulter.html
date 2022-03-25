@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+    {% load humanize %}
+    <head>
+        <title>Defaulter Notification</title>
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"/>
+
+    </head>
+    <body>
+        <div class="container mt-5">
+            <div class="d-flex justify-content-center row">
+                <div class="col-md-8">
+                    <div class="p-3 bg-white rounded">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h4 class="text-center text-uppercase">Defaulted Rent Invoice</h4>
+                                <div class="billed"><span class="font-weight-bold text-uppercase">Tenant Name:</span><span class="ml-1"> {{defaulter.tenancy_account.full_name}} </span></div>
+                                <div class="billed"><span class="font-weight-bold text-uppercase">Joined Date:</span><span class="ml-1"> {{defaulter.tenancy_account.moved_in_date}} </span></div>
+                                <div class="billed"><span class="font-weight-bold text-uppercase">Unit: </span><span class="ml-1"> {{defaulter.tenancy_account.rented_unit}} </span></div>
+                            </div>
+                            <div class="col-md-6 text-right mt-3">
+                                <h4 class="text-success mb-0">
+                                    {{defaulter.tenancy_account.rented_unit.building.name}}
+                                </h4>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <div class="table-responsive mb-2">
+                                <table class="table">
+                                    <caption></caption>
+                                    <thead>
+                                        <tr>
+                                            <th>Ref Code</th>
+                                            <th>Rent Amount</th>
+                                            <th>Was Due</th>
+                                            <th>Billing Date</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td> {{data.code}} </td>
+                                            <td>{{data.rent_amount}}</td>
+                                            <td>{{data.due_date|naturalday}}</td>
+                                            <td>From: {{data.start_date|naturalday}} TO: {{data.end_date|naturalday}}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <h5 class="text-danger font-weight-bold text-uppercase"> Please Note that you have been added to our list of defaulters. 
+                            To avoid further inconviniences, please pay the defaulted amount. </h5>
+                        <div class="text-right mb-3"><button class="btn btn-danger btn-sm mr-5" type="button">Login For More Details</button></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+    </html>          

@@ -61,6 +61,7 @@
                         <td>{{ d.tenancy_account.rented_unit }}</td>
                         <td> {{d.added|naturalday}} </td>
                         <td>{{ d.updated|naturaltime }}</td>
+                        <td> <a href="{% url 'defaulter_details' building.slug d.site_account.username %}"> more details </td>
                       </tr>
                       {% empty %}
                       <tbody>

@@ -3,10 +3,13 @@ from django.contrib import admin
 from utilities.models import (ElectricityBilling, ElectricityMeter,
                                        ElectricityPayments,
                                        ElectricityReadings, PayOnlineMpesa,
-                                       PaymentMethods, RentDefaulters, RentPayment,
+                                       PaymentMethods, RentDefaulters, RentPayment, TemporaryRelief,
                                        UnitRentDetails, WaterBilling,
                                        WaterConsumption, WaterMeter,
                                        WaterPayments,RentIncrementNotice)
+from django_summernote.admin import SummernoteModelAdmin,SummernoteModelAdminMixin
+
+
 
 
 @admin.register(UnitRentDetails)
@@ -68,9 +71,14 @@ class ElectricityMeterAdmin(admin.ModelAdmin):
 
 @admin.register(PayOnlineMpesa)
 class PayOnlineMpesaAdmin(admin.ModelAdmin):
-    list_display = ['first_name','middle_name','last_name','amount','paid_for',]
+    pass    
     
+class TemporaryReliefAdmin(SummernoteModelAdminMixin,admin.StackedInline):
+    model = TemporaryRelief
+    extra = 0
+    summernote_fields = ('relief_detail',)
     
 @admin.register(RentDefaulters)
 class RentDefaultersAdmin(admin.ModelAdmin):
     list_display = ['site_account','building','defaulted_status','added']
+    inlines = [TemporaryReliefAdmin]

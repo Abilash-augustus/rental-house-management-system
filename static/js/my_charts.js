@@ -115,7 +115,7 @@ $.ajax({url: $tenantWaterChart.data("url"),success: function (data) {
           scales: {xAxes: [{ticks: {display: false,}}],yAxes: [{
               ticks: {display: true,beginAtZero: true},
             scaleLabel: {display: true,labelString: 'm³'}}]},
-          title: {display: true,text: "My Water Consumption"}}});}});});
+          title: {display: true,text: "Water Consumption"}}});}});});
 
 $(function () {var $tenantsElectricityChart = $("#tenantsElectricityUsage");
      $.ajax({url: $tenantsElectricityChart.data("url"),success: function (data) {
@@ -127,7 +127,7 @@ $(function () {var $tenantsElectricityChart = $("#tenantsElectricityUsage");
         scales: {xAxes: [{ticks: {display: false,}}],yAxes: [{
             ticks: {display: true,beginAtZero: true},
         scaleLabel: {display: true,labelString: '(KwH)'}}]},
-        title: {display: true,text: 'My Electricity Usage'}}});}});});
+        title: {display: true,text: 'Electricity Consumption'}}});}});});
 
 $(function () {var $rentChart = $("#tenantRentChart");
     $.ajax({url: $rentChart.data("url"),success: function (data) {

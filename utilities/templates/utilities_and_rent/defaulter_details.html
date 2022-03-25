@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block metadescription %} Defaulter Details {% endblock %}
+{% load humanize %}
+
+{% block content %} 
+<nav class="container mt-3">
+  <ol class="breadcrumb bg-light p-2 rounded-2">
+      <li class="breadcrumb-item "><a href="{% url 'building-dashboard' building.slug %}">Dashboard</a></li>
+      <li class="breadcrumb-item active"> {{building.name}} </li>
+      <li class="breadcrumb-item"><a href="{% url 'rent-and-utilities' building.slug %}">Rent & Utilities </a></li>
+      <li class="breadcrumb-item active"><a href="{% url 'rent_defaulters' building.slug %}">Rent Defaulters </a> </li>
+      <li class="breadcrumb-item active">Defaulter Details </li>
+  </ol>
+</nav>
+
+<div class="container rounded bg-white mt-5 mb-5">
+    <div class="row">
+        <div class="col-md-3 border-right">
+            <div class="d-flex flex-column align-items-center text-center p-3 py-5">
+                <img class="rounded-circle mt-5" width="150px" alt="{{tenant.full_name}}'s avatar" 
+                src="{{tenant.associated_account.avatar.url}}"> <span class="font-weight-bold">
+                        {{tenant.associated_account.username}}
+                    </span><span> </span></div>
+        </div>
+        <div class="col-md-5 border-right">
+            <div class="p-3 py-5">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h4 class="text-right">Defaulter Profile</h4>
+                </div>
+                <div class="row mt-2">
+                    <div class="col-md-12"><label class="labels">Name</label>
+                        <span class="form-control"> {{tenant.full_name}} </span></div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-md-12"><label class="labels">Active Mobile Number</label>
+                        <span class="form-control"> {{tenant.active_phone_number}}</span></div>
+                    <div class="col-md-12"><label class="labels">Address Line </label>
+                        <span class="form-control"> {{tenant.associated_account.profile.street_address}}</span></div>
+                    <div class="col-md-12"><label class="labels">County</label>
+                        <span class="form-control"> {{tenant.associated_account.profile.county}}</span></div>
+                    <div class="col-md-12"><label class="labels">Country</label>
+                        <span class="form-control"> {{tenant.associated_account.profile.country}}</span></div>
+                    <div class="col-md-12"><label class="labels">Email </label>
+                        <span class="form-control"> {{tenant.associated_account.email}}</span></div>
+                    <div class="col-md-12"><label class="labels">Rented Unit</label>
+                        <span class="form-control"> {{tenant.active_phone_number}}</span></div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-md-6"><label class="labels">Moved In</label>
+                        <span class="form-control"> {{tenant.move_in_date|naturaltime}}</span></div>
+                    <div class="col-md-6"><label class="labels">Still In ?</label>
+                        <span class="form-control">
+                            {% if tenant.moved_in == True %} YES {% else %} NO {% endif %} </span> 
+                        </div>
+                </div>
+                <div class="mt-5 text-center">
+                    {% if t_relief.status == 'active' %}
+                    <button class="btn btn-secondary " type="button">Has A Temporary Relief Untill {{t_relief.expires|naturaltime}}</button></div>
+                    {% elif t_relief.status == 'expired' %}
+                    <button class="btn btn-danger profile-button" type="button">Temprary Relief Expired {{t_relief.expires|naturaltime}}</button></div>
+                    {% else %}
+                    <button class="btn btn-info profile-button" type="button">No active temprary relief </button></div>
+                    {% endif %}
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="p-3 py-5">
+                <div class="d-flex justify-content-between align-items-center experience"><span>Defaulted Payments</span></div><br>
+                <div class="col-md-12">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <caption class="bg-danger text-dark"> 
+                                Total Defualted : KES {{total_defauled.total}}
+                            </caption>
+                              <thead>
+                                <tr>
+                                  <th scope="col">Ref Code</th>
+                                  <th scope="col">Rent Amount</th>
+                                  <th scope="col"> Due Date </th>
+                                  <th scope="col">For Month</th>
+                                </tr>
+                              </thead>
+                              <tbody id='ourTable'>
+                                  {% for d in defaults %}
+                                <tr>
+                                  <th scope="row"> {{d.code}} </th>
+                                  <td>{{currency}} {{ d.rent_amount }}</td>
+                                  <td> {{d.due_date|naturalday}} </td>
+                                  <td>{{ d.pay_for_month }}</td>
+                                  <td> <a href="#"> View here </td>
+                                </tr>
+                                {% empty %}
+                                <tbody>
+                                  <tr>
+                                    <td>
+                                <p> Something's not right! </p>
+                                    </td>
+                                  </tr>
+                                </tbody>
+                                {% endfor %}
+                              </tbody>
+                          </table>
+
+                          <div class="card-body">
+                            <canvas id="tenantWaterUsageChart" data-url="{% url 'tenant-water-usage' building.slug tenant.rented_unit.slug tenant.associated_account.username %}">
+                            </canvas>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="tenantsElectricityUsage" data-url="{% url 'tenant_electricity_usage' building.slug tenant.rented_unit.slug tenant.associated_account.username %}">
+                                </canvas>
+                                </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+</div>
+
+
+{% endblock %}

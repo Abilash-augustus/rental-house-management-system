@@ -57,7 +57,7 @@ INSTALLED_APPS = [
 SITE_ID = 1
 AUTH_USER_MODEL = 'accounts.User'
 
-CSRF_TRUSTED_ORIGINS = ['https://9d51-105-161-181-203.ngrok.io',]
+CSRF_TRUSTED_ORIGINS = ['https://*.ngrok.io',]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

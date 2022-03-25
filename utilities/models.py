@@ -1,18 +1,18 @@
-import math
 import random
 import string
-import uuid
 from datetime import datetime
-
-from django.db.models import Sum
+from io import BytesIO
 
 from accounts.models import Managers, Tenants
+from config.settings import DEFAULT_FROM_EMAIL
 from django.contrib.auth import get_user_model
+from django.core.mail import EmailMessage
 from django.db import models
-from django.db.models.signals import post_save
-from django.dispatch import receiver
+from django.template.loader import get_template
 from multiselectfield import MultiSelectField
 from rental_property.models import Building, RentalUnit
+from xhtml2pdf import pisa
+import pytz
 
 User = get_user_model()
 
@@ -407,22 +407,19 @@ class ElectricityMeter(models.Model):
 
     def __str__(self):
         return f"{self.number} - {self.unit}"
-
+    
 
 class PayOnlineMpesa(models.Model):
-    paid_for = models.ForeignKey(
-        UnitRentDetails, on_delete=models.CASCADE, null=True, blank=True)
-    first_name = models.CharField(max_length=100, null=True, blank=True)
-    last_name = models.CharField(max_length=100, null=True, blank=True)
-    middle_name = models.CharField(max_length=100, null=True, blank=True)
-    transaction_id = models.TextField(null=True, blank=True)
-    phone_number = models.CharField(max_length=25, null=True, blank=True)
-    amount = models.DecimalField(decimal_places=2, max_digits=9)
-    reference = models.CharField(max_length=55, null=True, blank=True)
-    organization_balance = models.DecimalField(decimal_places=2, max_digits=9)
-    type = models.CharField(max_length=55, null=True, blank=True)
+    MerchantRequestID = models.CharField(max_length=155,null=True, blank=True)
+    CheckoutRequestID = models.CharField(max_length=155, null=True, blank=True)
+    ResultCode = models.CharField(max_length=100, null=True, blank=True)
+    ResultDesc = models.CharField(max_length=100, null=True, blank=True)
+    Amount = models.DecimalField(decimal_places=2, max_digits=9, null=True, blank=True)
+    MpesaReceiptNumber = models.CharField(max_length=100, null=True, blank=True)
+    TransactionDate = models.CharField(max_length=55, null=True, blank=True)    
+    PhoneNumber = models.CharField(max_length=25, null=True, blank=True)
+    
     created = models.DateTimeField(auto_now_add=True)
-    timestamp = models.CharField(max_length=55, null=True, blank=True)
     updated = models.DateTimeField(auto_now=True)
 
     def __unicode__(self):
@@ -451,4 +448,46 @@ class RentDefaulters(models.Model):
     class Meta:
         verbose_name = 'Rent Defaulters'
         verbose_name_plural = verbose_name
-        
+
+class TemporaryRelief(models.Model):
+    RELEIF_STATUS_CHOICES = [
+        ('active','Active'),
+        ('expired','Expired'),
+    ]
+    defaulter = models.ForeignKey(RentDefaulters, on_delete=models.CASCADE)
+    relief_detail = models.TextField()
+    status = models.CharField(max_length=10,default='active',choices=RELEIF_STATUS_CHOICES)
+    expires = models.DateTimeField()
+    created = models.DateTimeField(default=datetime.now)
+    updated = models.DateTimeField(auto_now=True)
+    already_sent = models.BooleanField(default=False)
+    
+    def save(self, *args, **kwargs):
+        utc = pytz.utc
+        now = datetime.now().replace(tzinfo=utc)
+        if self.already_sent == True: #TODO: update to compare time instead
+            subject = "YOU HAVE BEEN GIVEN A TEMPORARY RELIEF EXPIRING {0}".format(self.expires)  
+            text = "Please find the details in the attached file"   
+            template = get_template('utilities_and_rent/mails/defaulter_relief.html')
+            context = {'expires':self.expires,'detail':self.relief_detail,'status':self.status,'defaulter':self.defaulter}
+            html = template.render(context)
+            response = BytesIO()
+            pdf = pisa.pisaDocument(BytesIO(html.encode("ISO-8859-1")), response)
+            pdf = response.getvalue()
+            filename = 'defaulted_rent_relief_{0}'.format(self.defaulter) + '.pdf'
+            to_email = self.defaulter.site_account.email
+            from_email = DEFAULT_FROM_EMAIL
+            message = EmailMessage(subject, text, from_email, [to_email])
+            message.attach(filename, pdf, "application/pdf")
+            message.send(fail_silently=False)  
+            self.already_sent = True
+        if self.expires.replace(tzinfo=utc) < now:
+            self.status = 'expired'
+            super(TemporaryRelief, self).save(*args, **kwargs)
+        super(TemporaryRelief, self).save(*args, **kwargs)
+            
+    
+    def __unicode__(self):
+        return self.defaulter
+    
+    

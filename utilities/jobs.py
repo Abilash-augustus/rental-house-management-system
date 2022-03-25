@@ -1,12 +1,17 @@
 import datetime
 
-from utilities.models import RentDefaulters, UnitRentDetails
-from django.core.mail import EmailMessage
-from config.settings import DEFAULT_FROM_EMAIL
-from apscheduler.schedulers.background import BackgroundScheduler
-from django.template.loader import render_to_string
+from io import BytesIO
 import pytz
+from apscheduler.schedulers.background import BackgroundScheduler
+from config.settings import DEFAULT_FROM_EMAIL
+from core.utils import render_to_pdf
 from django.core.exceptions import ObjectDoesNotExist
+from django.core.mail import EmailMessage
+from django.template.loader import get_template, render_to_string
+
+from utilities.models import RentDefaulters, UnitRentDetails
+from django.shortcuts import HttpResponse
+from xhtml2pdf import pisa
 
 utc = pytz.UTC
 get_today = datetime.datetime.now().replace(tzinfo=utc)
@@ -34,14 +39,14 @@ def notify_tenant_rent_nearing_due():
         
 def check_and_create_defaulters():
     in_last_60_days = get_today - datetime.timedelta(days=59)
-    objs = UnitRentDetails.objects.filter(status='defaulted')
+    objs = UnitRentDetails.objects.filter(cleared=False)
     
     for obj in objs:
         if obj.due_date < in_last_60_days:
             try:
-                it_exists = RentDefaulters.objects.get(site_account=obj.tenant.associated_account)
-                it_exists.save(update_fields=['updated',])# show last checked
-                #TODO: more stuff
+                if_exists = RentDefaulters.objects.get(site_account=obj.tenant.associated_account)
+                obj.status = 'defaulted'
+                obj.save(update_fields=['status',])
             except ObjectDoesNotExist:
                 instance = RentDefaulters.objects.create(
                     site_account=obj.tenant.associated_account,
@@ -49,7 +54,25 @@ def check_and_create_defaulters():
                     building = obj.unit.building,
                     )
                 instance.save() # create if it dont exist
-                # TODO: notify defaulter    
+                obj.status = 'defaulted'
+                obj.save(update_fields=['status',])
+                
+                # notify defaulter
+                template = get_template('utilities_and_rent/jobs/notify_defaulter.html')
+                context = {'defaulter':instance,'data':obj,}
+                html = template.render(context)
+                response = BytesIO()
+                pdf = pisa.pisaDocument(BytesIO(html.encode("ISO-8859-1")), response)
+                pdf = response.getvalue()
+                filename = 'defaulted_rent_{0}'.format(instance.tenancy_account.full_name) + '.pdf'
+                to_email = instance.site_account.email
+                from_email = DEFAULT_FROM_EMAIL
+                text = 'Hello, {0}. Please check the attached pdf for your defaulted rent details.'.format(instance.tenancy_account.full_name)
+                subject = 'DEFAULTED PAYMENT BUILDING: [{0}]'.format(instance.tenancy_account.rented_unit.building.name)
+                message = EmailMessage(subject, text, from_email, [to_email])
+                message.attach(filename, pdf, "application/pdf")
+                message.send(fail_silently=False)
+                    
     
 def start():
     scheduler = BackgroundScheduler()

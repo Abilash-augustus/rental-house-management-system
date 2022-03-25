@@ -10,6 +10,7 @@ urlpatterns = [
     path('add_rent_increase_notice/<slug:building_slug>/', views.add_rentincrement_notice, name='add_rentincrement_notice'),
     path('view_rent_increase_notice_pdf/<slug:building_slug>/<slug:r_code>/', views.view_rent_increase_notice_pdf, name='view_rent_increase_notice_pdf'),
     path('rent_defaulters/<slug:building_slug>/', views.rent_defaulters, name='rent_defaulters'),
+    path('defaulter_details/<slug:building_slug>/<slug:username>/', views.defaulter_details, name='defaulter_details'),
     
     path('my_water_billing/<slug:building_slug>/<slug:unit_slug>/<slug:username>/', views.my_water_billing, name='my_water_billing'),
     path('my_water_billing_details/<slug:building_slug>/<slug:unit_slug>/<slug:username>/<slug:bill_code>/', views.my_water_billing_details, name="my_water_billing_details"),
@@ -38,5 +39,5 @@ urlpatterns = [
     
     path('stripe/<slug:building_slug>/<slug:unit_slug>/<slug:rent_code>/<slug:username>/stripe_pay/', views.stripe_pay, name='stripe_pay'),
     path('mpesa/<slug:building_slug>/<slug:unit_slug>/<slug:rent_code>/<slug:username>/pay/', views.mpesa_pay, name='mpesa_pay'),
-    path('daraja/stk-push/callback', views.stk_push_callback, name='mpesa_stk_push_callback'),
+    path('daraja/stk-push/callback/', views.stk_push_callback, name='mpesa_stk_push_callback'),
     ]
