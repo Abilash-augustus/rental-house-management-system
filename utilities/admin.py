@@ -71,7 +71,8 @@ class ElectricityMeterAdmin(admin.ModelAdmin):
 
 @admin.register(PayOnlineMpesa)
 class PayOnlineMpesaAdmin(admin.ModelAdmin):
-    pass    
+    list_display = ['MerchantRequestID','CheckoutRequestID','MpesaReceiptNumber','Amount','TransactionDate']
+    search_fields = ('CheckoutRequestID',)
     
 class TemporaryReliefAdmin(SummernoteModelAdminMixin,admin.StackedInline):
     model = TemporaryRelief

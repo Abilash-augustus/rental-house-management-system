@@ -38,6 +38,6 @@ urlpatterns = [
     path('electricity_meter_update/<slug:building_slug>/<slug:meter_ssid>/', views.electricity_meter_update, name='electricity_meter_update'),
     
     path('stripe/<slug:building_slug>/<slug:unit_slug>/<slug:rent_code>/<slug:username>/stripe_pay/', views.stripe_pay, name='stripe_pay'),
-    path('mpesa/<slug:building_slug>/<slug:unit_slug>/<slug:rent_code>/<slug:username>/pay/', views.mpesa_pay, name='mpesa_pay'),
+    path('online_pay/<slug:building_slug>/<slug:unit_slug>/<slug:rent_code>/<slug:username>/', views.mpesa_pay, name='mpesa_pay'),
     path('daraja/stk-push/callback/', views.stk_push_callback, name='mpesa_stk_push_callback'),
     ]

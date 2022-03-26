@@ -8,7 +8,7 @@ load_dotenv()
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = str(os.getenv('DJANGO_SECRET_KEY'))
-DEBUG = False
+DEBUG = True
 
 # Authentication handler for django/allauth
 AUTHENTICATION_BACKENDS = [
@@ -126,12 +126,12 @@ AUTH_PASSWORD_VALIDATORS = [
 MPESA_ENVIRONMENT = 'sandbox'
 MPESA_CONSUMER_KEY = 'ok1GPtTX03RBGvKa918FS0XeAFrdDdXG'
 MPESA_CONSUMER_SECRET = 'nMosJos4CkUSHlkp'
-MPESA_SHORTCODE = '600996'
+MPESA_SHORTCODE = '174379'
 MPESA_EXPRESS_SHORTCODE = '174379'
 MPESA_SHORTCODE_TYPE = 'paybill'
 MPESA_PASSKEY = 'bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919'
 MPESA_INITIATOR_USERNAME = 'testapi'
-MPESA_INITIATOR_SECURITY_CREDENTIAL = 'Safaricom996!'
+MPESA_INITIATOR_SECURITY_CREDENTIAL = 'Safaricom998!'
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.0/topics/i18n/

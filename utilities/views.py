@@ -62,19 +62,21 @@ def my_rent_details(request, building_slug, unit_slug, username):
     unit = RentalUnit.objects.get(slug=unit_slug, building=building)
     tenant = Tenants.objects.get(rented_unit=unit, associated_account__username=username)
     payment_options = PaymentMethods.objects.all()    
-    latest_notice = RentIncrementNotice.objects.filter(building=building,notify_all=False).order_by('-created')[0]
-    
-    if latest_notice.to_tenants:
-        if tenant in latest_notice.to_tenants.all():
-            i_notice = latest_notice
-        else:
-            i_notice = RentIncrementNotice.objects.filter(building=building,notify_all=True).order_by('-created')[0]
-    
+    latest_notice = RentIncrementNotice.objects.filter(building=building).order_by('-created').first()    
     tenant_rent_details = UnitRentDetails.objects.filter(tenant=tenant, unit=unit).order_by('-added')
     tenant_rent_details_qs = RentDetailsFilter(request.GET, queryset=tenant_rent_details)
               
     context = {'building':building, 'unit':unit, 'tenant':tenant,'tenant_rent_details_qs':tenant_rent_details_qs,
-               'payment_options':payment_options,'i_notice':i_notice,}
+               'payment_options':payment_options,}
+    
+    if latest_notice:
+        if latest_notice.notify_all == False:
+            if tenant in latest_notice.to_tenants.all():
+                context['i_notice'] = latest_notice
+        elif latest_notice.notify_all == True:
+            context['i_notice'] = RentIncrementNotice.objects.filter(building=building,notify_all=True).order_by('-created').first()
+    
+        
     return render(request, 'utilities_and_rent/my-rent-details.html', context)
 
 @login_required
@@ -159,7 +161,6 @@ def mpesa_pay(request,building_slug, unit_slug, rent_code, username):
     rent = UnitRentDetails.objects.get(code=rent_code, unit=unit, tenant=tenant)
     
     #mpesa_charge_conversion = int(rent.rent_amount-rent.amount_paid)
-    rent_description = 'RENT CHARGES'
     client = MpesaClient()
     
     if rent.cleared == False:
@@ -167,12 +168,13 @@ def mpesa_pay(request,building_slug, unit_slug, rent_code, username):
             phone_number = request.POST['pay_with_phone']
             amount = 1 #mpesa_charge_conversion | using kes 1 for testing
             account_reference = 'Rental House Managgement System'
-            transaction_desc = rent_description
+            transaction_desc = 'RENT CHARGES'
             callback_url = 'https://rentalhousemanagementsystem.herokuapp.com/rent-and-utility/daraja/stk-push/callback/'
             #request.build_absolute_uri(reverse('mpesa_stk_push_callback'))
             response = client.stk_push(phone_number,amount,account_reference,transaction_desc,callback_url)
             #messages.info(request, response)
             if response.status_code == 200:
+                #TODO: update paments per instance
                 messages.success(request, 'Please input your pin')
             else:
                 messages.info(request, response.content)
@@ -183,20 +185,21 @@ def mpesa_pay(request,building_slug, unit_slug, rent_code, username):
           
 @csrf_exempt
 def stk_push_callback(request):
-    response = request.body.decode('utf-8')
-    pay = json.loads(response)
-    
-    p = PayOnlineMpesa(
-        MerchantRequestID = pay.get('MerchantRequestID'),
-        CheckoutRequestID=pay.get("CheckoutRequestID"),
-        ResultCode = pay.get("ResultCode"),
-        ResultDesc = pay.get("ResultDesc"),
-        Amount=pay.get("Amount"),
-        MpesaReceiptNumber = pay.get("MpesaReceiptNumber"),
-        TransactionDate=pay.get('TransactionDate'),
-        PhoneNumber=pay.get("PhoneNumber"),
+    data = json.loads(request.body)
+    return_data = data['Body']['stkCallback']    
+
+    pay = PayOnlineMpesa(
+        MerchantRequestID = return_data['MerchantRequestID'],
+        CheckoutRequestID = return_data['CheckoutRequestID'],
+        ResultCode = return_data['ResultCode'],
+        ResultDesc = return_data['ResultDesc'],
+        Amount = return_data['CallbackMetadata']['Item'][0]['Value'],
+        MpesaReceiptNumber = return_data['CallbackMetadata']['Item'][1]['Value'],
+        TransactionDate = return_data['CallbackMetadata']['Item'][3]['Value'],
+        PhoneNumber = return_data['CallbackMetadata']['Item'][4]['Value'],
     )
-    p.save()
+    pay.save()
+
     context = {
         "ResultCode": 0,
         "ResultDesc": "Accepted",
@@ -906,4 +909,5 @@ def defaulter_details(request, building_slug, username):
         'total_defauled':total_defauled, 't_relief':t_relief,
     }
     return render(request, 'utilities_and_rent/defaulter_details.html', context)
-#TODO: request for relief
+
+#TODO: request TemporaryRelief to superuser

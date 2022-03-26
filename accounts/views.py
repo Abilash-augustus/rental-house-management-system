@@ -31,6 +31,7 @@ def my_profile(request):
         rating_form = ServiceRatingForm(request.POST)
         if rating_form.is_valid():
             rating_form.instance.tenant = tenant_instance
+            rating_form.instance.building = tenant_instance.rented_unit.building
             rating_form.save()
             messages.success(request, 'Rating submitted successfully')
             return HttpResponseRedirect("")

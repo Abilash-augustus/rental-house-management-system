@@ -93,7 +93,7 @@ class UpdateMoveOutNotice(forms.ModelForm):
 class ServiceRatingForm(forms.ModelForm):
     class Meta:
         model = ServiceRating
-        exclude = ['updated','created','tenant']
+        exclude = ['updated','created','tenant','building']
         widgets = {
             'score': forms.NumberInput(attrs={
                 'type': 'range','step': '1', 'min': '0', 'max': '5','id':'id_score'}),
