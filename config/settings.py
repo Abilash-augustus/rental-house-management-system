@@ -44,7 +44,6 @@ INSTALLED_APPS = [
     'phonenumber_field',
     'django_daraja',
     'slick_reporting',
-    'django_extensions',
 
     'accounts.apps.AccountsConfig',
     'rental_property',
