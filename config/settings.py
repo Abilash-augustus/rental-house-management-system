@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'phonenumber_field',
     'django_daraja',
     'slick_reporting',
+    'django_extensions',
 
     'accounts.apps.AccountsConfig',
     'rental_property',
@@ -124,14 +125,14 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 MPESA_ENVIRONMENT = 'sandbox'
-MPESA_CONSUMER_KEY = 'ok1GPtTX03RBGvKa918FS0XeAFrdDdXG'
-MPESA_CONSUMER_SECRET = 'nMosJos4CkUSHlkp'
+MPESA_CONSUMER_KEY = 'N1AUvuATFkdlv3wYQ4LbyoD3tbaX9vmr'
+MPESA_CONSUMER_SECRET = 'r3bDy3gNWDoV8eUq'
 MPESA_SHORTCODE = '174379'
 MPESA_EXPRESS_SHORTCODE = '174379'
 MPESA_SHORTCODE_TYPE = 'paybill'
 MPESA_PASSKEY = 'bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919'
 MPESA_INITIATOR_USERNAME = 'testapi'
-MPESA_INITIATOR_SECURITY_CREDENTIAL = 'Safaricom998!'
+MPESA_INITIATOR_SECURITY_CREDENTIAL = 'Safaricom584!'
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.0/topics/i18n/

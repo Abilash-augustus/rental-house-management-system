@@ -29,7 +29,7 @@
                     <ul class="list-group">
                       <li class="list-group-item d-flex justify-content-between border-0 align-items-center">
                         <strong> Building Name </strong>
-                        <span> {{building.name}} {{tenant.associated_account.last_name}} </span>
+                        <span> {{building.name}}</span>
                       </li>
                       <li class="list-group-item d-flex justify-content-between border-0 align-items-center">
                           <strong> Tenant Name </strong>
@@ -88,7 +88,8 @@
                                 <th scope="col"> To </th>
                                 <th scope="col"> Due </th>
                                 <th scope="col"> Units </th>
-                                <th scope="col"> EST. Cost </th>
+                                <th scope="col"> Unit Price </th>
+                                <th scope="col"> Total </th>
                                 <th scope="col"> Cleared </th>
                                 <th scope="col"> Status </th>
                               </tr>
@@ -102,8 +103,9 @@
                             <td> {{bill.to_date}}</td>
                             <td> {{bill.due_date}} </td>
                             <td {% if bill.units == 0 %} title="Not Yet Updated"{% endif %}> {{bill.units}} </td>
-                            <td {% if bill.total == 0 %} title="Not Yet Updated"{% endif %}> {{bill.total}} </td>
-                            <td> {{bill.cleared}} </td>
+                            <td>KES. {{bill.unit_price}}</td>
+                            <td {% if bill.total == 0 %} title="Not Yet Updated"{% endif %}>KES. {{bill.total}} </td>
+                            <td class="{% if bill.cleared == True %} bg-success {% else %} bg-danger {% endif %}"> {{bill.cleared}} </td>
                             <td> {% if bill.lock_cycle == True %} Locked {% else %} Open {% endif %}</td>
                             <td> <a href="{% url 'my_water_billing_details' building.slug unit.slug tenant.associated_account.username bill.bill_code %}">
                               View </a>

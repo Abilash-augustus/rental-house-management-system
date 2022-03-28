@@ -17,14 +17,14 @@ at any particular time.
 - [x] Utility (Electricity & Water) Tracking and Management
 - [x] Payments Management
 - [x] Adding Rental Houses
-- [x] Managed building upkeep (includes adding rental units, updating status e.t.c)
+- [x] Building updates
 - [x] Add Managers
 - [x] Tenant Management
 - [x] Hired Personnel Management
 - [x] Work Order Management
-- [x] Reports, complaints and Maintenance Management (includes creating notices with pdf print option)
+- [x] Reports, complaints and Maintenance Management
 - [X] Visits Scheduling and Management 
-- [X] Communications and Notifications Management (powered by sendgrid)
+- [X] Email Communications and Notifications Management
 - [x] Eviction Management
 - [x] Managing Move Out Notices
 ```
@@ -34,7 +34,7 @@ at any particular time.
 - [x] Personal Rent and utility tracking (visualizing electricity & water consumtion)
 - [ ] Online payments submission (MPESA Integration & stripe :white_check_mark )
 - [x] View payments history
-- [x] Keep track of notices nade by managers
+- [x] Keep track of notices made by managers
 - [x] View receieved notices & create moveout notice
 - [x] View and send tenancy related emails using the platform
 - [x] Make Complaints
@@ -45,10 +45,10 @@ at any particular time.
 ```
 - [x] Account Management
     - SignUp & login, password change/reset, email confiration, profile update
-- [x] Online messaging (Telegram BOT)
+- [x] Online messaging
 - [x] Contact
 - [x] Scheduling visits
-- [x] Searching with django filters 
+- [x] Searching
 ```
 
 ## Modules
@@ -106,3 +106,5 @@ at any particular time.
 
 - [Reporting](https://github.com/shumwe/rental-house-management-system/tree/main/reporting)
     - ** Reports
+
+The entire relaltionship structure can be found [here](https://github.com/shumwe/rental-house-management-system/tree/main/relationships/all_relationships.png) or a view th dot [file](https://github.com/shumwe/rental-house-management-system/tree/main/relationships/dotfile.dot)

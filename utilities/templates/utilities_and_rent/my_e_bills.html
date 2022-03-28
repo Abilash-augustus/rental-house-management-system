@@ -13,7 +13,7 @@
   </ol>
 </nav>
 
-<section class="container border border-5" style="margin-top:2%; margin-bottom:4%;">
+<section class="container" style="margin-top:2%; margin-bottom:4%;">
     <div class="row justify-content-center">
         <div class="container">
 
@@ -103,7 +103,7 @@
                             <td {% if e_bill.units == 0 %} title="Not Yet Updated"{% endif %}> {{e_bill.units}} </td>
                             <td>KES {{e_bill.unit_price}}</td>
                             <td {% if e_bill.total == 0 %} title="Not Yet Updated"{% endif %}>KES {{e_bill.total}} </td>
-                            <td> {{e_bill.cleared}} </td>
+                            <td class="{% if e_bill.cleared == True %} bg-success {% else %} bg-danger {% endif %}"> {{e_bill.cleared}} </td>
                             <td {% if e_bill.lock_cycle == True %}> Locked {% else %} title="still updating"> Open {% endif %}</td>
                             <td> <a href="{% url 'my_electricity_billing_details' building.slug unit.slug tenant.associated_account.username e_bill.bill_code %}">
                               View </a>

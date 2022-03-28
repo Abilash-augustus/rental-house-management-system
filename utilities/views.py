@@ -144,10 +144,12 @@ def stripe_pay(request,building_slug, unit_slug, rent_code, username):
                 messages.success(request, 'Charge was succesful')
                 return redirect('pay-info', building_slug=building.slug,
                             unit_slug=unit.slug, rent_code=rent.code,username=tenant.associated_account.username)
-            except IntegrityError as e:
-                messages.error(request, e)
+            except IntegrityError:
+                messages.error(request, 'The system experienced some errors, please contact the admin.')
         except stripe.error.CardError as e:
-            return False,e
+            body = e.json_body
+            err = body.get('error', {})
+            messages.warning(request, f"{err.get('message')}")            
         return redirect('pay-info', building_slug=building.slug,
                             unit_slug=unit.slug, rent_code=rent.code,username=tenant.associated_account.username)
         # end stripe    
@@ -166,15 +168,14 @@ def mpesa_pay(request,building_slug, unit_slug, rent_code, username):
     if rent.cleared == False:
         if request.method == 'POST':
             phone_number = request.POST['pay_with_phone']
-            amount = 1 #mpesa_charge_conversion | using kes 1 for testing
-            account_reference = 'Rental House Managgement System'
+            amount = 1 # using kes 1 for testing
+            account_reference = 'Rental House Management System'
             transaction_desc = 'RENT CHARGES'
-            callback_url = 'https://rentalhousemanagementsystem.herokuapp.com/rent-and-utility/daraja/stk-push/callback/'
+            callback_url = "https://0ae9-197-156-137-156.ngrok.io/rent-and-utility/daraja/stk-push/callback/"
             #request.build_absolute_uri(reverse('mpesa_stk_push_callback'))
             response = client.stk_push(phone_number,amount,account_reference,transaction_desc,callback_url)
             #messages.info(request, response)
             if response.status_code == 200:
-                #TODO: update paments per instance
                 messages.success(request, 'Please input your pin')
             else:
                 messages.info(request, response.content)
@@ -690,7 +691,7 @@ def building_rent_overview(request,building_slug):
         
     queryset = UnitRentDetails.objects.filter(unit__building=building,added__year=current_year
                                               ).values('pay_for_month').annotate(
-                                                  amount=Sum('rent_amount'))
+                                                  amount=Sum('rent_amount')).order_by('added')
                                               
     for entry in queryset:
         labels.append(entry['pay_for_month'])

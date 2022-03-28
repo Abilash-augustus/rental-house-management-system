@@ -8,10 +8,7 @@
   </ol>
 </nav>
 
-
 <div class="container mb-3">
-  <div class="row">
-
       <div class="row">
           <div class="d-flex align-items-center">
               <main class="text-center w-100">
@@ -72,15 +69,14 @@
                   </div>
                 </div>
 
-              <div class="container">
                 <div class="row">
                   <div class="col-sm-3">
                     <!-- start test-->
-                    <div class="container-fluid overflow-hidden">
+                    <div class="overflow-hidden">
                       <div class="row vh-100 overflow-auto">
                           <div class="col-12 col-xl-12 col-md-12 px-sm-2 px-0 bg-light d-flex sticky-top">
                               <div class="d-flex flex-sm-column flex-row flex-grow-1 align-items-center align-items-sm-start px-3 pt-2 text-white">
-                                  <a href="/" class="d-flex align-items-center pb-sm-3 mb-md-0 me-md-auto text-white text-decoration-none">
+                                  <a href="#" class="d-flex align-items-center pb-sm-3 mb-md-0 me-md-auto text-white text-decoration-none">
                                       <span class="text-dark fs-5">Building Menu</span>
                                   </a>
                                   <ul class="nav nav-pills flex-sm-column flex-row flex-nowrap flex-shrink-1 flex-sm-grow-0 flex-grow-1 mb-sm-auto mb-0 justify-content-center align-items-center align-items-sm-start" id="menu">
@@ -134,22 +130,6 @@
                                       <a href="{% url 'core:move-out-notices' building.slug %}" class="nav-link px-sm-0 px-2">
                                           <span class="ms-1 d-none d-sm-inline">Move Out Notices</span></a>
                                     </li>
-                                    <!--
-                                    <li class="dropdown">
-                                      <a href="#" class="nav-link dropdown-toggle px-sm-0 px-1" id="dropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                                          <span class="ms-1 d-none d-sm-inline">Bootstrap</span>
-                                      </a>
-                                          <ul class="dropdown-menu dropdown-menu-dark text-small shadow" aria-labelledby="dropdown">
-                                              <li><a class="dropdown-item" href="#">New project...</a></li>
-                                              <li><a class="dropdown-item" href="#">Settings</a></li>
-                                              <li><a class="dropdown-item" href="#">Profile</a></li>
-                                              <li>
-                                                  <hr class="dropdown-divider">
-                                              </li>
-                                              <li><a class="dropdown-item" href="#">Sign out</a></li>
-                                          </ul>
-                                    </li>
-                                  -->
                                   </ul>
                               </div>
                           </div>
@@ -159,7 +139,7 @@
                   </div>
                   <div class="col-sm-9">
                     <div class="row">
-                      <div class="col-8 col-sm-12">
+                      <div class="col-12 col-sm-12">
                         <div class="card card-body mb-2">
                           <h4 class="card-header text-center"> Search Tenants</h4>
                           <form class="no-padding" method="get">
@@ -213,9 +193,7 @@
                 </div>
               </div>
               </main>
-          </div>
       </div>
-  </div>
 </div>
 
 {% endblock %}

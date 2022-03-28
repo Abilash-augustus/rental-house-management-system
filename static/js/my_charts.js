@@ -23,18 +23,17 @@ $(function () {var $buildingElectricityChart = $("#buildingElectricityChart");
         scaleLabel: {display: true,labelString: '(KwH)'}}]},
         title: {display: true,text: 'Tenants Electricity Consumption'}}});}});});
 
-
-$(function () {        
-    var $buildingRentChart = $("#building-rent-chart");
-    $.ajax({url: $buildingRentChart.data("url"),success: function (data) {        
-        var ctx = $buildingRentChart[0].getContext("2d");        
-        new Chart(ctx, {type: 'bar',data: {labels: data.labels,datasets: [{data: data.data,
-              backgroundColor: [
-              '#fcba03', '#88fc03', '#A9A9A9', '#1daba8', '#3d5454', '#1e3152',
-              '#47410b', '#557310', '#277310', '#107331', '#2792b0', '#d47a6a',
-              ],}]},options: {responsive: true,legend: {display: false, },
-            scales: {yAxes: [{ticks: { display: false,}}]},
-            title: {display: true,text: 'Rent Overview'}}});}});});
+$(function () {var $buildingRent = $("#building-rent-chart");
+     $.ajax({url: $buildingRent.data("url"),success: function (data) {
+        var ctx = $buildingRent[0].getContext("2d");
+        new Chart(ctx, {type: 'line',data: {labels: data.labels,
+        datasets: [{label: '',backgroundColor: ['#fcba03', '#88fc03', '#A9A9A9', '#1daba8', '#3d5454', '#1e3152'],
+        data: data.data}]},
+        options: {responsive: true,legend: {display: false,},
+        scales: {xAxes: [{ticks: {display: false,}}],yAxes: [{
+            ticks: {display: true,beginAtZero: true},
+        scaleLabel: {display: true,labelString: '(KES)'}}]},
+        title: {display: true,text: 'Rent Chart'}}});}});});
 
 $(function () {        
    var $buildingVisitsOverview = $("#buildingVisitsOverview");

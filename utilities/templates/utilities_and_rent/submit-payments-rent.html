@@ -101,7 +101,7 @@
         </div>
 
           <div class="col-6">
-            <a type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#mpesaPaybillBackdrop"> Mpesa PayBill </a>
+            <a type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#mpesaPaybillBackdrop"> Lipa Na Mpesa </a>
           </div>
         </div>
 
@@ -181,13 +181,12 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <small> Provide a number accessible to you. Your phone will be prompted for a pin </small>
+        <small class="bold"> Provide a number accessible to you. Your phone will be prompted for a pin </small>
         <form  method="post" action="{% url 'mpesa_pay' building.slug unit.slug rent.code tenant.associated_account.username %}"
         class="no-padding">
             {% csrf_token %}
             <div class="form-outline">
-              <input placeholder="e.g 07XXX" type="tel" id="pay_with_phone" name="pay_with_phone" class="form-control" />
-              <label class="form-label" for="typePhone">Phone number input</label>
+              <input placeholder="e.g 07XXXXXXXX" type="tel" id="pay_with_phone" name="pay_with_phone" class="form-control" />
             </div>
             <br>
             <div class="form-group text-center">

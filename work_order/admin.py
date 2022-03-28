@@ -14,6 +14,7 @@ class HiredPersonnelAdmin(admin.ModelAdmin):
     
 class WorkOrderPaymentsAdmin(admin.StackedInline):
     model = WorkOrderPayments
+    extra = 0    
 
 @admin.register(WorkOrder)
 class WorkOrderAdmin(admin.ModelAdmin):

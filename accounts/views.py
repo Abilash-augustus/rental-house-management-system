@@ -24,7 +24,7 @@ def my_profile(request):
     else:
         tenant_instance = False
 
-    check_ins = ServiceRating.objects.filter(created__lte=datetime.datetime.today(),
+    previous_rating = ServiceRating.objects.filter(created__lte=datetime.datetime.today(),
                                                  created__gt=datetime.datetime.today()-datetime.timedelta(days=30))
 
     if request.method == 'POST':
@@ -39,7 +39,7 @@ def my_profile(request):
         rating_form = ServiceRatingForm()
 
     context = {'user': user, 'tenant_instance': tenant_instance,
-               'rating_form': rating_form,'check_ins':check_ins}
+               'rating_form': rating_form,'check_ins':previous_rating}
     return render(request, 'accounts/profile.html', context)
 
 # individual profile & user update

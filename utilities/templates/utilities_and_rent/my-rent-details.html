@@ -21,7 +21,7 @@
 
           <div class="card mb-3">
             <div class="card-header text-center">
-             Rent Payment Options
+             External Rent Payment Options
             </div>
             <div class="card-body">
               <div class="row row-cols-1 row-cols-md-3 g-4">
@@ -132,8 +132,8 @@
                         <tr>
                           <th scope="row"> {{rent.code}} </th>
                             <th scope="row" > {{rent.unit.unit_number}} </th>
-                            <td> {{rent.rent_amount|intcomma}}</td>
-                            <td> {{rent.amount_paid|intcomma}}</td>
+                            <td>{{rent.currency}} {{rent.rent_amount|intcomma}}</td>
+                            <td>{{rent.currency}} {{rent.amount_paid|intcomma}}</td>
                             <td> {{rent.pay_for_month}} </td>
                             <td> {{rent.start_date}} </td>
                             <td> {{rent.end_date}} </td>
