@@ -71,8 +71,9 @@ class ElectricityMeterAdmin(admin.ModelAdmin):
 
 @admin.register(PayOnlineMpesa)
 class PayOnlineMpesaAdmin(admin.ModelAdmin):
-    list_display = ['MerchantRequestID','CheckoutRequestID','MpesaReceiptNumber','Amount','TransactionDate']
+    list_display = ['CheckoutRequestID','tenant','MpesaReceiptNumber','Amount','update_status','created']
     search_fields = ('CheckoutRequestID',)
+    list_filter = ['update_status','created']
     
 class TemporaryReliefAdmin(SummernoteModelAdminMixin,admin.StackedInline):
     model = TemporaryRelief

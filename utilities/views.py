@@ -171,14 +171,24 @@ def mpesa_pay(request,building_slug, unit_slug, rent_code, username):
             amount = 1 # using kes 1 for testing
             account_reference = 'Rental House Management System'
             transaction_desc = 'RENT CHARGES'
-            callback_url = "https://0ae9-197-156-137-156.ngrok.io/rent-and-utility/daraja/stk-push/callback/"
+            callback_url = "https://7c9d-102-167-122-239.ngrok.io/rent-and-utility/daraja/stk-push/callback/"
             #request.build_absolute_uri(reverse('mpesa_stk_push_callback'))
             response = client.stk_push(phone_number,amount,account_reference,transaction_desc,callback_url)
             #messages.info(request, response)
             if response.status_code == 200:
-                messages.success(request, 'Please input your pin')
+                messages.success(request, 'Request sent. Please input your pin')
+                r = response.content
+                t = json.loads(r)
+                code = t['CheckoutRequestID']
+                start_pay = PayOnlineMpesa(
+                    CheckoutRequestID=code,tenant=tenant,parent=rent
+                )
+                start_pay.save()
             else:
-                messages.info(request, response.content)
+                e = response.content
+                er = json.loads(e)
+                err = er['errorMessage']
+                messages.info(request, err)
             return redirect('pay-info', building_slug=building.slug,
                             unit_slug=unit.slug, rent_code=rent.code,username=tenant.associated_account.username)
     else:
@@ -187,23 +197,35 @@ def mpesa_pay(request,building_slug, unit_slug, rent_code, username):
 @csrf_exempt
 def stk_push_callback(request):
     data = json.loads(request.body)
-    return_data = data['Body']['stkCallback']    
-
-    pay = PayOnlineMpesa(
-        MerchantRequestID = return_data['MerchantRequestID'],
-        CheckoutRequestID = return_data['CheckoutRequestID'],
-        ResultCode = return_data['ResultCode'],
-        ResultDesc = return_data['ResultDesc'],
-        Amount = return_data['CallbackMetadata']['Item'][0]['Value'],
-        MpesaReceiptNumber = return_data['CallbackMetadata']['Item'][1]['Value'],
-        TransactionDate = return_data['CallbackMetadata']['Item'][3]['Value'],
-        PhoneNumber = return_data['CallbackMetadata']['Item'][4]['Value'],
-    )
-    pay.save()
+    return_data = data['Body']['stkCallback']
+    
+    try:
+        started_pay = PayOnlineMpesa.objects.get(
+            CheckoutRequestID=return_data['CheckoutRequestID'],
+        )    
+        started_pay.MerchantRequestID = return_data['MerchantRequestID'],
+        started_pay.ResultCode = return_data['ResultCode'],
+        started_pay.ResultDesc = return_data['ResultDesc'],
+        started_pay.Amount = return_data['CallbackMetadata']['Item'][0]['Value'],
+        started_pay.MpesaReceiptNumber = return_data['CallbackMetadata']['Item'][1]['Value'],
+        started_pay.TransactionDate = return_data['CallbackMetadata']['Item'][3]['Value'],
+        started_pay.PhoneNumber = return_data['CallbackMetadata']['Item'][4]['Value'],
+        started_pay.save()
+    except ObjectDoesNotExist:
+        pay = PayOnlineMpesa(
+            MerchantRequestID = return_data['MerchantRequestID'],
+            CheckoutRequestID = return_data['CheckoutRequestID'],
+            ResultCode = return_data['ResultCode'],
+            ResultDesc = return_data['ResultDesc'],
+            Amount = return_data['CallbackMetadata']['Item'][0]['Value'],
+            MpesaReceiptNumber = return_data['CallbackMetadata']['Item'][1]['Value'],
+            TransactionDate = return_data['CallbackMetadata']['Item'][3]['Value'],
+            PhoneNumber = return_data['CallbackMetadata']['Item'][4]['Value'],
+            )
+        pay.save()
 
     context = {
-        "ResultCode": 0,
-        "ResultDesc": "Accepted",
+        "status": "completed",
     }
     return JsonResponse(dict(context))
 

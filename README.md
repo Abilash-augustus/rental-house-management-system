@@ -107,4 +107,5 @@ at any particular time.
 - [Reporting](https://github.com/shumwe/rental-house-management-system/tree/main/reporting)
     - ** Reports
 
-The entire relaltionship structure can be found [here](https://github.com/shumwe/rental-house-management-system/tree/main/relationships/all_relationships.png) or a view th dot [file](https://github.com/shumwe/rental-house-management-system/tree/main/relationships/dotfile.dot)
+The entire relaltionship structure can be found [here](https://github.com/shumwe/rental-house-management-system/tree/main/relationships/all_relationships.png) or a view the dot [file](https://github.com/shumwe/rental-house-management-system/tree/main/relationships/dotfile.dot)
+

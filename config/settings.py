@@ -8,7 +8,7 @@ load_dotenv()
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = str(os.getenv('DJANGO_SECRET_KEY'))
-DEBUG = False
+DEBUG = True
 
 # Authentication handler for django/allauth
 AUTHENTICATION_BACKENDS = [
@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'phonenumber_field',
     'django_daraja',
     'slick_reporting',
+    'django_extensions',
 
     'accounts.apps.AccountsConfig',
     'rental_property',

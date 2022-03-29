@@ -384,7 +384,6 @@ class ElectricityPayments(models.Model):
         verbose_name = 'Billing 3 | Electricity Bill Payments'
         verbose_name_plural = verbose_name
 
-
 class WaterMeter(models.Model):
     number = models.CharField(max_length=20, unique=True)
     ssid = models.CharField(max_length=20, null=True, blank=True)
@@ -410,6 +409,12 @@ class ElectricityMeter(models.Model):
     
 
 class PayOnlineMpesa(models.Model):
+    update_status = [
+        ('recieved','Recieved'),
+        ('updated', 'Updated'),
+    ]
+    tenant = models.ForeignKey(Tenants, on_delete=models.CASCADE, null=True, blank=True)
+    parent = models.ForeignKey(UnitRentDetails, on_delete=models.CASCADE, null=True, blank=True)
     MerchantRequestID = models.CharField(max_length=155,null=True, blank=True)
     CheckoutRequestID = models.CharField(max_length=155, null=True, blank=True)
     ResultCode = models.CharField(max_length=100, null=True, blank=True)
@@ -418,6 +423,7 @@ class PayOnlineMpesa(models.Model):
     MpesaReceiptNumber = models.CharField(max_length=100, null=True, blank=True)
     TransactionDate = models.CharField(max_length=55, null=True, blank=True)    
     PhoneNumber = models.CharField(max_length=25, null=True, blank=True)
+    update_status = models.CharField(max_length=10,default='recieved')
     
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
