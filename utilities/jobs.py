@@ -3,13 +3,14 @@ import datetime
 from io import BytesIO
 import pytz
 from apscheduler.schedulers.background import BackgroundScheduler
+from accounts.models import UserNotifications
 from config.settings import DEFAULT_FROM_EMAIL
 from core.utils import render_to_pdf
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import EmailMessage
 from django.template.loader import get_template, render_to_string
 
-from utilities.models import RentDefaulters, UnitRentDetails
+from utilities.models import PayOnlineMpesa, RentDefaulters, UnitRentDetails
 from django.shortcuts import HttpResponse
 from xhtml2pdf import pisa
 
@@ -36,6 +37,26 @@ def notify_tenant_rent_nearing_due():
         message = EmailMessage(subject, html_message, from_email, to_email)
         message.content_subtype = 'html'
         message.send()
+        
+def sync_mpesa_payments():
+    get_new_mpesa_payments = PayOnlineMpesa.objects.filter(
+        ResultCode='0',update_status='recieved',
+    )
+    for payment in get_new_mpesa_payments:
+        if payment.Amount:
+            parent = UnitRentDetails.objects.get(id=payment.parent.pk)
+            parent.amount_paid += payment.Amount
+            parent.save()
+            #update the payment
+            payment.update_status = 'updated'
+            payment.save(update_fields=['update_status',])
+            
+            message = UserNotifications(
+                user_id = payment.tenant.associated_account,
+                message = 'Mpesa payment updated',
+            )
+            message.save()
+            
         
 def check_and_create_defaulters():
     in_last_60_days = get_today - datetime.timedelta(days=59)
@@ -72,10 +93,17 @@ def check_and_create_defaulters():
                 message = EmailMessage(subject, text, from_email, [to_email])
                 message.attach(filename, pdf, "application/pdf")
                 message.send(fail_silently=False)
+                
+                #create a message
+                UserNotifications.objects.create(
+                    user_id=obj.tenant.associated_account,
+                    message='Added to defaulters'
+                )
                     
     
 def start():
     scheduler = BackgroundScheduler()
     scheduler.add_job(notify_tenant_rent_nearing_due, 'interval', minutes=11520) # every 8|11520 days, TODO: reset to 2880 | 48 hour schedule
+    scheduler.add_job(sync_mpesa_payments, 'interval', minutes=1440) # daily task
     scheduler.add_job(check_and_create_defaulters, 'interval', minutes=1440) # daily check
     scheduler.start()

@@ -410,7 +410,7 @@ class ElectricityMeter(models.Model):
 
 class PayOnlineMpesa(models.Model):
     update_status = [
-        ('recieved','Recieved'),
+        ('recieved','Newly Recieved'),
         ('updated', 'Updated'),
     ]
     tenant = models.ForeignKey(Tenants, on_delete=models.CASCADE, null=True, blank=True)
@@ -424,12 +424,11 @@ class PayOnlineMpesa(models.Model):
     TransactionDate = models.CharField(max_length=55, null=True, blank=True)    
     PhoneNumber = models.CharField(max_length=25, null=True, blank=True)
     update_status = models.CharField(max_length=10,default='recieved')
-    
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
-    def __unicode__(self):
-        return f"{self.request_id}"
+    def __str__(self):
+        return f"{self.CheckoutRequestID}"
 
     class Meta:
         verbose_name = "Mpesa Online Payments"

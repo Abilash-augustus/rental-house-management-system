@@ -65,6 +65,28 @@
                 {% if request.user.is_authenticated %}
                 <div class="collapse navbar-collapse" id="mynav">
                   <div class="dropdown">
+                    <a href="#" class="btn dropdown-toggle" type="button" id="messagesDrop" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                      <em class="fas fa-bell"></em>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-end dropdown-menu-lg-start" style="min-width: 270px; max-width: 350px;" aria-labelledby="messagesDrop">
+                      {% load humanize %}
+                      <ul class="list-group">
+                        {% for notification in notifications %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                          {{notification.message}}
+                          <span class="badge bg-secondary">{{notification.created|naturaltime}}</span>
+                        </li>
+                        {% empty %}
+                        <li class="list-group-item justify-content-between align-items-center">
+                          nothing yet
+                        </li>
+                        {% endfor %}
+                      </ul>
+                    </div>
+                  </div>                
+
+                <div class="collapse navbar-collapse" id="mynav">
+                  <div class="dropdown">
                     <a href="#" class="btn dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                       <em class="fas fa-user-circle"></em> {{ request.user.username }}
                     </a>
@@ -76,8 +98,7 @@
                       {% endif %}
                       <a href="{% url 'account_logout' %}" class="dropdown-item" type="button">Logout</a>
                     </div>
-                  </div>
-    
+                  </div>    
                 </div>
                 {% else %}
       
@@ -135,7 +156,7 @@
     </div>
     {% endfor %}
     {% endif %}
-    
+
     {% block content %}	{% endblock content%}
 
 

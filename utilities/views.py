@@ -6,7 +6,7 @@ from decimal import Decimal
 
 import requests
 import stripe
-from accounts.models import Managers, Tenants
+from accounts.models import Managers, Tenants, UserNotifications
 from config.settings import (DEFAULT_FROM_EMAIL, STRIPE_PUBLISHABLE_KEY,
                              STRIPE_SECRET_KEY)
 from core.utils import render_to_pdf
@@ -104,6 +104,8 @@ def submit_rent_payments(request, building_slug, unit_slug, rent_code, username)
             pay_info_form.instance.paid_for_month = rent.pay_for_month
             pay_info_form.save()
             messages.success(request, 'Record submitted, update will be done once approved')
+            UserNotifications.objects.create(user_id=tenant.associated_account,
+                                             message='submitted rent payment for {0}'.format(rent.paid_for_month))
             return redirect('my-rent', building_slug=building.slug, unit_slug=unit.slug, username=tenant.associated_account.username)
     else:
         pay_info_form = SubmitPaymentsForm()
@@ -143,6 +145,8 @@ def stripe_pay(request,building_slug, unit_slug, rent_code, username):
                 rent.amount_paid += Decimal(float(paid_by_stripe.amount))
                 rent.save()                
                 messages.success(request, 'Charge was succesful')
+                UserNotifications.objects.create(user_id=tenant.associated_account,
+                                             message='made a stripe payment of {0}'.format(int(rent.rent_amount-rent.amount_paid)))
                 return redirect('pay-info', building_slug=building.slug,
                             unit_slug=unit.slug, rent_code=rent.code,username=tenant.associated_account.username)
             except IntegrityError:
@@ -150,7 +154,9 @@ def stripe_pay(request,building_slug, unit_slug, rent_code, username):
         except stripe.error.CardError as e:
             body = e.json_body
             err = body.get('error', {})
-            messages.warning(request, f"{err.get('message')}")            
+            messages.warning(request, f"{err.get('message')}")  
+            UserNotifications.objects.create(user_id=tenant.associated_account,
+                                             message='failed stripe payment')          
         return redirect('pay-info', building_slug=building.slug,
                             unit_slug=unit.slug, rent_code=rent.code,username=tenant.associated_account.username)
         # end stripe    
@@ -172,10 +178,11 @@ def mpesa_pay(request,building_slug, unit_slug, rent_code, username):
             amount = 1 # using kes 1 for testing
             account_reference = 'Rental House Management System'
             transaction_desc = 'RENT CHARGES'
-            callback_url = "https://7c9d-102-167-122-239.ngrok.io/rent-and-utility/daraja/stk-push/callback/"
+            callback_url = "https://rentalhousemanagementsystem.herokuapp.com/rent-and-utility/daraja/stk-push/callback/"
             #request.build_absolute_uri(reverse('mpesa_stk_push_callback'))
             response = client.stk_push(phone_number,amount,account_reference,transaction_desc,callback_url)
             #messages.info(request, response)
+            
             if response.status_code == 200:
                 messages.success(request, 'Request sent. Please input your pin')
                 r = response.content
@@ -190,6 +197,7 @@ def mpesa_pay(request,building_slug, unit_slug, rent_code, username):
                 er = json.loads(e)
                 err = er['errorMessage']
                 messages.info(request, err)
+                
             return redirect('pay-info', building_slug=building.slug,
                             unit_slug=unit.slug, rent_code=rent.code,username=tenant.associated_account.username)
     else:
@@ -935,3 +943,4 @@ def defaulter_details(request, building_slug, username):
     return render(request, 'utilities_and_rent/defaulter_details.html', context)
 
 #TODO: request TemporaryRelief to superuser
+

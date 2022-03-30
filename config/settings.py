@@ -92,6 +92,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'rental_property.context_processors.my_managed_buildings',
+                'accounts.context_processors.get_notifications',
                 'complaints.context_processors.get_contacts',
             ],
         },
@@ -125,14 +126,14 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 MPESA_ENVIRONMENT = 'sandbox'
-MPESA_CONSUMER_KEY = 'N1AUvuATFkdlv3wYQ4LbyoD3tbaX9vmr'
-MPESA_CONSUMER_SECRET = 'r3bDy3gNWDoV8eUq'
+MPESA_CONSUMER_KEY = 'ok1GPtTX03RBGvKa918FS0XeAFrdDdXG'
+MPESA_CONSUMER_SECRET = 'nMosJos4CkUSHlkp'
 MPESA_SHORTCODE = '174379'
 MPESA_EXPRESS_SHORTCODE = '174379'
 MPESA_SHORTCODE_TYPE = 'paybill'
 MPESA_PASSKEY = 'bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919'
 MPESA_INITIATOR_USERNAME = 'testapi'
-MPESA_INITIATOR_SECURITY_CREDENTIAL = 'Safaricom584!'
+MPESA_INITIATOR_SECURITY_CREDENTIAL = 'Safaricom979!'
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.0/topics/i18n/

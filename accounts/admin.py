@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.contrib.auth import get_user_model
 from django.contrib.auth.admin import UserAdmin
 
-from accounts.models import Managers, Profile, Tenants
+from accounts.models import Managers, Profile, Tenants, UserNotifications
 
 User = get_user_model()
 
@@ -37,3 +37,7 @@ class TenantsAdmin(admin.ModelAdmin):
     list_display = ['associated_account', 'created', 'active_phone_number', 'updated']
     list_filter = ['created',]
     search_fields = ['user',]
+
+"""@admin.register(UserNotifications)
+class UserNotificationsAdmin(admin.ModelAdmin):
+    list_display = ['user_id', 'message']"""
