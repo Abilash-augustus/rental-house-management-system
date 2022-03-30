@@ -1,7 +1,18 @@
 {% extends 'base.html' %}
 {% load crispy_forms_tags %}
+{% block extra_css %}
+<style type="text/css">
+  .stripe_checkout_app{
+    height: 580px !important;
+    }
+</style>
+ {% endblock %}
+ {% block extra_head %}
+ <meta name="mobile-web-app-capable" content="yes">
+ {% endblock %}
 {% block metadescription %} Submit Rent Payments  {% endblock %}
 {% load humanize %}
+
 
 {% block content %}	
 <nav class="container mt-3">
