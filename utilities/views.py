@@ -1,5 +1,6 @@
 import json
 import math
+import string
 from datetime import datetime
 from decimal import Decimal
 
@@ -47,9 +48,9 @@ from utilities.forms import (AddRentDetailsForm,
 from utilities.models import (ElectricityBilling, ElectricityMeter,
                               ElectricityPayments, ElectricityReadings,
                               PaymentMethods, PayOnlineMpesa, RentDefaulters,
-                              RentIncrementNotice, RentPayment, TemporaryRelief,
-                              UnitRentDetails, WaterBilling, WaterConsumption,
-                              WaterMeter, WaterPayments)
+                              RentIncrementNotice, RentPayment,
+                              TemporaryRelief, UnitRentDetails, WaterBilling,
+                              WaterConsumption, WaterMeter, WaterPayments)
 
 User = get_user_model()
 
@@ -92,7 +93,7 @@ def submit_rent_payments(request, building_slug, unit_slug, rent_code, username)
 
     stripe_charge_total = int(rent.rent_amount-rent.amount_paid)*100
     stripe.api_key = STRIPE_SECRET_KEY
-    rent_description = 'RENT CHARGES'
+    rent_description = 'RENT CHARGES FOR {}'.format(rent.pay_for_month)
         
     if request.method == 'POST':
         pay_info_form = SubmitPaymentsForm(request.POST)        
@@ -121,7 +122,7 @@ def stripe_pay(request,building_slug, unit_slug, rent_code, username):
     rent = UnitRentDetails.objects.get(code=rent_code, unit=unit, tenant=tenant)
     
     stripe_charge_total = int(rent.rent_amount-rent.amount_paid)*100
-    rent_description = 'RENT CHARGES'
+    rent_description = 'RENT CHARGES FOR {}'.format(rent.get_pay_for_month_display)
     if request.method == 'POST':
         # stripe bill
         try:

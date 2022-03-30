@@ -1,3 +1,4 @@
 .env
 .mpesa_hide.txt
 media/
+htmlcov/
