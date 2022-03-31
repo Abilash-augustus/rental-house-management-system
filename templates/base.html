@@ -42,11 +42,10 @@
         <div class="container-fluid"> 
           <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mynav" aria-controls="mynav" aria-expanded="false" aria-label="Toggle navigation">
               <span class="navbar-toggler-icon"></span></button>
-          <a class="navbar-brand align" href="#">
+          <a class="navbar-brand align" href="{% url 'operational-buildings' %}">
                 <div class="d-flex">
                     <div class="ms-3 d-flex flex-column">
-                        <div class="h4">Rental House Management System </div>
-                        <div class="fs-6">Property Managers</div>
+                      <img src="{% static 'img/rhms_logo2.png' %}" alt="logo" width="250" height="70"/>
                     </div>
                 </div>
             </a>

@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% load crispy_forms_tags %}
-{% block metadescription %} Email Archives  {% endblock %}
+{% block metadescription %} Email Archive {% endblock %}
 {% load humanize %}
 
 {% block content %}	
@@ -22,7 +22,6 @@
           <div class="card shadow-2-strong" style="border-radius: 1rem;">
             <div class="card-body p-5">
                 <h3 class="text-uppercase text-center"> Email Archive </h3>
-            
                 <ul class="list-group">
                     <li class="list-group-item d-flex justify-content-between align-items-start">
                         <div class="ms-2 me-auto">Ref Number </div>
@@ -44,9 +43,11 @@
                         <div class="ms-2 me-auto">Subject</div>
                         <span> {{archive.subject}}</span>
                       </li>
-                      <li class="list-group-item d-flex justify-content-between align-items-start">
-                        <div class="ms-2 me-auto"> Content </div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                        <blockquote>"{{archive.body|safe}}"</blockquote>
+                      <li class="list-group-item justify-content-between align-items-start fw-bold">
+                        <div class="ms-2 me-auto"> Content </div>&nbsp;&nbsp;&nbsp;&nbsp;
+                        <div class="col-12">
+                          {{archive.body|safe}}
+                        </div>
                       </li>
                       <li class="list-group-item d-flex justify-content-between align-items-start">
                         <div class="ms-2 me-auto"> Sent On </div>

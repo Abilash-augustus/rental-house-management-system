@@ -104,6 +104,6 @@ def check_and_create_defaulters():
 def start():
     scheduler = BackgroundScheduler()
     scheduler.add_job(notify_tenant_rent_nearing_due, 'interval', minutes=11520) # every 8|11520 days, TODO: reset to 2880 | 48 hour schedule
-    scheduler.add_job(sync_mpesa_payments, 'interval', minutes=1) # daily task
+    scheduler.add_job(sync_mpesa_payments, 'interval', minutes=1440) # daily task
     scheduler.add_job(check_and_create_defaulters, 'interval', minutes=1440) # daily check
     scheduler.start()

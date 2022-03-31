@@ -601,7 +601,7 @@ def update_tenant_electric_bill_details(request,building_slug,unit_slug,username
     unit = RentalUnit.objects.get(building=building,slug=unit_slug)
     tenant = Tenants.objects.get(rented_unit=unit,associated_account__username=username)
     e_bill = ElectricityBilling.objects.get(rental_unit=unit,tenant=tenant,bill_code=bill_code)
-    added_readings = ElectricityReadings.objects.filter(parent=e_bill)
+    added_readings = ElectricityReadings.objects.filter(parent=e_bill).order_by('-reading_date')
     electricity_payments = ElectricityPayments.objects.filter(parent=e_bill)
     
     if request.method == 'POST':
@@ -732,7 +732,7 @@ def building_rent_overview(request,building_slug):
         
     queryset = UnitRentDetails.objects.filter(unit__building=building,added__year=current_year
                                               ).values('pay_for_month').annotate(
-                                                  amount=Sum('rent_amount')).order_by('added')
+                                                  amount=Sum('rent_amount')).order_by('-pay_for_month')
                                               
     for entry in queryset:
         labels.append(entry['pay_for_month'])
@@ -951,6 +951,4 @@ def defaulter_details(request, building_slug, username):
         'total_defauled':total_defauled, 't_relief':t_relief,
     }
     return render(request, 'utilities_and_rent/defaulter_details.html', context)
-
-#TODO: request TemporaryRelief to superuser
 

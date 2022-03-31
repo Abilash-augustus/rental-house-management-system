@@ -199,7 +199,7 @@ class WaterBilling(models.Model):
     units = models.DecimalField(
         decimal_places=2, max_digits=9, default=0, null=True, blank=True)
     unit_price = models.DecimalField(
-        decimal_places=2, max_digits=9, verbose_name='Unit Price (KES)')
+        decimal_places=2, max_digits=9, verbose_name='Unit Price (KES)',default=53.0)
     total = models.DecimalField(decimal_places=2, max_digits=9, default=0)
     amount_paid = models.DecimalField(
         decimal_places=2, max_digits=9, default=0)
@@ -303,7 +303,7 @@ class ElectricityBilling(models.Model):
     meter_id = models.ForeignKey('ElectricityMeter', on_delete=models.CASCADE)
     measuring_unit = models.CharField(max_length=20, default='KWH')
     units = models.DecimalField(decimal_places=2, max_digits=9, default=0)
-    unit_price = models.DecimalField(decimal_places=2, max_digits=9)
+    unit_price = models.DecimalField(decimal_places=2, max_digits=9,default=24.18)
     total = models.DecimalField(
         decimal_places=2, max_digits=9, default=0, null=True, blank=True)
     amount_paid = models.DecimalField(
