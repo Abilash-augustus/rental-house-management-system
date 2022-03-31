@@ -13,7 +13,7 @@ from slick_reporting.fields import SlickReportField
 from slick_reporting.registry import field_registry
 from slick_reporting.views import SlickReportView
 from rental_property.models import Building, MaintananceNotice, RentalUnit
-from utilities.models import ElectricityBilling, RentPayment, UnitRentDetails, WaterBilling
+from utils.models import ElectricityBilling, RentPayment, UnitRentDetails, WaterBilling
 import itertools
 import operator
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin

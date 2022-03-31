@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block metadescription %} Rent Update  {% endblock %}
+{% load humanize %}
+
+{% block content %}	
+<nav class="container mt-3">
+  <ol class="breadcrumb bg-light p-2 rounded-2">
+      <li class="breadcrumb-item "><a href="{% url 'building-dashboard' building.slug %}">Dashboard</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'rent-and-utilities' building.slug %}">Rent & Utilities </a></li>
+      <li class="breadcrumb-item"><a href="{% url 'rent-history' building.slug unit.slug tenant.associated_account.username %}">Rent</a></li>
+      <li class="breadcrumb-item active">Rent Update & Payments</li>
+  </ol>
+</nav>
+
+<section style="background-color: #dfe8da;">
+    <div class="container py-5 h-100">
+      <div class="row d-flex justify-content-center align-items-center h-100">
+        <div class="col-10">
+          <div class="card shadow-2-strong" style="border-radius: 1rem;">
+            <div class="card-body p-5">
+                <h3 class="text-uppercase text-center"> Rent Instance </h3>
+                <h3 class="text-uppercase text-center"> Manager Update </h3>
+                <ul class="list-group">
+                    <li class="list-group-item d-flex justify-content-between align-items-start">
+                      <div class="ms-2 me-auto">
+                        Building
+                      </div>
+                      <span> {{building.name}} </span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-start">
+                      <div class="ms-2 me-auto">Unit</div>
+                      <span>{{unit.unit_number}}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-start">
+                        <div class="ms-2 me-auto">Rent Code</div>
+                        <span>{{rent_details.code}}</span>
+                      </li>
+                      <li class="list-group-item d-flex justify-content-between align-items-start">
+                        <div class="ms-2 me-auto">Due Date </div>
+                        <span class={% if rent_details.cleared %} "bg-success" {% else %} "bg-danger" {% endif %}>{{rent_details.due_date|naturalday}}</span>
+                      </li>
+                  </ul>
+                <br>
+                <form class="no-padding" method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <fieldset class="form-group">
+                        <legend></legend>
+                        {{ update_form|crispy }}
+                    </fieldset>
+                    <br>
+                    <div class="form-group">
+                        <button class="btn btn-outline-primary" type="submit">Submit</button>
+                    </div>
+                </form>
+                <br>
+
+                <div class="table-responsive">
+                <table class="table caption-top">
+                  <caption> Submitted Payments </caption>
+                  <thead>
+                    <tr>
+                      <th scope="col">Ref. Code</th>
+                      <th scope="col">Tenant</th>
+                      <th scope="col">Paid Amount</th>
+                      <th scope="col"> Payment Method </th>
+                      <th scope="col"> Date </th>
+                      <th scope="col"> Status </th>
+                      <th scope="col"> </th>
+
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for pay in payments.qs %}
+                    <tr>
+                      <th scope="row">{{pay.payment_code}}</th>
+                      <td>{{pay.tenant.associated_account.first_name}} {{tenant.associated_account.last_name}}</td>
+                      <td>{{rent.currency}} {{pay.amount|intcomma}}</td>
+                      <td> {% if pay.paid_with_stripe %} Stripe {% else %} {{pay.payment_method.name}} {% endif %} </td>
+                      <td> {{pay.paid_on}} </td>
+                      <td> {{pay.get_status_display}}</td>
+                      <td> <a href="{% url 'update-rent' building.slug unit.slug tenant.associated_account.username rent_details.code pay.tracking_code%}"> 
+                        view  </a> </td>
+                    </tr>
+                    {% empty %}
+                    <tr> 
+                      <td> No payments submitted. </td>
+                    </tr>
+                    {% endfor %} 
+                  </tbody>
+                </table>
+                <table class="table caption-top">
+                  <caption> Mpesa </caption>
+                  <thead>
+                    <tr>
+                      <th scope="col">Reciept Number</th>
+                      <th scope="col">Results Code</th>
+                      <th scope="col">Amount</th>
+                      <th scope="col"> Phone Number </th>
+                      <th scope="col"> Status </th>
+                      <th scope="col"> Date </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for p in mpesa_payments %}
+                    <tr>
+                      <th scope="row">{{p.MpesaReceiptNumber}}</th>
+                      <td> {% if p.ResultCode == '0' %} <em class="bg-success">success</em> {% else %} <em class="bg-danger">Failed</em> {% endif %}</td>
+                      <td>{{rent.currency}} {{p.Amount|intcomma}}</td>
+                      <td> {{p.PhoneNumber}} </td>
+                      <td> {{p.get_update_status_display}}</td>
+                      <td> {{p.created|naturalday}} </td>
+                    </tr>
+                    {% empty %}
+                    <tr> 
+                      <td> None. </td>
+                    </tr>
+                    {% endfor %} 
+                  </tbody>
+                </table>
+                </div>
+
+            </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</section>
+{% endblock %}

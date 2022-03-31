@@ -72,7 +72,7 @@
                       {% load humanize %}
                       <ul class="list-group">
                         {% for notification in notifications %}
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <li class="list-group-item d-flex justify-content-between align-items-center text-wrap">
                           {{notification.message}}
                           <span class="badge bg-secondary">{{notification.created|naturaltime}}</span>
                         </li>

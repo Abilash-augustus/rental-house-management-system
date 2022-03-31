@@ -19,7 +19,7 @@ from django.urls import reverse_lazy
 from django.utils.functional import SimpleLazyObject
 from django.views.generic import CreateView
 from rental_property.models import Building, MaintananceNotice, RentalUnit
-from utilities.models import ElectricityBilling, WaterBilling
+from utils.models import ElectricityBilling, WaterBilling
 
 from core.filters import (CommsFilter, ContactFilter, EvictionNoticeFilter,
                           MoveOutNoticeFilter, MyNoticeFilter,
@@ -644,3 +644,6 @@ def moveouts_overview(request,building_slug):
     
     data = {'labels': labels,'data': data}
     return JsonResponse(data)
+
+def custom_system_error_view(request, exception=None):
+    return render(request, "500.html", {})

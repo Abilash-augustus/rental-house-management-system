@@ -48,8 +48,8 @@ INSTALLED_APPS = [
 
     'accounts.apps.AccountsConfig',
     'rental_property',
-    'utilities.apps.UtilitiesConfig',
     'core',
+    'utils.apps.UtilsConfig',
     'complaints',
     'work_order',
     'reporting.apps.ReportingConfig',

@@ -32,7 +32,7 @@ at any particular time.
 ```
 
 - [x] Personal Rent and utility tracking (visualizing electricity & water consumtion)
-- [ ] Online payments submission (MPESA Integration & stripe :white_check_mark )
+- [ ] Online payments submission (Mpesa Integration & stripe)
 - [x] View payments history
 - [x] Keep track of notices made by managers
 - [x] View receieved notices & create moveout notice
@@ -85,18 +85,16 @@ at any particular time.
                 - Unit Album
             - MaintananceNotice
 
-- [Utilities & Rent](https://github.com/shumwe/rental-house-management-system/tree/main/utilities)
+- [Utilities & Rent](https://github.com/shumwe/rental-house-management-system/tree/main/utils)
     - Payment Methods
-    - Unit Rent Details
+    - Rent Details
         - Rent Payment
     - Water Billing
-        - Water Consumption (Radings)
-        - Water Payments
+        - Consumption Tracking
+        - Payments
     - Electricity Billing
-        - Electricity Reading (Consumption)
-        - Electricity Payments
-    - Water Meter
-    - Electricity Meter
+        - Consumption Tracking
+        - Payments
 
 - [Work Order](https://github.com/shumwe/rental-house-management-system/tree/main/work_order)
     - Hired Personnel
@@ -107,5 +105,8 @@ at any particular time.
 - [Reporting](https://github.com/shumwe/rental-house-management-system/tree/main/reporting)
     - ** Reports
 
-The entire relaltionship structure can be found [here](https://github.com/shumwe/rental-house-management-system/tree/main/relationships/all_relationships.png) or a view the dot [file](https://github.com/shumwe/rental-house-management-system/tree/main/relationships/dotfile.dot)
+The entire relaltionship structure can be found [here](https://github.com/shumwe/rental-house-management-system/tree/main/relationships/relationships.png) or a view the dot [file](https://github.com/shumwe/rental-house-management-system/tree/main/relationships/dotfile.dot)
 
+
+
+[Requirements](https://github.com/shumwe/rental-house-management-system/tree/main/requirements.txt )
