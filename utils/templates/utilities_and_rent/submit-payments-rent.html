@@ -192,7 +192,7 @@
                     {% for p in mpesa_payments %}
                     <tr>
                       <th scope="row">{{p.MpesaReceiptNumber}}</th>
-                      <td> {% if p.ResultCode == '0' %} <em class="bg-success">success</em> {% else %} <em class="bg-danger">Failed</em> {% endif %}</td>
+                      <td> {% if p.ResultCode == '0' and p.update_status == 'updated' %} <em class="bg-success">success</em> {% else %} <em class="bg-danger">waiting...</em> {% endif %}</td>
                       <td>{{rent.currency}} {{p.Amount|intcomma}}</td>
                       <td> {{p.PhoneNumber}} </td>
                       <td> {{p.get_update_status_display}}</td>
