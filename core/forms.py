@@ -59,7 +59,7 @@ class UpdateEvictionNotice(forms.ModelForm):
         self.fields['created'].disabled = True
     class Meta:
         model = EvictionNotice
-        exclude = ['updated',]
+        exclude = ['updated','building']
         widgets = {
             'eviction_due': DateInput(),
         }

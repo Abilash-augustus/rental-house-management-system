@@ -179,7 +179,7 @@ def mpesa_pay(request,building_slug, unit_slug, rent_code, username):
             amount = 1 # using kes 1 for testing
             account_reference = 'Rental House Management System'
             transaction_desc = 'RENT CHARGES'
-            callback_url = "https://55bf-102-167-66-62.ngrok.io/rent-and-utility/daraja/stk-push/callback/"
+            callback_url = "https://rentalhousemanagementsystem.herokuapp.com/rent-and-utility/daraja/stk-push/callback/"
             #request.build_absolute_uri(reverse('mpesa_stk_push_callback'))
             response = client.stk_push(phone_number,amount,account_reference,transaction_desc,callback_url)
             #messages.info(request, response)

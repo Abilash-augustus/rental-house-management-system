@@ -59,7 +59,7 @@ def sync_mpesa_payments():
             
         
 def check_and_create_defaulters():
-    in_last_60_days = get_today - datetime.timedelta(days=59)
+    in_last_60_days = get_today - datetime.timedelta(days=60)
     objs = UnitRentDetails.objects.filter(cleared=False)
     
     for obj in objs:
@@ -104,6 +104,6 @@ def check_and_create_defaulters():
 def start():
     scheduler = BackgroundScheduler()
     scheduler.add_job(notify_tenant_rent_nearing_due, 'interval', minutes=11520) # every 8 days,
-    scheduler.add_job(sync_mpesa_payments, 'interval', minutes=60) # hourly task
+    scheduler.add_job(sync_mpesa_payments, 'interval', minutes=2)
     scheduler.add_job(check_and_create_defaulters, 'interval', minutes=1440) # daily check
     scheduler.start()

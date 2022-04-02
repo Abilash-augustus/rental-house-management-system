@@ -288,6 +288,7 @@ def create_eviction_notice(request, building_slug):
         if eviction_form.is_valid():
             eviction_form.instance.sent_by = manager
             get_tenant = eviction_form.instance.tenant
+            eviction_form.instance.building = building
             eviction_form.instance.unit = RentalUnit.objects.get(pk=get_tenant.rented_unit.id)         
             eviction_form.save()
             e_data = eviction_form.instance

@@ -8,4 +8,5 @@ urlpatterns = [
     path('view-tenant/<slug:building_slug>/<slug:username>/', views.view_tenant_profile, name='view-tenant'),
     path('add-new-tenant/<slug:building_slug>/', views.add_tenant, name='add-new-tenant'),
     path('update-tenant/<slug:building_slug>/<slug:username>/', views.update_tenant, name='update-tenant'),
+    path('tenant_associated_records/<slug:building_slug>/<slug:unit_slug>/<slug:username>/', views.tenant_associated_records, name='tenant_associated_records'),
 ]

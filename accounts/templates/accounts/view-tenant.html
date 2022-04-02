@@ -96,6 +96,7 @@
                       </div>
                     </div>
                     <div class="d-grid gap-2 d-md-block">
+                      <a href="{% url 'tenant_associated_records' tenant_instance.rented_unit.building.slug tenant_instance.rented_unit.slug tenant_instance.associated_account.username %}" type="button" class="btn btn-outline-secondary" role="button">Tenant Records</a>
                       <a href="{% url 'update-tenant' tenant_instance.rented_unit.building.slug tenant_instance.associated_account.username %}" type="button" class="btn btn-outline-info" role="button">Update</a>
                     </div>
                 </div>

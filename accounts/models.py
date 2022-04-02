@@ -96,6 +96,22 @@ class Tenants(models.Model):
 
     class Meta:
         verbose_name_plural = 'Tenants'
+        
+def get_related_record_path(instance, filename):
+    return 'tenant_records/{0}/{1}'.format(instance.tenant,filename)
+        
+class RelatedRecords(models.Model):
+    tenant = models.ForeignKey(Tenants, on_delete=models.CASCADE)
+    title = models.CharField(max_length=155, null=True, blank=True)
+    file = models.FileField(upload_to=get_related_record_path)
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        verbose_name = 'Related Records'
+        verbose_name_plural = verbose_name
+    def __str__(self):
+        return f"{self.title} - {self.tenant.full_name}"    
     
     
 class UserNotifications(models.Model):
