@@ -25,6 +25,7 @@
 
     <title> House Rental Management System | {% block head_title %}{% trans "Home Page" %}{% endblock %}</title>
 
+
     <style type="text/css">
       .dropdown:hover>.dropdown-menu {
         display: block;
@@ -36,6 +37,7 @@
       </style>
       {% block extra_css %} {% endblock %}
       <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
   </head> 
   <body class="d-flex flex-column min-vh-100" style="background-color: #dfe8da;">
     <nav class="navbar navbar-expand-lg navbar-light bg-light" aria-label="main-nav">
@@ -159,12 +161,6 @@
     {% block content %}	{% endblock content%}
 
 
-    <!-- live chat bot -->
-    
-<script id="TelegramLiveChatLoader" data-bot="81B58C84-8B5C-11EC-A9B8-05FC22E822B5" src="//livechatbot.net/assets/chat/js/loader.js"></script>
-  
-
-
 <!-- in page search -->
 <script>
   $(document).ready(function(){
@@ -184,6 +180,20 @@
     $(this).alert('close');
     });
 </script>
+
+<!--Start of Tawk.to Script-->
+<script type="text/javascript">
+  var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
+  (function(){
+  var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
+  s1.async=true;
+  s1.src='https://embed.tawk.to/625894d0b0d10b6f3e6da5a5/1g0l0al7r';
+  s1.charset='UTF-8';
+  s1.setAttribute('crossorigin','*');
+  s0.parentNode.insertBefore(s1,s0);
+  })();
+  </script>
+  <!--End of Tawk.to Script-->
 
 <!-- help contact area -->
 <div class="offcanvas offcanvas-bottom" tabindex="-1" id="contactsOffcanvas" aria-labelledby="contactsOffcanvasLabel">
@@ -216,7 +226,6 @@
   </div>
 </div>
 <!-- End help contact area -->
-
 
     <footer class="mt-auto bg-light">
       <div class="mb-3 text-center">

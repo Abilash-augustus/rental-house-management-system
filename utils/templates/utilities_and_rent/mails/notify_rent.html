@@ -309,28 +309,65 @@
         }
  
       }
+	  /*FOOTER*/
+
+.footer{
+	border-top: 1px solid rgba(0,0,0,.05);
+	color: rgba(0,0,0,.5);
+}
+.footer .heading{
+	color: #000;
+	font-size: 20px;
+}
+.footer ul{
+	margin: 0;
+	padding: 0;
+}
+.footer ul li{
+	list-style: none;
+	margin-bottom: 10px;
+}
+.footer ul li a{
+	color: rgba(0,0,0,1);
+}
+
+
+@media screen and (max-width: 500px) {
+
+
+}
 
     </style>
   </head>
   <body>
       {% load humanize %}
     <span class="preheader"> RENT UPDATE FOR {{notify.get_pay_for_month_display}} {{current_year}} </span>
-    <table role="presentation" border="0" cellpadding="0" cellspacing="0" class="body">
+    <table class="body">
+		<caption></caption>
+		<th scope="col"></th>
       <tr>
         <td>&nbsp;</td>
         <td class="container">
           <div class="content">
 
             <!-- START CENTERED WHITE CONTAINER -->
-            <table role="presentation" class="main">
+            <table class="main">
+				<caption> </caption>
+				<th scope="col"></th>
 
               <!-- START MAIN CONTENT AREA -->
               <tr>
                 <td class="wrapper">
-                  <table role="presentation" border="0" cellpadding="0" cellspacing="0">
+                  <table>
+					  <caption> </caption>
+					  <th scope="col"></th>
                     <tr>
                       <td>
                         <p>Hi {{notify.tenant.full_name}},</p>
+						<p> Building: {{building.name}}</p>
+						<p> House Number: {{notify.unit.unit_number}} </p>
+
+						<p> You have a rent payment update for {{notify.get_pay_for_month_display}} {{current_year}}</p>
                         <!--INVOICR START-->
                         <div class="container mt-5 mb-3">
                             <div class="row d-flex justify-content-center">
@@ -342,23 +379,21 @@
                                         <hr>
                                         <div class="table-responsive p-2">
                                             <table class="table table-borderless">
+												<caption> </caption>
+												<th scope="col"> </th>
                                                 <tbody>
                                                     <tr class="add">
                                                         <td></td>
                                                         <td></td>
                                                     </tr>
-                                                    <tr class="content">
-                                                        <td class="font-weight-bold">
-                                                            <h3> {{building.name}} </h3>
-                                                            <p> {{building.address_line}} </p>
-                                                            <p> HOUSE NUMBER: {{notify.unit.unit_number}}</p>
-                                                        </td>                                                    </tr>
                                                 </tbody>
                                             </table>
                                         </div>
                                         <hr>
                                         <div class="products p-2">
                                             <table class="table table-dark">
+												<caption></caption>
+												<th scope="col"></th>
                                                 <tbody>
                                                     <tr class="content">
                                                         <td>REF CODE: {{notify.code}}</td>
@@ -375,6 +410,8 @@
                                         <hr>
                                         <div class="products p-2">
                                             <table class="table table-borderless">
+												<caption> </caption>
+												<th scope="col"></th>
                                                 <tbody>
                                                     <tr class="add">
                                                         <td class="text-center">
@@ -390,47 +427,51 @@
                                             </table>
                                         </div>
                                         <hr>
-                                        <p>Contact Person: {{building.manager.fullname}},<br/>
-                                            <a href="tel:{{building.manager.active_phone_number}}">{{building.manager.active_phone_number}}</a>
-                                        </p>
+										<table style="margin: auto;">
+											<caption> </caption>
+											<th></th>
+											<tr>
+											<td class="bg_light footer email-section">
+											  <table>
+												  <caption> </caption>
+												  <th></th>
+												  <tr>
+												  <td style="padding-top: 20px;">
+													<table>
+														<caption></caption>
+														<th></th>
+													  <tr>
+														<td style="text-align: left; padding-left: 5px; padding-right: 5px;">
+															<h3 class="heading">Contact Info</h3>
+															<ul>                                                      <li><span class="text">{{building.address_line}}</span></a></li>
+																	  <li><span class="text">{{building.address_line}}</span></a></li>
+																	  <li><span class="text">{{building.manager.fullname}}</span></a></li>
+																	  <li><span class="text"><a href="tel:{{building.manager.active_phone_number}}">{{building.manager.active_phone_number}}</a></span></a></li>
+															</ul>
+														</td>
+													  </tr>
+													</table>
+												  </td>
+										  </tr><!-- end: tr -->
+										  <tr>
+											<td class="bg_white" style="text-align: center;">
+												<p>You can <a href="https://rentalhousemanagementsystem.herokuapp.com" style="color: rgba(0,0,0,.8);">Login here</a></p>
+											</td>
+										  </tr>
+										</table>
 
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <!--INVOICE END-->
-
                       </td>
                     </tr>
                   </table>
                 </td>
               </tr>
 
-            <!-- END MAIN CONTENT AREA -->
-            </table>
-            <!-- END CENTERED WHITE CONTAINER -->
-
-            <!-- START FOOTER -->
-            <div class="footer">
-              <table role="presentation" border="0" cellpadding="0" cellspacing="0">
-                <tr>
-                  <td class="content-block">
-                    <span class="apple-link">House Rental Management System </span>
-                  </td>
-                </tr>
-                <tr>
-                  <td class="content-block powered-by">
-                    Powered by <a href="#">Sendgrid</a>.
-                  </td>
-                </tr>
-              </table>
-            </div>
-            <!-- END FOOTER -->
-
-          </div>
-        </td>
-        <td>&nbsp;</td>
-      </tr>
-    </table>
-  </body>
-</html>
+            </table>	  
+		  </div>
+		</center>
+	  </body>
+	  </html>

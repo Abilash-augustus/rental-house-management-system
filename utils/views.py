@@ -90,7 +90,7 @@ def submit_rent_payments(request, building_slug, unit_slug, rent_code, username)
     tenant = Tenants.objects.get(rented_unit=unit, associated_account__username=username)
     rent = UnitRentDetails.objects.get(code=rent_code, tenant=tenant)
     previous_payments = RentPayment.objects.filter(tenant=tenant, tenant__rented_unit=unit, rent_details=rent)
-    mpesa_payments = MpesaOnline.objects.filter(parent=rent,tenant=tenant)
+    mpesa_payments = MpesaOnline.objects.filter(parent=rent,tenant=tenant).order_by('-created')
 
     stripe_charge_total = int(rent.rent_amount-rent.amount_paid)*100
     stripe.api_key = STRIPE_SECRET_KEY
@@ -106,7 +106,7 @@ def submit_rent_payments(request, building_slug, unit_slug, rent_code, username)
             pay_info_form.save()
             messages.success(request, 'Record submitted, update will be done once approved')
             UserNotifications.objects.create(user_id=tenant.associated_account,
-                                             message='submitted rent payment for {0}'.format(rent.paid_for_month))
+                                             message='submitted rent payment for {0}'.format(rent.pay_for_month))
             return redirect('my-rent', building_slug=building.slug, unit_slug=unit.slug, username=tenant.associated_account.username)
     else:
         pay_info_form = SubmitPaymentsForm()
