@@ -51,8 +51,3 @@ class CommsFilter(django_filters.FilterSet):
     def __init__(self, *args, **kwargs):
        super(CommsFilter, self).__init__(*args, **kwargs)
        self.filters['created'].label="Sent On"
-       
-class TenantsMailFilter(django_filters.FilterSet):
-    class Meta:
-        model = ManagerTenantCommunication
-        fields = ['ref_number','subject']

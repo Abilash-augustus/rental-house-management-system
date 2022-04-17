@@ -23,7 +23,7 @@ from utils.models import ElectricityBilling, WaterBilling
 
 from core.filters import (CommsFilter, ContactFilter, EvictionNoticeFilter,
                           MoveOutNoticeFilter, MyNoticeFilter,
-                          TenantsMailFilter, VisitFilter)
+                          VisitFilter)
 from core.forms import (CancelMoveOutForm, ContactForm, ContactReplyForm,
                         EvictionNoticeForm, FromTenantForm,
                         NewMoveOutNoticeForm, NewTenantEmailForm, UnitTourForm,
@@ -441,14 +441,22 @@ def my_mails(request,building_slug,username):
         return redirect('profile')
     else:
         tenant = Tenants.objects.get(associated_account__username=username)
-        general_mails = ManagerTenantCommunication.objects.filter(building=building,send_to_all=True,retract=False).order_by('-created')
-        my_mails = ManagerTenantCommunication.objects.filter(sent_to=tenant,retract=False).order_by('-created')
-        mails = general_mails|my_mails
-        mails_filter = TenantsMailFilter(request.GET, queryset=mails)
-        sent_mails = TenantEmails.objects.filter(sent_by=tenant,building=building).order_by('-created')
         
+        type_click = request.GET.get('type', 'inbox')
+        if 'sent' in type_click:
+            mails = TenantEmails.objects.filter(sent_by=tenant,building=building).order_by('-created')
+        elif 'inbox' in type_click:
+            general_mails = ManagerTenantCommunication.objects.filter(building=building,send_to_all=True,retract=False
+                                                                      ).annotate(dcount=Count('created')).order_by('-created')
+            my_mails = ManagerTenantCommunication.objects.filter(sent_to=tenant,retract=False
+                                                                 ).annotate(dcount=Count('created')).order_by('-created')
+            mails = general_mails|my_mails
+        else:
+            messages.info(request, 'Action forbidden!!! Redirected to inbox.')  
+            return redirect('core:my_mails', building_slug=building.slug, username=tenant.associated_account.username)
+      
     context = {
-        'mails': mails_filter,'sent_mails':sent_mails,'building':building,'tenant':tenant,
+        'mails': mails,'building':building,'tenant':tenant,
         }
     return render(request, 'core/my_email_archive_list.html', context)
 
