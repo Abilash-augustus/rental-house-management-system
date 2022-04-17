@@ -10,6 +10,7 @@ from django.contrib.auth.models import User
 from django.contrib.messages.views import SuccessMessageMixin
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import EmailMessage
+from django.core.paginator import Paginator,EmptyPage, PageNotAnInteger
 from django.db.models import Count, Sum
 from django.http import HttpResponseRedirect, JsonResponse
 from django.http.response import HttpResponse, JsonResponse
@@ -372,11 +373,22 @@ def general_communications(request,building_slug):
     building = Building.objects.get(slug=building_slug)
     communications = ManagerTenantCommunication.objects.filter(building=building).order_by('-created')
     comm_filter = CommsFilter(request.GET, queryset=communications)
+    filter_form = comm_filter.form
+    comm_filter = comm_filter.qs
+    paginator = Paginator(comm_filter, 5)
+    page = request.GET.get('page')
+    try:
+        response = paginator.page(page)
+    except PageNotAnInteger:
+        response = paginator.page(1)
+    except EmptyPage:
+        response = paginator.page(paginator.num_pages)
 
     context = {
-        'comms': comm_filter,'building': building,
+        'comms': response,'building': building,'filter_form':filter_form,
     }
     return render(request, 'core/general_comms.html', context)
+
 
 @login_required
 def new_email(request,building_slug):
@@ -444,12 +456,12 @@ def my_mails(request,building_slug,username):
         
         type_click = request.GET.get('type', 'inbox')
         if 'sent' in type_click:
-            mails = TenantEmails.objects.filter(sent_by=tenant,building=building).order_by('-created')
+            mails = TenantEmails.objects.filter(sent_by=tenant,building=building).order_by('-created')[:14]
         elif 'inbox' in type_click:
             general_mails = ManagerTenantCommunication.objects.filter(building=building,send_to_all=True,retract=False
-                                                                      ).annotate(dcount=Count('created')).order_by('-created')
+                                                                      ).annotate(dcount=Count('created')).order_by('-created')[:7]
             my_mails = ManagerTenantCommunication.objects.filter(sent_to=tenant,retract=False
-                                                                 ).annotate(dcount=Count('created')).order_by('-created')
+                                                                 ).annotate(dcount=Count('created')).order_by('-created')[:7]
             mails = general_mails|my_mails
         else:
             messages.info(request, 'Action forbidden!!! Redirected to inbox.')  
@@ -514,93 +526,7 @@ def send_email_to_manager(request,building_slug,username):
         context = {
             'building': building,'tenant':tenant,'new_mail':new_mail,
         }
-        return render(request, 'core/new_mail_to_manager.html', context)   
-    
-
-# building stats
-@login_required
-def building_stats(request,building_slug):
-    building = Building.objects.get(slug=building_slug)
-    
-    movedin_tenants = Tenants.objects.filter(rented_unit__building=building).exclude(moved_in=False).count()
-    waiting_tenants = Tenants.objects.filter(rented_unit__building=building,moved_in=False).count()
-    
-    occupied_units = RentalUnit.objects.filter(building_id=building.id,status='occupied').count()
-    un_occupied_units = RentalUnit.objects.filter(building_id=building.id).exclude(status='occupied').count()
-    
-    #move out notices
-    received_move_out_notices = MoveOutNotice.objects.filter(tenant__rented_unit__building=building,notice_status='received').count()
-    confirmed_move_out_notices = MoveOutNotice.objects.filter(tenant__rented_unit__building=building,notice_status='confirmed').count()
-    checking_move_out_notices = MoveOutNotice.objects.filter(tenant__rented_unit__building=building,notice_status='checking').count()
-    dropped_move_out_notices = MoveOutNotice.objects.filter(tenant__rented_unit__building=building,notice_status='dropped').count()
-    
-    #eviction notices
-    initiated_evictions = EvictionNotice.objects.filter(unit__building=building,eviction_status="initiated").count()
-    evicted_evictions = EvictionNotice.objects.filter(unit__building=building,eviction_status="evicted").count()
-    dropped_evictions = EvictionNotice.objects.filter(unit__building=building,eviction_status="dropped").count() 
-    
-    # unit reports
-    recieved_unit_reports =UnitReport.objects.filter(unit__building=building,status='rc').count()
-    processing_unit_reports = UnitReport.objects.filter(unit__building=building,status='pr').count()
-    resolved_unit_reports = UnitReport.objects.filter(unit__building=building,status='rs').count() 
-    dropped_unit_reports = UnitReport.objects.filter(unit__building=building,status='dr').count()
-    
-    #Complaints
-    open_complaints = Complaints.objects.filter(building=building,status='rc').count()
-    resolved_complaints = Complaints.objects.filter(building=building,status='rs').count()
-    
-    # Building tours
-    cancelled_tours = UnitTour.objects.filter(unit__building=building,visit_status="cancelled").count()
-    waiting_tours = UnitTour.objects.filter(unit__building=building,visit_status="waiting").count()
-    approved_tours = UnitTour.objects.filter(unit__building=building,visit_status="approved").count()
-    visited_tours = UnitTour.objects.filter(unit__building=building,visit_status="visited").count()
-    
-    #Utility billing
-    electric_consumption = ElectricityBilling.objects.filter(rental_unit__building=building,added__lte=datetime.datetime.today(), 
-                                                             added__gt=datetime.datetime.today()-datetime.timedelta(days=30))
-    sum_electric_consumption = electric_consumption.aggregate(Sum('units')).get('units__sum')
-    
-    water_consumption = WaterBilling.objects.filter(rental_unit__building=building,added__lte=datetime.datetime.today(), 
-                                                             added__gt=datetime.datetime.today()-datetime.timedelta(days=30))
-    sum_water_consumption = water_consumption.aggregate(Sum('units')).get('units__sum')
-    
-    context = {
-        'building':building,
-        
-        'movedin_tenants':movedin_tenants,
-        'waiting_tenants':waiting_tenants,
-        
-        'initiated_evictions':initiated_evictions,
-        'evicted_evictions':evicted_evictions,
-        'dropped_evictions':dropped_evictions,
-        
-        'received_move_out_notices':received_move_out_notices,
-        'confirmed_move_out_notices':confirmed_move_out_notices,
-        'checking_move_out_notices':checking_move_out_notices,
-        'dropped_move_out_notices':dropped_move_out_notices,
-        
-        'occupied_units':occupied_units,
-        'un_occupied_units':un_occupied_units,
-        
-        'recieved_unit_reports':recieved_unit_reports,
-        'processing_unit_reports':processing_unit_reports,
-        'resolved_unit_reports':resolved_unit_reports,
-        'dropped_unit_reports':dropped_unit_reports,
-        
-        'open_complaints':open_complaints,
-        'closed_complaints':resolved_complaints,
-        
-        'cancelled_tours':cancelled_tours,
-        'waiting_tours':waiting_tours,
-        'approved_tours':approved_tours,
-        'visited_tours':visited_tours,
-        
-        'sum_electric_consumption':sum_electric_consumption,
-        'sum_water_consumption':sum_water_consumption,
-             
-    }
-    return render(request, 'core/stats.html', context)
-
+        return render(request, 'core/new_mail_to_manager.html', context)
 
 #charts
 @login_required
@@ -654,5 +580,6 @@ def moveouts_overview(request,building_slug):
     data = {'labels': labels,'data': data}
     return JsonResponse(data)
 
+#Errors
 def custom_system_error_view(request, exception=None):
     return render(request, "500.html", {})

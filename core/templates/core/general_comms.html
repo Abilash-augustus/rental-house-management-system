@@ -31,7 +31,7 @@
 
             <h4 class="card-header text-center"> Filter </h4>
           <form method='get'>
-              {{comms.form|crispy }}
+              {{filter_form|crispy }}
               <br>
                   <div class="form-group text-center">
                       <button class="btn btn-outline-secondary" type="submit">Search</button>
@@ -60,7 +60,7 @@
                       </tr>
                     </thead>
                     <tbody id='ourTable'>
-                        {% for c in comms.qs %}
+                        {% for c in comms %}
                       <tr>
                         <th scope="row"> {{c.ref_number}} </th>
                         <td>{{ c.subject }}</td>
@@ -88,6 +88,18 @@
                     </tbody>
                 </table>
                 </div>
+
+                <div class="mx-auto">
+                  {% if comms.paginator.num_pages > 1 %}
+                      <hr>
+                      <div class="text-center">
+                          {% for pg in comms.paginator.page_range %}
+                              <a href="?page={{pg}}" class="btn btn-primary btn-sm {% if comms.number == pg %}active{% endif %}">{{pg}}</a>
+                          {% endfor %}
+                      </div>
+                  {% endif %}
+              </div>
+
               </div>
             </div>
           </div>

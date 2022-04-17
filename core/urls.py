@@ -3,6 +3,7 @@ from django.urls import path
 from core import views
 
 app_name = 'core'
+
 urlpatterns = [
     path('contact/', views.CreateContact.as_view(), name='contact'),
     path('view_contacts/', views.view_contacts, name='view_contacts'),
@@ -28,7 +29,6 @@ urlpatterns = [
     path('send_email_to_manager/<slug:building_slug>/<slug:username>/', views.send_email_to_manager, name='send_email_to_manager'),
     path('email_archive_view/view_tenant_archive/<slug:building_slug>/<slug:username>/<slug:ref_number>', views.view_tenant_archive, name='view_tenant_archive'),
     
-    path('building/<slug:building_slug>/stats/', views.building_stats, name="building_stats"),
     path('visits_overview/<slug:building_slug>/', views.visits_overview, name="visits_overview"),
     path('evictions_overview/<slug:building_slug>/', views.evictions_overview, name="evictions_overview"),
     path('moveouts_overview/<slug:building_slug>/', views.moveouts_overview, name='moveouts_overview'),

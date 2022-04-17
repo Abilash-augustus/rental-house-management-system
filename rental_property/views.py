@@ -4,6 +4,7 @@ from django.http import HttpResponse, JsonResponse
 from accounts.models import Managers, Tenants
 from complaints.models import UnitReport
 from django.contrib import messages
+from django.core.paginator import Paginator,EmptyPage, PageNotAnInteger
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.core.paginator import InvalidPage, PageNotAnInteger, Paginator
 from django.forms import modelformset_factory
@@ -82,12 +83,21 @@ def managed_building_units(request, building_slug):
     
     units = RentalUnit.objects.filter(building=building)
     units_filter = UnitsFilter(request.GET, queryset=units)
+    filter_form = units_filter.form
+    units_filter = units_filter.qs
+    
+    paginator = Paginator(units_filter, 9)
+    page = request.GET.get('page')
+    try:
+        response = paginator.page(page)
+    except PageNotAnInteger:
+        response = paginator.page(1)
+    except EmptyPage:
+        response = paginator.page(paginator.num_pages)
     total_units = units.count()
         
-    context = {'units':units_filter,'total_units':total_units, 'building':building,}
+    context = {'units':response,'total_units':total_units, 'filter_form':filter_form, 'building':building,}
     return render(request, 'rental_property/managed_building_units.html', context)
-    
-# TODO: filter buildings to a specific area
 
 @login_required
 @user_passes_test(lambda user: user.is_manager==True, login_url='profile')

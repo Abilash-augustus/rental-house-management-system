@@ -76,7 +76,7 @@
                 <a href="{% url 'add-rental-unit' building.slug %}" type="button" class="mb-2 list-group-item list-group-item-action" role="button">Add rental unit</a>
                   <h4 class="card-header text-center"> Filter Units </h4>
                 <form class="no-padding" method="get">
-                    {{units.form|crispy}}
+                    {{filter_form|crispy}}
                     <br>
                     <div class="form-group text-center">
                         <button class="btn btn-outline-secondary" type="submit">Search</button>
@@ -86,7 +86,7 @@
 
               <div class="col-sm-9">
                 <div class="row">
-                    {% for unit in units.qs %}
+                    {% for unit in units %}
                             <div class="col-md-4">
                                 <div class="card p-3 mb-2">
                                     <div class="d-flex justify-content-between">
@@ -129,9 +129,21 @@
                                 </div>
                             </div>                 
                           {% endfor %}
+
+                          <div class="mx-auto">
+                            {% if units.paginator.num_pages > 1 %}
+                                <hr>
+                                <div class="text-center">
+                                    {% for pg in units.paginator.page_range %}
+                                        <a href="?page={{pg}}" class="btn btn-primary btn-sm {% if units.number == pg %}active{% endif %}">{{pg}}</a>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
                         </div>
-            </div>
-          </div>
-        </div>
-    </section>
+                        
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+              </section>
 {% endblock %}
