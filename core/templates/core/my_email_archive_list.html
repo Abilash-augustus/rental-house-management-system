@@ -41,12 +41,12 @@
                 </li>
             </ul>
             <!-- Tab panes -->
-            <div class=>
+            <div>
                 <div class="active">
                     <div class="list-group">
                         {% for c in mails %}
                         <a href="
-                        {% if c.dcount %}
+                        {% if c.body %}
                         {% url 'core:my_archive_details' building.slug tenant.associated_account.username c.ref_number %}
                         {% else %}
                         {% url 'core:view_tenant_archive' building.slug tenant.associated_account.username c.ref_number %}
@@ -60,6 +60,10 @@
                                     <em class="badge bg-secondary">{{ c.created|naturaltime }}</em>
                             </span>
                         </a>
+                        {% empty %}
+                        <div class="bg-danger">
+                            <p class="strong"> Sorry, there's nothing to display.</p>
+                        </div>
                         {% endfor %}
                     </div>
                 </div>

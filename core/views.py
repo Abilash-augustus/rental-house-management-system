@@ -459,9 +459,9 @@ def my_mails(request,building_slug,username):
             mails = TenantEmails.objects.filter(sent_by=tenant,building=building).order_by('-created')[:14]
         elif 'inbox' in type_click:
             general_mails = ManagerTenantCommunication.objects.filter(building=building,send_to_all=True,retract=False
-                                                                      ).annotate(dcount=Count('created')).order_by('-created')[:7]
+                                                                      ).order_by('-created')[:7]
             my_mails = ManagerTenantCommunication.objects.filter(sent_to=tenant,retract=False
-                                                                 ).annotate(dcount=Count('created')).order_by('-created')[:7]
+                                                                 ).order_by('-created')[:7]
             mails = general_mails|my_mails
         else:
             messages.info(request, 'Action forbidden!!! Redirected to inbox.')  

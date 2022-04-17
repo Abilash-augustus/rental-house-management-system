@@ -33,8 +33,9 @@ class ServiceRatingAdmin(admin.ModelAdmin):
 
 @admin.register(ManagerTenantCommunication)
 class ManagerTenantCommunicationAdmin(admin.ModelAdmin):
-    list_display = ['subject','send_to_all','retract','created','updated']
+    list_display = ['ref_number','subject','send_to_all','retract','created','updated']
     list_filter = ['building','send_to_all','created']
+    search_fields = ['subject','ref_number']
     list_editable = ['retract',]
 
 @admin.register(TenantEmails)
