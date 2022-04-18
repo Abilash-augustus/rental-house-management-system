@@ -8,6 +8,7 @@ handler500 = 'core.views.custom_system_error_view'
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('', include('pwa.urls')),
     path('summernote/', include('django_summernote.urls')),
     path('accounts/', include('allauth.urls')),
     path('accounts/', include('accounts.urls')),
