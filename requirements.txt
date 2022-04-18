@@ -22,7 +22,7 @@ django-filter==21.1
 django-heroku==0.3.1
 django-multiselectfield==0.1.12
 django-phonenumber-field==6.1.0
-django-pwa==1.0.10
+git+https://github.com/shumwe/django-pwa.git
 django-slick-reporting==0.6.3
 django-summernote==0.8.20.0
 django-user-visit==0.5.1
