@@ -3,14 +3,12 @@
 
   {% load static %}
   {% load i18n %}
-  {% load pwa %}
-
   <head>
+    {% load pwa %}
     <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    {% pwa_meta_data %}
-    {% pwa_meta_script %}
+    {% progressive_web_app_meta %}
     {% block extra_head %} {% endblock %}
 
     <!-- Bootstrap 5 CSS -->

@@ -7,7 +7,6 @@ from dotenv import load_dotenv
 load_dotenv()
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-PWA_SERVICE_WORKER_PATH = os.path.join(BASE_DIR, 'static/js', 'serviceworker.js')
 SECRET_KEY = str(os.getenv('DJANGO_SECRET_KEY'))
 DEBUG = False
 
@@ -206,7 +205,7 @@ SUMMERNOTE_THEME = 'bs4'
 
 PWA_APP_NAME = 'Rental House Management System'
 PWA_APP_DESCRIPTION = "Sipmlified Utility and Rent Tracking"
-PWA_APP_THEME_COLOR = '#000000'
+PWA_APP_THEME_COLOR = '#0A0302'
 PWA_APP_BACKGROUND_COLOR = '#ffffff'
 PWA_APP_DISPLAY = 'standalone'
 PWA_APP_SCOPE = '/'
@@ -215,19 +214,19 @@ PWA_APP_START_URL = '/'
 PWA_APP_STATUS_BAR_COLOR = 'default'
 PWA_APP_ICONS = [
     {
-        'src': 'static/img/favicon-16x16.png',
-        'sizes': '160x160'
+        'src': '/static/img/android-chrome-192x192.png',
+        'sizes': '192x192'
     }
 ]
 PWA_APP_ICONS_APPLE = [
     {
-        'src': 'static/images/icon-160x160.png',
+        'src': '/static/images/my_apple_icon.png',
         'sizes': '160x160'
     }
 ]
 PWA_APP_SPLASH_SCREEN = [
     {
-        'src': 'static/img/favicon-16x16.png',
+        'src': '/static/images/icons/splash-640x1136.png',
         'media': '(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2)'
     }
 ]
