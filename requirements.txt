@@ -39,7 +39,6 @@ phonenumberslite==8.12.45
 Pillow==9.0.1
 psycopg2==2.9.3
 pycparser==2.21
-pygraphviz==1.9
 PyJWT==2.3.0
 pyparsing==3.0.7
 PyPDF3==1.0.6
